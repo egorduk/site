@@ -6,14 +6,7 @@ login:
   pattern:   /login
   defaults:  { _controller: AcmeAuthBundle:Auth:login }
 
-#login_check:
-#    path: /login_check
-
-openid_auth:
-  pattern:   /auth/openid
-  defaults:  { _controller: AcmeAuthBundle:Auth:openid }
-
-recovery_password:
+recovery_email:
   pattern:   /recovery
   defaults:  { _controller: AcmeAuthBundle:Auth:recovery }
 
@@ -21,9 +14,6 @@ confirm_password:
   pattern:   /auth/confirm
   defaults:  { _controller: AcmeAuthBundle:Auth:confirm }
 
-rules:
-  pattern:   /{type}/rules
-  defaults:  { _controller: AcmeIndexBundle:Index:rules }
 
 
 

@@ -6,6 +6,7 @@ class LoginFormValidate
 {
     public $fieldPass;
     public $fieldEmail;
+    public $fieldMode;
 
     public function __construct()
     {
@@ -25,5 +26,13 @@ class LoginFormValidate
 
     public function getEmail() {
         return $this->fieldEmail;
+    }
+
+    public function setMode($val) {
+        $this->$fieldMode = $val;
+    }
+
+    public function getMode() {
+        return $this->$fieldMode;
     }
 }

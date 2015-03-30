@@ -40,50 +40,65 @@ class AuthController extends Controller
     public function loginAction(Request $request)
     {
         if (!$this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
+            $publicKeyRecaptcha = $this->container->getParameter('publicKeyRecaptcha');
+            $captcha = recaptcha_get_html($publicKeyRecaptcha);
             $loginValidate = new LoginFormValidate();
             $formLogin = $this->createForm(new LoginForm(), $loginValidate);
             $formLogin->handleRequest($request);
-            $socialToken = $request->request->get('token');
             $errorData = "";
-            if (isset($socialToken) && $socialToken != null) {
-                $session = $request->getSession();
-                $session->set('socialToken', $socialToken);
-                $session->save();
-                return new RedirectResponse($this->generateUrl('openid_auth'));
-            }
+            $captchaError = "";
+            $formRecovery = $this->createForm(new RecoveryForm());
+            $formRecovery->handleRequest($request);
             if ($request->isMethod('POST')) {
                 if ($formLogin->get('enter')->isClicked()) {
                     if ($formLogin->isValid()) {
-                        $postData = $request->request->get('formLogin');
-                        $userEmail = $postData['fieldEmail'];
-                        $userPassword = $postData['fieldPass'];
-                        $user = Helper::getUserByEmailAndIsConfirm($userEmail);
-                        if (!$user) {
-                            $errorData = "Введен неправильный Email или пароль";
-                        } else {
-                            $encodedPassword = Helper::getUserPassword($userPassword, $user->getSalt());
-                            if (!StringUtils::equals($encodedPassword, $user->getPassword())) {
+                        var_dump($request->request->get('formLogin'));die;
+                        $privateKeyRecaptcha = $this->container->getParameter('privateKeyRecaptcha');
+                        $resp = recaptcha_check_answer($privateKeyRecaptcha, $_SERVER["REMOTE_ADDR"], $request->request->get('recaptcha_challenge_field'), $request->request->get('recaptcha_response_field'));
+                        if ($resp->is_valid) {
+                            $postData = $request->request->get('formLogin');
+                            $userEmail = $postData['fieldEmail'];
+                            $userPassword = $postData['fieldPass'];
+                            $user = Helper::getUserByEmailAndIsConfirm($userEmail);
+                            if (!$user) {
                                 $errorData = "Введен неправильный Email или пароль";
                             } else {
-                                $roleCode = $user->getUserRole()->getCode();
-                                if ($roleCode == 'author') {
-                                    $role = 'ROLE_AUTHOR';
-                                } elseif ($roleCode == 'client') {
-                                    $role = 'ROLE_CLIENT';
-                                }
-                                $token = new UsernamePasswordToken($user, null, 'secured_area', array($role));
-                                $this->get('security.context')->setToken($token);
-                                if ($role == 'ROLE_AUTHOR') {
-                                    return new RedirectResponse($this->generateUrl('secure_author_index'));
-                                } elseif ($role == 'ROLE_CLIENT') {
-                                    return new RedirectResponse($this->generateUrl('secure_client_index'));
+                                $encodedPassword = Helper::getUserPassword($userPassword, $user->getSalt());
+                                if (!StringUtils::equals($encodedPassword, $user->getPassword())) {
+                                    $errorData = "Введен неправильный Email или пароль";
+                                } else {
+                                    $roleCode = $user->getUserRole()->getCode();
+                                    if ($roleCode == 'author') {
+                                        $role = 'ROLE_AUTHOR';
+                                    } elseif ($roleCode == 'client') {
+                                        $role = 'ROLE_CLIENT';
+                                    }
+                                    $token = new UsernamePasswordToken($user, null, 'secured_area', array($role));
+                                    $this->get('security.context')->setToken($token);
+                                    if ($role == 'ROLE_AUTHOR') {
+                                        return new RedirectResponse($this->generateUrl('secure_author_index'));
+                                    } elseif ($role == 'ROLE_CLIENT') {
+                                        return new RedirectResponse($this->generateUrl('secure_client_index'));
+                                    }
                                 }
                             }
+                        } else {
+                            $captchaError = $resp->error;
                         }
+                    }
+                } elseif ($formRecovery->get('recovery')->isClicked()) {
+                    if ($formRecovery->isValid()) {
+                        $postData = $request->request->get('formRecovery');
+                        var_dump($postData);die;
+                        /*$userEmail = $postData['fieldEmail'];
+                        $user = Helper::generateNewPassForRecovery($userEmail);
+                        if ($user) {
+                            Helper::sendRecoveryPasswordMail($this->container, $user);
+                        }*/
                     }
                 }
             }
-            return array('formLogin' => $formLogin->createView(), 'errorData' => $errorData);
+            return array('formLogin' => $formLogin->createView(), 'errorData' => $errorData, 'captcha' => $captcha, 'captchaError' => $captchaError, 'formRecovery' => $formRecovery->createView());
         } else {
         }
     }
@@ -163,7 +178,6 @@ class AuthController extends Controller
      */
     public function regAction(Request $request, $type)
     {
-        $showWindow = false;
         $captchaError = "";
         if ($type == "client") {
             $clientValidate = new ClientRegFormValidate();
@@ -211,60 +225,6 @@ class AuthController extends Controller
             }
             return $this->render(
                 'AcmeAuthBundle:Client:reg.html.twig', array('formReg' => $formReg->createView(), 'captcha' => $captcha, 'captchaError' => $captchaError, 'showWindow' => $showWindow)
-            );
-        }
-        elseif ($type == "author") {
-            $authorValidate = new AuthorRegFormValidate();
-            $formReg = $this->createForm(new AuthorRegForm(), $authorValidate);
-            $formReg->handleRequest($request);
-            $publicKeyRecaptcha = $this->container->getParameter('publicKeyRecaptcha');
-            $captcha = recaptcha_get_html($publicKeyRecaptcha);
-            if ($request->isMethod('POST')) {
-                if ($formReg->get('reg')->isClicked()) {
-                    $privateKeyRecaptcha = $this->container->getParameter('privateKeyRecaptcha');
-                    $resp = recaptcha_check_answer($privateKeyRecaptcha, $_SERVER["REMOTE_ADDR"], $request->request->get('recaptcha_challenge_field'), $request->request->get('recaptcha_response_field'));
-                    if ($formReg->isValid()) {
-                        if ($resp->is_valid) {
-                            $postData = $request->request->get('formReg');
-                            $userLogin = $postData['fieldLogin'];
-                            $userPassword = $postData['fieldPass'];
-                            $userEmail = $postData['fieldEmail'];
-                            $userMobilePhone = $postData['fieldMobilePhone'];
-                            $userSkype = $postData['fieldSkype'];
-                            $userIcq = $postData['fieldIcq'];
-                            $userCountryCode = $postData['selectorCountry'];
-                            $userInfo = new UserInfo();
-                            $userInfo->setSkype($userSkype);
-                            $userInfo->setIcq($userIcq);
-                            $userInfo->setMobilePhone($userMobilePhone);
-                            //$countryCode = geoip_country_code_by_name($_SERVER["REMOTE_ADDR"]);
-                            $country = Helper::getCountryByCode($userCountryCode);
-                            $userInfo->setCountry($country);
-                            Helper::addNewUserInfo($userInfo);
-                            $user = new User();
-                            $user->setLogin($userLogin);
-                            $user->setEmail($userEmail);
-                            $role = Helper::getUserRoleByRoleId(1);
-                            $user->setUserRole($role);
-                            $salt = Helper::getSalt();
-                            $password = Helper::getRegPassword($userPassword, $salt);
-                            $user->setPassword($password);
-                            $user->setSalt($salt);
-                            $hashCode = Helper::getRandomValue(15);
-                            $user->setHash($hashCode);
-                            $user->setUserInfo($userInfo);
-                            $user = Helper::addNewUser($user);
-                            Helper::sendConfirmationReg($this->container, $user);
-                            $showWindow = true;
-                        }
-                        else {
-                            $captchaError = $resp->error;
-                        }
-                    }
-                }
-            }
-            return $this->render(
-                'AcmeAuthBundle:Author:reg.html.twig', array('formReg' => $formReg->createView(), 'captcha' => $captcha, 'captchaError' => $captchaError, 'showWindow' => $showWindow)
             );
         }
         else {
@@ -418,24 +378,24 @@ class AuthController extends Controller
         $isCorrectUrl = Helper::isCorrectConfirmUrl($hashCode, $userId, $type);
         $showSuccessWindow = false;
         if ($isCorrectUrl) {
-                if ($type == "reg") {
-                    $isExistsUser = Helper::isExistsUserByHashAndByIdAndIsConfirm($userId, $hashCode, 0);
-                    if ($isExistsUser) {
-                        $isSuccess = Helper::updateUserAfterConfirmByMail($userId, $hashCode, $type);
-                        if ($isSuccess) {
-                            $showSuccessWindow = true;
-                        }
+            if ($type == "reg") {
+                $isExistsUser = Helper::isExistsUserByHashAndByIdAndIsConfirm($userId, $hashCode, 0);
+                if ($isExistsUser) {
+                    $isSuccess = Helper::updateUserAfterConfirmByMail($userId, $hashCode, $type);
+                    if ($isSuccess) {
+                        $showSuccessWindow = true;
                     }
                 }
-                elseif ($type == "rec") {
-                    $isExistsUser = Helper::isExistsUserByHashAndByIdAndIsConfirm($userId, $hashCode, 1);
-                    if ($isExistsUser) {
-                        $isSuccess = Helper::updateUserAfterConfirmByMail($userId, $hashCode, $type);
-                        if ($isSuccess) {
-                            $showSuccessWindow = true;
-                        }
+            }
+            elseif ($type == "rec") {
+                $isExistsUser = Helper::isExistsUserByHashAndByIdAndIsConfirm($userId, $hashCode, 1);
+                if ($isExistsUser) {
+                    $isSuccess = Helper::updateUserAfterConfirmByMail($userId, $hashCode, $type);
+                    if ($isSuccess) {
+                        $showSuccessWindow = true;
                     }
                 }
+            }
         }
         return array('showSuccessWindow' => $showSuccessWindow);
     }
