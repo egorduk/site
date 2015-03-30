@@ -1,0 +1,160 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+
+framework:
+    validation:
+        enabled: true
+        enable_annotations: true
+        cache: ~
+        translation_domain: validators
+    #esi:             ~
+    #translator:      { fallback: "%locale%" }
+    secret:          "%secret%"
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: ~
+    form:
+        enabled:  true
+        csrf_protection:
+            enabled:  true
+            field_name: ~
+    csrf_protection:  true
+    templating:
+        engines: ['twig']
+        cache: false
+    default_locale:  "%locale%"
+    trusted_hosts:   ~
+    trusted_proxies: ~
+    #charset:  UTF-8
+    session:
+        cookie_lifetime: ~ #crsf msg view then more low
+        gc_maxlifetime: ~
+        storage_id: session.storage.native
+        handler_id: session.handler.native_file
+        save_path: "%kernel.cache_dir%/sessions"
+    fragments:       ~
+    http_method_override: true
+    #serializer:
+    #    enabled: false
+    annotations:
+        cache:  file
+        file_cache_dir: "%kernel.cache_dir%/annotations"
+        debug: "%kernel.debug%"
+    #profiler:
+            #collect: false
+
+services:
+    cache:
+        class: Doctrine\Common\Cache\ApcCache
+        #save_path: "%kernel.cache_dir%/apc"
+
+# Twig Configuration
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"
+    cache: false
+
+# Assetic Configuration
+assetic:
+    debug:          "%kernel.debug%"
+    use_controller: true
+    #bundles:
+    #   -  AcmeIndexBundle
+    #   -  AcmeAuthBundle
+    #   -  AcmeSecureBundle
+
+    #java: /usr/bin/java
+    filters:
+        cssrewrite: ~
+        #closure:
+        #    jar: "%kernel.root_dir%/Resources/java/compiler.jar"
+        #yui_css:
+        #    jar: "%kernel.root_dir%/Resources/java/yuicompressor-2.4.7.jar"
+    assets:
+        jquery_and_script:
+            inputs:
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver:   "%database_driver%"
+        host:     "%database_host%"
+        port:     "%database_port%"
+        dbname:   "%database_name%"
+        user:     "%database_user%"
+        password: "%database_password%"
+        charset:  UTF8
+        #mapping_types:
+        #              bit: boolean
+        # if using pdo_sqlite as your database driver, add the path in parameters.yml
+        # e.g. database_path: "%kernel.root_dir%/data/data.db3"
+        # path:     "%database_path%"
+
+    orm:
+        auto_generate_proxy_classes: "%kernel.debug%"
+        auto_mapping: true
+        #mappings:
+        #    AcmeAuthBundle: ~
+        #metadata_cache_driver: apc
+        #query_cache_driver: apc
+        #result_cache_driver: apc
+        #  type: memcache
+        #  host: 127.0.0.1
+        #  port: 11211
+        #  class: Doctrine\Common\Cache\MemcacheCache
+        #  instance_class: Memcache
+        #mappings:
+        #            FOSUserBundle: ~
+        #            AcmeAuthBundle:  ~
+
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport:  gmail
+    #encryption: ssl
+    auth_mode:  login
+    host:       smtp.gmail.com
+    #host: ~
+    username:  egordukk@tut.by
+    password:  rezistor
+    #transport: "%mailer_transport%"
+    #host:      "%mailer_host%"
+    #username:  "%mailer_user%"
+    #password:  "%mailer_password%"
+    #spool:     { type: memory }
+    spool:
+       type: file
+       path: "%kernel.root_dir%/spool"
+    #encryption: ssl
+    #disable_delivery: false #true if off mail send
+    #sender_address:
+    #spool:
+    #    type:   file
+    #    path:   "%kernel.cache_dir%/swiftmailer/spool"
+
+genemu_form:
+    select2: ~
+    tinymce:
+        enabled: true
+        script_url: '/web/bundles/js/tinymce/tinymce.min.js'
+        configs:
+            entity_encoding: raw
+
+#winzou_cache:
+    #options:
+        #cache_dir: "%kernel.cache_dir%/winzou"
+        #default_driver: apc
+
+#knp_snappy:
+#    pdf:
+#        enabled:    true
+#        binary:     C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf
+#        options:    []
+#    image:
+#        enabled:    true
+#        binary:     /usr/local/bin/wkhtmltoimage
+#        options:    []
+#white_october_tcpdf:
+#    tcpdf:
+#        k_tcpdf_external_config: false

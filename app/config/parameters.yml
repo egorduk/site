@@ -1,0 +1,20 @@
+# This file is auto-generated during the composer install
+parameters:
+    database_driver: pdo_mysql
+    database_host: 127.0.0.1
+    database_port: null
+    database_name: study
+    database_user: root
+    database_password: null
+    locale: ru_RU
+    secret: 6LcYmecSAAAAAJlYNqogbOXJVMvGgim5JoegorLcYmecSAAAAANaq8JFPxT3xEA_urO6st1gfVOXL
+    mail_sender: egorduk@yandex.com
+    mail_title: Study
+doctrine:
+    dbal:
+        driver: '%database_driver%'
+        host: '%database_host%'
+        dbname: '%database_name%'
+        user: '%database_user%'
+        password: '%database_password%'
+        charset: UTF-8

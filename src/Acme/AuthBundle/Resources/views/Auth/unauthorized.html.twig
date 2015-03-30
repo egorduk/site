@@ -1,0 +1,9 @@
+{% extends "AcmeAuthBundle::layout.html.twig" %}
+    {% block content %}
+        <div class="container">
+            <div class="row">
+                <p>Доступ запрещен!</p>
+                <p><a href="{{ path('login') }}">Зайдите</a> в систему либо пройдите регистрацию</p>
+            </div>
+        </div>
+    {% endblock %}

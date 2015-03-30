@@ -1,0 +1,43 @@
+Acme\AuthBundle\Entity\ClientRegFormValidate:
+    properties:
+        fieldLogin:
+          - Length: { min: 5, minMessage: "Слишком короткий логин!" }
+          - Regex: { pattern: "/^[a-zA-Z]+$/u", message: "Только латинские буквы!" }
+          - NotBlank: { message: "Введите логин!" }
+        fieldPass:
+          - Length: { min: 5, minMessage: "Слишком короткий пароль!" }
+          - Regex: { pattern: "/^[a-zA-Z0-9]+$/u", message: "Только латинские буквы и цифры!" }
+          - NotBlank: { message: "Введите пароль!" }
+        fieldEmail:
+          - Email: { message: "Указана неверная почта!", checkMX: false }
+          - NotBlank: { message: "Введите почту!" }
+
+Acme\AuthBundle\Entity\AuthorRegFormValidate:
+    properties:
+        fieldMobilePhone:
+          - Length: { min: 7, minMessage: "Слишком короткий номер!" }
+          - Regex: { pattern: "/^((8|\+7|\+375)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,14}$/", message: "Некорректный номер!" }
+        fieldIcq:
+          - Length: { min: 6, minMessage: "Слишком короткий номер!" }
+          - Regex: { pattern: "/^[\d]+$/", message: "Только цифры!" }
+        fieldUsername:
+          - Length: { min: 1, minMessage: "Слишком короткое имя!" }
+          - Regex: { pattern: "/^[а-яА-Я]+$/u", message: "Только русские буквы!" }
+        fieldSurname:
+          - Length: { min: 1, minMessage: "Слишком короткая фамилия!" }
+          - Regex: { pattern: "/^[а-яА-Я]+$/u", message: "Только русские буквы!" }
+        fieldLastname:
+          - Length: { min: 1, minMessage: "Слишком короткое отчество!" }
+          - Regex: { pattern: "/^[а-яА-Я]+$/u", message: "Только русские буквы!" }
+
+Acme\AuthBundle\Entity\LoginFormValidate:
+    properties:
+        fieldEmail:
+          - Email: { message: "Указана неверная почта!", checkMX: false }
+          - Length: {max: 25, maxMessage: "Слишком длинная почта!" }
+          - NotBlank: { message: "Введите почту!" }
+        fieldPass:
+          - Length: { min: 5, max: 10, minMessage: "Слишком короткий пароль!", maxMessage: "Слишком длинный пароль!" }
+          - Regex: { pattern: "/^[a-zA-Z0-9]+$/u", message: "Только латинские буквы и цифры!" }
+          - NotBlank: { message: "Введите пароль!" }
+

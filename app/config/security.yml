@@ -1,0 +1,84 @@
+security:
+    #access_denied_url: ~
+    #always_authenticate_before_granting: true
+    firewalls:
+        #secure:
+        #    access_denied_url: /unauthorized
+        #    pattern:  ^/
+        #    anonymous: ~
+        #    security: true
+
+        #test:
+         #   access_denied_url: /unauthorized
+            #provider: user_db
+          #  pattern:    ^/secure/client/$
+           # anonymous: ~
+            #user: true
+            #security: true
+            #http_basic: ~
+            #    realm: "Secured Demo Area"
+            #    provider: user_db
+
+
+        secured_area:
+            pattern:  ^/
+            anonymous: ~
+            form_login:
+               login_path: unauthorized
+            http_basic:
+                realm: "Secured Area"
+                #provider: user_db
+                #provider: in_memory
+            logout:
+                path:   /logout
+                target: login
+                #invalidate_session: true
+            #security: true
+            #form_login:
+                #login_path: login
+                #check_path: login
+            #form_reg:
+            #    login_path: client_reg
+    #acl:
+    #    connection: default
+
+    #access_decision_manager:
+    #    strategy: unanimous
+
+    access_control:
+       # - { path: ^/client/reg, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+       # - { path: ^/client/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/index, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/recovery, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/auth/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/client/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/author/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        - { path: ^/secure/author/*, roles: ROLE_AUTHOR } #ROLE_CLIENT
+        #- { path: ^/secure/client/*, roles: ROLE_CLIENT } #ROLE_CLIENT
+        #- { path: ^/secure/client/.*/info, roles: ROLE_AUTHOR }
+        #- { path: ^/secure/client/.*/info, roles: ROLE_CLIENT }
+        #- { path: ^/secure/client/.*, roles: ROLE_CLIENT }
+        #- { path: ^/secure/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+    encoders:
+        Acme\AuthBundle\Entity\User:
+            { algorithm: sha512, encode-as-base64: true, iterations: 10 }
+
+    providers:
+           user_db:
+           #user:
+                #id: user_provider
+                #entity: { class: Acme\AuthBundle\Entity\User, property: email }
+                entity: { class: AcmeAuthBundle:User }
+           #in_memory:
+           #   memory:
+           #       users:
+           #         foo: { password: test }
+
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_ADMIN
+        ROLE_CLIENT: ROLE_CLIENT
+        ROLE_AUTHOR: ROLE_AUTHOR
+        #ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]

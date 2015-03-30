@@ -1,0 +1,11 @@
+/app/logs/*
+
+/app/cache/*
+
+.idea/
+.idea
+/.idea
+
+/app/spool/*
+
+/web/uploads/*

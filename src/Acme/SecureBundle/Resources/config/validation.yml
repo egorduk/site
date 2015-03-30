@@ -1,0 +1,96 @@
+Acme\SecureBundle\Entity\Client\ClientProfileFormValidate:
+    properties:
+        fieldMobilePhone:
+          - Length: { min: 7, minMessage: "Слишком короткий номер!", max: 17, maxMessage: "Слишком много символов!" }
+          - Regex: { pattern: "/^((8|\+7|\+375)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,17}$/", message: "Некорректный номер!" }
+          - NotBlank: { message: "Введите номер телефона!" }
+        fieldStaticPhone:
+          - Length: { min: 7, minMessage: "Слишком короткий номер!", max: 17, maxMessage: "Слишком много символов!" }
+          - Regex: { pattern: "/^((8|\+7|\+375)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,17}$/", message: "Некорректный номер!" }
+        fieldIcq:
+          - Length: { min: 6, minMessage: "Слишком короткий номер!", max: 10, maxMessage: "Слишком много символов!" }
+          - Regex: { pattern: "/^[\d]+$/", message: "Только цифры!" }
+        fieldSkype:
+          - Length: { min: 1, minMessage: "Слишком мало символов!", max: 20, maxMessage: "Слишком много символов!" }
+        fieldUsername:
+          - NotBlank: { message: "Введите имя!" }
+          - Length: { min: 3, minMessage: "Слишком короткое имя!", max: 20, maxMessage: "Слишком много символов!" }
+          - Regex: { pattern: "/^[а-яА-Я]+$/u", message: "Только русские буквы!" }
+        fieldSurname:
+          - NotBlank: { message: "Введите фамилию!" }
+          - Length: { min: 3, minMessage: "Слишком короткая фамилия!", max: 20, maxMessage: "Слишком много символов!" }
+          - Regex: { pattern: "/^[а-яА-Я]+$/u", message: "Только русские буквы!" }
+        fieldLastname:
+          - NotBlank: { message: "Введите отчество!!" }
+          - Length: { min: 3, minMessage: "Слишком короткое отчество!", max: 20, maxMessage: "Слишком много символов!" }
+          - Regex: { pattern: "/^[а-яА-Я]+$/u", message: "Только русские буквы!" }
+
+Acme\SecureBundle\Entity\Client\CreateOrderFormValidate:
+    properties:
+        fieldTheme:
+          - Length: { min: 4, minMessage: "Слишком короткое название темы!" }
+          - Regex: { pattern: "/^[a-zA-Zа-яА-Я-+()\s+\d]+$/u", message: "Только русские буквы!" }
+          - NotBlank: { message: "Введите тему!!" }
+        fieldOriginality:
+          - Regex: { pattern: "/^[\d]+$/", message: "Только цифры!" }
+          - GreaterThan: { value: 0, message: "Процент не может быть меньше 0!" }
+          - LessThan: { value: 101, message: "Процент не может быть больше 100!" }
+        fieldCountSheet:
+          - Regex: { pattern: "/^[\d]+$/", message: "Только цифры!" }
+          - GreaterThan: { value: 0, message: "Количество страниц не может быть меньше 0!" }
+          - LessThan: { value: 501, message: "Количество страниц не может быть больше 500!" }
+        #fieldTask:
+        #  - Length: { min: 6, minMessage: "Слишком короткое описание!" }
+          #- Regex: { pattern: "/^[\d]+$/", message: "Введите корректное описание!" }
+        #fieldDescribe:
+        #  - Length: { min: 3, minMessage: "Слишком короткое название темы!" }
+        #  - Regex: { pattern: "/^[а-яА-Я]+$/u", message: "Только русские буквы!" }
+
+Acme\SecureBundle\Entity\Author\BidFormValidate:
+    properties:
+        fieldSum:
+          - Length: { min: 1, minMessage: "Слишком маленькая сумма!", max: 7, maxMessage: "Слишком большая сумма!" }
+          #- Regex: { pattern: "/^[\d]+$/u", message: "Только цифры!" }
+          - Regex: { pattern: "/^[\d\s]+$/u", message: "Только цифры!" }
+          - NotBlank: { message: "Введите сумму!" }
+        fieldDay:
+          - Regex: { pattern: "/^[\d]+$/", message: "Только цифры!" }
+          - Length: { max: 3, maxMessage: "Слишком много символов!" }
+          #- NotBlank: { message: "Введите количество дней!" }
+        fieldComment:
+           #- Regex: { pattern: "/^[A-Za-zА-Яа-я\d]+$/", message: "Только буквы и цифры!" }
+           - Length: {max: 150, maxMessage: "Слишком много символов!" }
+
+Acme\SecureBundle\Entity\Author\CreatePsFormValidate:
+    properties:
+        fieldNum:
+          - Length: { min: 6, max: 20, maxMessage: "Слишком много цифр!", minMessage: "Слишком мало цифр!" }
+          - Regex: { pattern: "/^[\d]+$/u", message: "Только цифры!" }
+          - NotBlank: { message: "Введите номер кошелька!" }
+        fieldName:
+          - Length: { max: 20, maxMessage: "Слишком много символов!!" }
+        #fieldType:
+        #  - NotBlank: { message: "Ошибка!" }
+        #fieldHiddenPsId:
+        #  - NotBlank: { message: "Ошибка!" }
+
+Acme\SecureBundle\Entity\CancelRequestFormValidate:
+    properties:
+        fieldComment:
+          - Length: { max: 255, maxMessage: "Слишком много символов!" }
+
+#Acme\SecureBundle\Entity\Author\MailOptionsFormValidate:
+#    properties:
+#        fieldOptions:
+#          - NotBlank: { message: "Ошибка!" }
+#          - NotNull: ~
+#          - Valid: ~
+
+Acme\SecureBundle\Entity\Author\OutputPsFormValidate:
+    properties:
+        fieldSum:
+          - Length: { min: 3, max: 7, maxMessage: "Слишком большая сумма!", minMessage: "Сумма должна быть больше!" }
+          - Regex: { pattern: "/^[\d\s]+$/u", message: "Только цифры!" }
+          - NotBlank: { message: "Введите сумму!" }
+        fieldComment:
+          - Length: { max: 50, maxMessage: "Слишком много символов!" }

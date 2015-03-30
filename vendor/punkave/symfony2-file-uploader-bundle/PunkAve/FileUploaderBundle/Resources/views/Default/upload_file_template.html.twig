@@ -1,0 +1,35 @@
+{% spaceless %}
+    <script type="text/template" id="file-uploader-template">
+        <div class="uploader" data-dropzone="1" style="margin-top: 10px; margin-bottom: 10px">
+            <div class="controls" style="margin-bottom: 20px">
+                <div id="files-preview"></div>
+                <div class="input-group form-group">
+                    <label for='btn-view'><span class="icon-folder-open-1 btn btn-primary">&nbspОбзор</span></label>
+                    <input type="file" data-files="1" class="hidden" id='btn-view' multiple style="color: white"/>
+                    <div id="block-btn-upload" style="display: none">
+                        <label for='btn-upload'><span class="icon-upload btn btn-primary">&nbspЗагрузить</span></label>
+                        <input type="button" id="btn-upload" class="hidden"/>
+                    </div>
+                </div>
+      <span class="spinner" data-spinner="1" style="display: none">
+        <img src="{{ asset('bundles/punkavefileuploader/images/spinner.gif') }}" /> Загрузка...
+      </span>
+            </div>
+            <p id='a'></p>
+            <ul class="thumbnails" data-thumbnails="1"></ul>
+        </div>
+    </script>
+    <script type="text/template" id="file-uploader-file-template">
+        <li data-name="<%- name %>" class="thumbnail">
+            <% if ('undefined' != typeof thumbnail_url) { %>
+            <a href="<%- url %>" target="download" class="download-file"><img src="<%- thumbnail_url %>" class="thumbnail-image" alt="thumbnail"/></a>
+            <% } %>
+            <div class="caption">
+                <span class="filename"><%- name %></span>
+                <p class="file-attr">Размер:<%- size %></p>
+                <p class="file-attr">Загружен:<%- date_upload %></p>
+                <a rel="tooltip" title="Скачать" data-title='Скачать' data-toggle='tooltip' data-placement='left' onmouseover="$(this).tooltip('show')" class="download thumbnail-action btn" target="download" href="<%- url %>"><i class="icon-download"></i></a>
+            </div>
+        </li>
+    </script>
+{% endspaceless %}

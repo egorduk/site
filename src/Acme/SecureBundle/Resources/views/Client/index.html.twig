@@ -1,0 +1,141 @@
+{% extends "AcmeSecureBundle::layout_client.html.twig" %}
+    {% block title "Домашняя страница заказчика" %}
+    {% block content %}
+        <link rel="stylesheet" href="{{ asset('bundles/css/jqgrid/custom-theme1/jquery-ui-1.10.3.custom.min.css') }}" />
+        <link rel="stylesheet" href="{{ asset('bundles/css/jqgrid/ui.jqgrid.css') }}" />
+        <link rel="stylesheet" href="{{ asset('bundles/css/modal_window/jquery.alert.css') }}" />
+        <script type="text/javascript" src="{{ asset('bundles/js/jquery.cookie.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('bundles/js/sound/ion.sound.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('bundles/js/modal_window/jquery.alert.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('bundles/js/jquery.cookie.js') }}"></script>
+        <script src="http://localhost:8008/socket.io/socket.io.js" defer></script>
+        <style>
+            .close {
+                opacity: 1;
+            }
+            #leftMenu {
+                display: none;
+            }
+            #messages-wrap {
+                width: 300px;
+                border: 1px solid #000000;
+            }
+            #messages-wrap .message-wrap {
+                border: 1px solid #000000;
+            }
+            #messages-wrap .message-user {
+                color: green;
+            }
+            #messages-wrap .message-system {
+                color: red;
+            }
+            #messages-wrap .message-close {
+                height: 20px;
+            }
+        </style>
+        <div class="container">
+            <div class="row">
+                <!--<div class="col-xs-4">
+                    <div id="">{{ user.avatar | raw }}</div>
+                    <p>{{ user.login }}</p>
+                    <hr style="border:solid 1px black">
+                    <p>Ваш ID - {{ user.id }}</p>
+                    <hr style="border:solid 1px black">
+                    <p>Ваш баланс: {{ user.account }} руб.</p>
+                    <hr style="border:solid 1px black">
+                    <p>Ваш статус - {{ user.userrole.name }}</p>
+                    <hr style="border:solid 1px black">
+                    <p>Вход в систему - {{ whenLogin }}</p>
+                    <hr style="border:solid 1px black">
+                    <p>Осталось в системе - {{ remainingTime }}</p>
+                </div>-->
+            </div>
+            <div class="row">
+                <div class="col-xs-2">
+                    <div id="messages-wrap"></div>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function() {
+                var userLogin = '{{ user.login }}',
+                        userId = {{ user.id }},
+                        token = '{{ obj.token }}',
+                        message;
+                try {
+                    var socket = io.connect('http://localhost:8008', { 'forceNew': true });
+                } catch(e) {
+                    //systemMsg('system', "Server off " + e);
+                    return;
+                }
+                var messages = $("#messages-wrap"), countRows = 0;
+                socket.on("connect", function() {
+                    this.emit("join to channel messages", { channel: userId, userLogin: userLogin, token: token })
+                            .emit("request get new messages from db")
+                            .on("response get new messages from db", function(data) {
+                                var newMessage;
+                                for (var key in data) {
+                                    if (data[key].userId != 17) {
+                                        newMessage = generateUserMessage(data[key]);
+                                    } else {
+                                        newMessage = generateSystemMessage(data[key]);
+                                    }
+                                    messages.append(newMessage).scrollTop(messages[0].scrollHeight);
+                                    countRows++;
+                                }
+                                $("#count-messages").remove();
+                                messages.before('<p id="count-messages">Count: ' + countRows + '</p>');
+                            })
+                }).on("response get new message from client", function(data) {
+                    //console.log(data);
+                    var newMessage;
+                    if (data.userId != 17) {
+                        newMessage = generateUserMessage(data);
+                    } else {
+                        newMessage = generateSystemMessage(data);
+                    }
+                    messages.append(newMessage).scrollTop(messages[0].scrollHeight);
+                    countRows++;
+                    $("#count-messages").remove();
+                    messages.before('<p id="count-messages">Count: ' + countRows + '</p>');
+                }).on("response read message", function() {
+                    countRows--;
+                    $("#count-messages").remove();
+                    messages.before('<p id="count-messages">Count: ' + countRows + '</p>');
+                    message.fadeOut();
+                });
+
+                messages.on('click', '.message-close .close', function(e) {
+                    message = $(this).parent().parent();
+                    var messageId = message.attr('data-id');
+                    socket.emit("request read message", {messageId: messageId});
+                });
+
+                function cutSentence(a) {
+                    return a.replace(/^(.{50}[^\s]*).*/, "$1") + '...';
+                }
+
+                function generateUserMessage(a) {
+                    var m = '<div class="message-wrap message-user" data-id="' + a.messageId + '">' +
+                            '<p class="order-num"><a href="../client/order/' + a.orderNum + '">Заказ № ' + a.orderNum + '</a></p> ' +
+                            '<p class="user">' + a.userLogin + ':</p> ' +
+                            '<div class="message-text">' + cutSentence(a.message) + '</div>' +
+                            '<p class="date">' + a.dateWrite + '</p>' +
+                            '<p class="message-close"><span class="close">&times;</span></p>' +
+                            '</div>';
+                    return m;
+                }
+
+                function generateSystemMessage(a) {
+                    var m = '<div class="message-wrap message-system" data-id="' + a.messageId + '">' +
+                            '<p class="order-num"><a href="../client/order/' + a.orderNum + '">Заказ № ' + a.orderNum + '</a></p> ' +
+                            '<p class="user">' + a.userLogin + ':</p> ' +
+                            '<div class="message-text">' + (a.message) + '</div>' +
+                            '<p class="date">' + a.dateWrite + '</p>' +
+                            '<p class="message-close"><span class="close">&times;</span></p>' +
+                            '</div>';
+                    return m;
+                }
+            })
+        </script>
+    {% endblock %}
