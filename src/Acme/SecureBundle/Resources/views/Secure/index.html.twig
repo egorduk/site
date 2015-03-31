@@ -1,14 +1,200 @@
-{% extends "AcmeSecureBundle::layout.html.twig" %}
+{% extends "AcmeAuthBundle::layout.html.twig" %}
+    {% block title "Личный кабинет" %}
     {% block content %}
+        <script type="text/javascript" src="{{ asset('bundles/js/bootstrap-datepicker.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('bundles/js/locales/bootstrap-datepicker.ru.js') }}"></script>
+        <link rel="stylesheet" href="{{ asset('bundles/css/datepicker.css') }}" />
+        <link rel="stylesheet" href="{{ asset('bundles/css/datepicker3.css') }}" />
+        <style>
+            .thumbnail-image{
+                padding-top: 20px;
+            }
+            ul li{
+                color: red;
+            }
+            .row label.required:after {
+                content: "*";
+            }
+            /*#formProfile_fieldWork, #formProfile_fieldDescribe  {
+                display: none;
+            }*/
+            #block-change-password {
+                display: none;
+            }
+        </style>
         <div class="container">
             <div class="row">
-                <p>Ваш ник - {{ userLogin }}</p>
-                <p>Ваш статус - {{ userRole }}</p>
-                <p>Вход в систему - {{ whenLogin }}</p>
-                <p>Осталось в системе - {{ remainingTime }}</p>
-                <p><a href="{{ path('secure_client_profile') }}">Мой профиль</a></p>
-                <p><a href="{{ path('secure_client_settings') }}">Мои настройки</a></p>
-                <p><a href="{{ path('logout') }}">Выход</a></p>
+                <div class="">
+                    <p>Личный кабинет</p>
+                </div>
+            </div>
+            {% form_theme formProfile "TwigBundle::layout.html.twig" %}
+            <div class="row">
+                {{ form_start(formProfile, { 'attr': {'class': '', 'id': 'form-reg'} }) }}
+                <div class="btn-group" data-toggle-name="profile_options" data-toggle="buttons-radio">
+                    <button type="button" value="profile" data-toggle="button" class="btn btn-primary active">Мой профиль</button>
+                    <button type="button" value="messages" data-toggle="button" class="btn btn-primary">Сообщения</button>
+                </div>
+                <p>Профиль</p>
+                {{ form_errors(formProfile) }}
+                <div class="form-inline">
+                    <div class="form-group">
+                        {{ form_errors(formProfile.fieldSurname) }}
+                        {{ form_widget(formProfile.fieldSurname) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_errors(formProfile.fieldName) }}
+                        {{ form_widget(formProfile.fieldName) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_errors(formProfile.fieldPatronymic) }}
+                        {{ form_widget(formProfile.fieldPatronymic) }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form_errors(formProfile.fieldInstitute) }}
+                    {{ form_widget(formProfile.fieldInstitute) }}
+                </div>
+                <div class="form-group">
+                    {{ form_errors(formProfile.fieldChair) }}
+                    {{ form_widget(formProfile.fieldChair) }}
+                </div>
+                <div class="form-group">
+                    {{ form_errors(formProfile.fieldSpeciality) }}
+                    {{ form_widget(formProfile.fieldSpeciality) }}
+                </div>
+                <div class="form-inline">
+                    <div class="form-group">
+                        {{ form_errors(formProfile.fieldGroup) }}
+                        {{ form_widget(formProfile.fieldGroup) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_errors(formProfile.fieldCourse) }}
+                        {{ form_widget(formProfile.fieldCourse) }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form_errors(formProfile.fieldWork) }}
+                    {{ form_widget(formProfile.fieldWork) }}
+                </div>
+                <div class="form-group">
+                    {{ form_errors(formProfile.fieldDateBirthday) }}
+                    {{ form_widget(formProfile.fieldDateBirthday) }}
+                </div>
+                <div class="form-group">
+                    {{ form_errors(formProfile.fieldPhone) }}
+                    {{ form_widget(formProfile.fieldPhone) }}
+                </div>
+                <div class="form-group">
+                    {{ form_errors(formProfile.fieldAbout) }}
+                    {{ form_widget(formProfile.fieldAbout) }}
+                </div>
+                <div class="form-inline">
+                    <div class="form-group">
+                        {{ form_errors(formProfile.fieldEmail) }}
+                        {{ form_widget(formProfile.fieldEmail) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_widget(formProfile.fieldIsShowEmail) }}
+                        {{ form_label(formProfile.fieldIsShowEmail) }}
+                    </div>
+                </div>
+                <div class="form-inline">
+                    <div class="form-group">
+                        <button id="btn-change-password" type="button" class="btn btn-success">Сменить пароль</button>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-inline" id="block-change-password">
+                            <div class="form-group">
+                                {{ form_errors(formProfile.fieldPassOld) }}
+                                {{ form_widget(formProfile.fieldPassOld) }}
+                            </div>
+                            <div class="form-group">
+                                {{ form_errors(formProfile.fieldPassNew) }}
+                                {{ form_widget(formProfile.fieldPassNew) }}
+                            </div>
+                            <div class="form-group">
+                                {{ form_errors(formProfile.fieldPassApprove) }}
+                                {{ form_widget(formProfile.fieldPassApprove) }}
+                            </div>
+                            <div class="form-group">
+                                <label for="formProfile_saveNewPassword" class="btn btn-success">&nbspСменить пароль</label>
+                                {{ form_widget(formProfile.saveNewPassword) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form_widget(formProfile.fieldTypeProfile) }}
+                </div>
+                <div>
+                    {{ form_row(formProfile.fieldPassApprove) }}
+                </div>
+                <div class="form-group">
+                    <label for="formProfile_save" class="btn btn-success">&nbspСохранить изменения</label>
+                    {{ form_widget(formProfile.save) }}
+                    <label for="formProfile_writeNewMessage" class="btn btn-success">&nbspНаписать сообщение</label>
+                    {{ form_widget(formProfile.writeNewMessage) }}
+                    <label for="formProfile_deleteUser" class="btn btn-success">&nbspУдалить пользователя</label>
+                    {{ form_widget(formProfile.deleteUser) }}
+                    <label for="formProfile_back" class="btn btn-success">&nbspВернуться на сайт</label>
+                    {{ form_widget(formProfile.back) }}
+                </div>
+                {{ form_end(formProfile) }}
             </div>
         </div>
+        <script>
+            jQuery(function ($) {
+                $('#formProfile_fieldDateBirthday').datepicker({
+                    // daysOfWeekDisabled: "1",
+                    // calendarWeeks: true,
+                    todayHighlight: true,
+                    format: "dd/mm/yyyy",
+                    autoclose: true,
+                    //startDate: '0d',
+                    language: 'ru'
+                    //todayBtn: true
+                });
+                //$("#formProfile_fieldPassNew, #formProfile_fieldPassOld, #formProfile_fieldPassApprove").removeAttr('required');
+                $("#formReg_fieldOptions").val('profile');
+                $('div.btn-group[data-toggle-name]').each(function () {
+                    var group = $(this),
+                            form = group.parents('form').eq(0),
+                            name = 'formReg[fieldOptions]',
+                            hidden = $('input[name="' + name + '"]', form);
+                    $('button', group).each(function () {
+                        var button = $(this);
+                        button.live('click', function () {
+                            hidden.val($(this).val());
+                            group.find('.active').removeClass('active');
+                            if (button.val() == hidden.val()) {
+                                button.addClass('active');
+                            }
+                            /*if (hidden.val() == 'student') {
+                                $("#formReg_fieldWork, #formReg_fieldDescribe").hide();
+                                $("#formReg_fieldWork, #formReg_fieldDescribe").removeAttr('required');
+                                $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo").show();
+                                $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo").attr('required');
+                            } else if (hidden.val() == 'employee') {
+                                $("#formReg_fieldWork").show();
+                                $("#formReg_fieldWork").attr('required');
+                                $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo, #formReg_fieldDescribe").hide();
+                                $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo, #formReg_fieldDescribe").removeAttr('required');
+                            } else {
+                                $("#formReg_fieldInstitute, #formReg_fieldChair, #formReg_fieldWork").hide();
+                                $("#formReg_fieldInstitute, #formReg_fieldChair, #formReg_fieldWork").removeAttr('required');
+                                $("#formReg_fieldDescribe").show();
+                                $("#formReg_fieldDescribe").attr('required');
+                            }*/
+                        });
+                    });
+                });
+
+                $("#btn-change-password").on('click', function() {
+                    //console.log($("#formProfile_fieldPassNew").attr('required'));
+                    //$("#formProfile_fieldPassNew, #formProfile_fieldPassOld, #formProfile_fieldPassApprove").attr('required');
+                    $("#block-change-password").toggle();
+                })
+            });
+        </script>
     {% endblock %}

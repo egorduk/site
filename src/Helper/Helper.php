@@ -33,8 +33,12 @@ class Helper
     private static $_container;
     private static $_ymFile;
     private static $_tableUser = 'AcmeAuthBundle:User';
-    private static $_tableProvider = 'AcmeAuthBundle:Provider';
+    private static $_tableMessage = 'AcmeSecureBundle:Message';
     private static $_tableUserRole = 'AcmeAuthBundle:UserRole';
+
+
+
+    private static $_tableProvider = 'AcmeAuthBundle:Provider';
     private static $_tableCountry = 'AcmeAuthBundle:Country';
     private static $_tableUserInfo = 'AcmeAuthBundle:UserInfo';
     private static $_tableSubject = 'AcmeSecureBundle:SubjectOrder';
@@ -44,7 +48,6 @@ class Helper
     private static $_tableOrderFile = 'AcmeSecureBundle:OrderFile';
     private static $_tableUserBid = 'AcmeSecureBundle:UserBid';
     private static $_tableFavoriteOrder = 'AcmeSecureBundle:FavoriteOrder';
-    private static $_tableWebchatMessage = 'AcmeSecureBundle:WebchatMessage';
     private static $_tableCancelRequest = 'AcmeSecureBundle:CancelRequest';
     private static $_tableUserPs = 'AcmeSecureBundle:UserPs';
     private static $_tableTypePs = 'AcmeSecureBundle:TypePs';
@@ -259,16 +262,6 @@ class Helper
     }
 
 
-    public static function getUserById($userId) {
-        $user = self::getContainer()->get('doctrine')->getRepository(self::$_tableUser)
-            ->findOneById($userId);
-        if ($user) {
-            return $user;
-        }
-        return false;
-    }
-
-
     public static function updateUserAfterConfirmByMail($userId, $hashCode, $type)
     {
         $em =  self::getContainer()->get('doctrine')->getManager();
@@ -390,30 +383,7 @@ class Helper
     }
 
 
-    public static function updateUserInfo($postData, $userInfo)
-    {
-        $userName = $postData['fieldUsername'];
-        $userSurname = $postData['fieldSurname'];
-        $userLastname = $postData['fieldLastname'];
-        $userSkype = $postData['fieldSkype'];
-        $userIcq = $postData['fieldIcq'];
-        $userMobilePhone = $postData['fieldMobilePhone'];
-        $userStaticPhone = $postData['fieldStaticPhone'];
-        $userSelectedCountryCode = $postData['selectorCountry'];
-        $em = self::getContainer()->get('doctrine')->getManager();
-        $country = $em->getRepository(self::$_tableCountry)
-            ->findOneByCode($userSelectedCountryCode);
-        $userInfo->setCountry($country);
-        $userInfo->setSkype($userSkype);
-        $userInfo->setIcq($userIcq);
-        $userInfo->setUsername($userName);
-        $userInfo->setLastname($userLastname);
-        $userInfo->setSurname($userSurname);
-        $userInfo->setMobilePhone($userMobilePhone);
-        $userInfo->setStaticPhone($userStaticPhone);
-        $em->merge($userInfo);
-        $em->flush();
-    }
+
 
 
     public static function createNewOrder($postData, $user, $folderFiles, $arrayFiles)
@@ -2559,6 +2529,44 @@ class Helper
         $em->persist($user);
         $em->flush();
         return $user;
+    }
+
+    public static function getUserById($userId) {
+        $user = self::getContainer()->get('doctrine')->getRepository(self::$_tableUser)
+            ->findOneById($userId);
+        if ($user) {
+            return $user;
+        }
+        return false;
+    }
+
+    public static function getUserNewMessages($user) {
+        $user = self::getContainer()->get('doctrine')->getRepository(self::$_tableMessage)
+            ->findByResponseId($user);
+        if ($user) {
+            return count($user);
+        }
+        return false;
+    }
+
+    public static function updateUser($postData, $user) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $user->setEmail($postData['fieldEmail']);
+        $user->setAbout($postData['fieldAbout']);
+        $user->setSurname($postData['fieldSurname']);
+        $user->setPatronymic($postData['fieldPatronymic']);
+        $user->setName($postData['fieldName']);
+        $user->setInstitute($postData['fieldInstitute']);
+        $user->setChair($postData['fieldChair']);
+        $user->setSpeciality($postData['fieldSpeciality']);
+        $user->setGroup($postData['fieldGroup']);
+        $user->setCourse($postData['fieldCourse']);
+        $user->setWork($postData['fieldWork']);
+        $user->setIsShowEmail($postData['fieldIsShowEmail']);
+        //$user->setDateBirthday($postData['fieldDateBirthday']);
+        $user->setPhone($postData['fieldPhone']);
+        $em->merge($user);
+        $em->flush();
     }
 
 }

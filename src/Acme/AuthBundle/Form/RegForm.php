@@ -2,7 +2,6 @@
 
 namespace Acme\AuthBundle\Form;
 
-use Helper\Helper;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,8 +14,7 @@ use Symfony\Component\Security\Core\Util\StringUtils;
 
 class RegForm extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
+    public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add('fieldSurname', 'text', array('label'=>'', 'required' => true, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 25, 'maxlength' => 25, 'placeholder' => 'Фамилия')))
                 ->add('fieldName', 'text', array('label'=>'', 'required' => true, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 25, 'maxlength' => 25, 'placeholder' => 'Имя')))
                 ->add('fieldPatronymic', 'text', array('label'=>'', 'required' => true, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 25, 'maxlength' => 25, 'placeholder' => 'Отчество')))
@@ -34,47 +32,21 @@ class RegForm extends AbstractType
                 ->add('reg', 'submit', array('attr' => array('class' => 'hidden')))
                 ->add('back', 'button', array('attr' => array('class' => 'hidden')));
 
-        $builder->addEventListener(FormEvents::POST_BIND, function(FormEvent $event)
-        {
-            /*$form = $event->getForm();
+        $builder->addEventListener(FormEvents::POST_BIND, function(FormEvent $event) {
+            $form = $event->getForm();
             $data = $event->getData();
-
-            if ($data->getPassword() !== null && $data->getApprovePassword() !== null)
-            {
+            if ($data->getFieldPass() !== null && $data->getFieldPassApprove() !== null) {
                 $newPassword = $form->get('fieldPass')->getData();
                 $approvePassword = $form->get('fieldPassApprove')->getData();
-
-                if (!StringUtils::equals($newPassword, $approvePassword))
-                {
+                if (!StringUtils::equals($newPassword, $approvePassword)) {
                     $form->get('fieldPassApprove')->addError(new FormError('Введенные пароли не совпадают!'));
                     $form->get('fieldPass')->addError(new FormError('Введенные пароли не совпадают!'));
                 }
             }
-
-            if ($data->getLogin() !== null)
-            {
-                $newLogin = $form->get('fieldLogin')->getData();
-
-                if (Helper::isExistsUserByLogin($newLogin))
-                {
-                    $form->get('fieldLogin')->addError(new FormError('Такой логин уже используется!'));
-                }
-            }
-
-            if ($data->getEmail() !== null)
-            {
-                $newEmail = $form->get('fieldEmail')->getData();
-
-                if(Helper::isExistsUserByEmail($newEmail))
-                {
-                    $form->get('fieldEmail')->addError(new FormError('Такой Email уже используется!'));
-                }
-            }*/
         });
     }
 
-    public function getName()
-    {
+    public function getName() {
         return 'formReg';
     }
 }

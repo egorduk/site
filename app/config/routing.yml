@@ -14,6 +14,10 @@ recovery_email:
   pattern:   /recovery
   defaults:  { _controller: AcmeAuthBundle:Auth:recovery }
 
+secure_index:
+  pattern:   /secure/index
+  defaults:  { _controller: AcmeSecureBundle:Secure:index }
+
 
 
 

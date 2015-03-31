@@ -134,6 +134,7 @@ class AuthController extends Controller
     public function regAction(Request $request)
     {
         $captchaError = "";
+        $responseMessage = '';
         $regFormValidate = new RegFormValidate();
         $formReg = $this->createForm(new RegForm(), $regFormValidate);
         $formReg->handleRequest($request);
@@ -162,6 +163,7 @@ class AuthController extends Controller
                         $role = Helper::getUserRoleByRoleName($postData['fieldOptions']);
                         $user->setUserRole($role);
                         $user = Helper::addNewUser($user);
+                        $responseMessage = 'Как только ваша заявка будет рассмотрена вам на почту придет ответ';
                         //Helper::sendConfirmationReg($this->container, $user);
                     }
                     else {
@@ -173,7 +175,7 @@ class AuthController extends Controller
         /*else {
             throw new AccessException();
         }*/
-        return array('formReg' => $formReg->createView(), 'captcha' => $captcha, 'captchaError' => $captchaError);
+        return array('formReg' => $formReg->createView(), 'captcha' => $captcha, 'captchaError' => $captchaError, 'responseMessage' => $responseMessage);
     }
 
 

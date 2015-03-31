@@ -48,14 +48,14 @@ security:
     access_control:
        # - { path: ^/client/reg, roles: IS_AUTHENTICATED_ANONYMOUSLY }
        # - { path: ^/client/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/index, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/recovery, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/auth/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/client/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/author/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-
-        - { path: ^/secure/author/*, roles: ROLE_AUTHOR } #ROLE_CLIENT
+#        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/index, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/recovery, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/auth/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/client/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/author/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#
+#        - { path: ^/secure/author/*, roles: ROLE_AUTHOR } #ROLE_CLIENT
         #- { path: ^/secure/client/*, roles: ROLE_CLIENT } #ROLE_CLIENT
         #- { path: ^/secure/client/.*/info, roles: ROLE_AUTHOR }
         #- { path: ^/secure/client/.*/info, roles: ROLE_CLIENT }
@@ -79,6 +79,8 @@ security:
 
     role_hierarchy:
         ROLE_ADMIN: ROLE_ADMIN
-        ROLE_CLIENT: ROLE_CLIENT
-        ROLE_AUTHOR: ROLE_AUTHOR
+        ROLE_STUDENT: ROLE_STUDENT
+        ROLE_EMPLOYEE: ROLE_EMPLOYEE
+        ROLE_DEVELOPER: ROLE_DEVELOPER
+        ROLE_OTHER: ROLE_OTHER
         #ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]

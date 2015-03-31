@@ -87,6 +87,145 @@ class User implements UserInterface, \Serializable
     protected $gp;
 
     /**
+     * @param mixed $photo
+     */
+    public function setPhoto($photo)
+    {
+        $this->photo = $photo;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhoto()
+    {
+        return $this->photo;
+    }
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $photo;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $phone;
+
+    /**
+     * @param mixed $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    protected $course;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    protected $is_show_email;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $about;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $date_birthday;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\Message", mappedBy="writerId")
+     **/
+    protected $link_message_writer;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\Message", mappedBy="responseId")
+     **/
+    protected $link_message_response;
+
+
+    /**
+     * @param mixed $is_show_email
+     */
+    public function setIsShowEmail($is_show_email)
+    {
+        $this->is_show_email = $is_show_email;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsShowEmail()
+    {
+        return $this->is_show_email;
+    }
+
+    /**
+     * @param mixed $date_birthday
+     */
+    public function setDateBirthday($date_birthday)
+    {
+        $this->date_birthday = $date_birthday;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDateBirthday()
+    {
+        return $this->date_birthday;
+    }
+
+    /**
+     * @param mixed $about
+     */
+    public function setAbout($about)
+    {
+        $this->about = $about;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAbout()
+    {
+        return $this->about;
+    }
+
+    /**
+     * @param mixed $course
+     */
+    public function setCourse($course)
+    {
+        $this->course = $course;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCourse()
+    {
+        return $this->course;
+    }
+
+    /**
      * @param mixed $chair
      */
     public function setChair($chair)
@@ -306,8 +445,9 @@ class User implements UserInterface, \Serializable
     protected $role;
 
 
-    public function __construct()
-    {
+    public function __construct() {
+        $this->link_message_response = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->link_message_writer = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     public function getUsername()

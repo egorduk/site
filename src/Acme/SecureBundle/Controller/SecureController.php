@@ -5,12 +5,14 @@ namespace Acme\SecureBundle\Controller;
 use Acme\SecureBundle\Entity\Author\MailOptionsFormValidate;
 use Acme\SecureBundle\Entity\Author\OutputPsFormValidate;
 use Acme\SecureBundle\Entity\CancelRequestFormValidate;
+use Acme\SecureBundle\Entity\ProfileFormValidate;
 use Acme\SecureBundle\Form\Author\AuthorCreatePsForm;
 use Acme\SecureBundle\Entity\Author\CreatePsFormValidate;
 use Acme\SecureBundle\Entity\CancelRequest;
 use Acme\SecureBundle\Form\Author\AuthorMailOptionsForm;
 use Acme\SecureBundle\Form\Author\OutputPsForm;
 use Acme\SecureBundle\Form\CancelRequestForm;
+use Acme\SecureBundle\Form\ProfileForm;
 use Doctrine\Common\Cache\ApcCache;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\MemcachedCache;
@@ -39,7 +41,7 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Zend\I18n\Validator\DateTime;
 
 
-class AuthorController extends Controller
+class SecureController extends Controller
 {
     /**
      * @Template()
@@ -48,16 +50,60 @@ class AuthorController extends Controller
     public function indexAction(Request $request)
     {
         $user = $this->getUser();
-        $session = $request->getSession();
-        $sessionCreated = $session->getMetadataBag()->getCreated();
-        $sessionLifeTime = $session->getMetadataBag()->getLifetime();
-        $whenLogin = Helper::getDateFromTimestamp($sessionCreated, "d/m/Y H:i");
-        $sessionRemaining = $sessionCreated + $sessionLifeTime;
-        $nowTimestamp = strtotime("now");
-        $sessionRemaining = $sessionRemaining - $nowTimestamp;
-        $sessionRemaining = Helper::getDateFromTimestamp($sessionRemaining, "i:s");
-        /*$user = Helper::getUserAvatar($user);*/
-        return array('user' => $user, 'whenLogin' => $whenLogin, 'remainingTime' => $sessionRemaining);
+        $user = Helper::getUserById(1);
+        $profileFormValidate = new ProfileFormValidate();
+        $profileFormValidate->setFieldSurname($user->getSurname());
+        $profileFormValidate->setFieldName($user->getName());
+        $profileFormValidate->setFieldPatronymic($user->getPatronymic());
+        $profileFormValidate->setFieldInstitute($user->getInstitute());
+        $profileFormValidate->setFieldChair($user->getChair());
+        $profileFormValidate->setFieldSpeciality($user->getSpeciality());
+        $profileFormValidate->setFieldGroup($user->getGroup());
+        $profileFormValidate->setFieldCourse($user->getCourse());
+        $profileFormValidate->setFieldWork($user->getWork());
+        $profileFormValidate->setFieldDateBirthday($user->getDateBirthday()->format("d.m.Y"));
+        $profileFormValidate->setFieldPhone($user->getPhone());
+        $profileFormValidate->setFieldAbout($user->getAbout());
+        $profileFormValidate->setFieldEmail($user->getEmail());
+        $profileFormValidate->setFieldIsShowEmail($user->getIsShowEmail());
+        $profileFormValidate->setFieldPassOld($user->getPassword());
+        $profileFormValidate->setFieldTypeProfile($user->getUserRole()->getName());
+        $formProfile = $this->createForm(new ProfileForm(), $profileFormValidate);
+        $formProfile->handleRequest($request);
+        $messages = Helper::getUserNewMessages($user);
+        var_dump($messages);die;
+        if ($request->isMethod('POST')) {
+            if ($formProfile->get('save')->isClicked()) {
+                if ($formProfile->isValid()) {
+                    $postData = $request->request->get('formProfile');
+                    Helper::updateUser($postData, $user);
+                    //var_dump($postData);die;
+                    /*$user = new User();
+                    $user->setEmail($postData['fieldEmail']);
+                    $user->setChair($postData['fieldChair']);
+                    $user->setDescribe($postData['fieldDescribe']);
+                    $user->setGroup($postData['fieldGroup']);
+                    $user->setInfo($postData['fieldInfo']);
+                    $user->setInstitute($postData['fieldInstitute']);
+                    $user->setWork($postData['fieldWork']);
+                    $user->setName($postData['fieldName']);
+                    $user->setPassword($postData['fieldPass']);
+                    $user->setPatronymic($postData['fieldPatronymic']);
+                    $user->setSpeciality($postData['fieldSpeciality']);
+                    $user->setSurname($postData['fieldSurname']);
+                    $role = Helper::getUserRoleByRoleName($postData['fieldOptions']);
+                    $user->setUserRole($role);
+                    $user = Helper::addNewUser($user);
+                    $responseMessage = 'Как только ваша заявка будет рассмотрена вам на почту придет ответ';*/
+                    //Helper::sendConfirmationReg($this->container, $user);
+                }
+            } elseif ($formProfile->get('saveNewPassword')->isClicked()) {
+                if ($formProfile->isValid()) {
+
+                }
+            }
+        }
+        return array('user' => $user, 'formProfile' => $formProfile->createView());
     }
 
 
