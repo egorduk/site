@@ -1,4 +1,4 @@
-дindex:
+index:
   pattern:   /index
   defaults:  { _controller: AcmeIndexBundle:Index:index }
 
@@ -6,15 +6,23 @@ login:
   pattern:   /login
   defaults:  { _controller: AcmeAuthBundle:Auth:login }
 
+reg:
+  pattern:   /reg
+  defaults:  { _controller: AcmeAuthBundle:Auth:reg }
+
 recovery_email:
   pattern:   /recovery
   defaults:  { _controller: AcmeAuthBundle:Auth:recovery }
 
+
+
+
+
+
+
 confirm_password:
   pattern:   /auth/confirm
   defaults:  { _controller: AcmeAuthBundle:Auth:confirm }
-
-
 
 
 #------------------------------------------------Client----------------------------------------------------#

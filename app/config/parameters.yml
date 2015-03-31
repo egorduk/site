@@ -3,7 +3,7 @@ parameters:
     database_driver: pdo_mysql
     database_host: 127.0.0.1
     database_port: null
-    database_name: study
+    database_name: project_site
     database_user: root
     database_password: null
     locale: ru_RU

@@ -29,7 +29,17 @@ class User implements UserInterface, \Serializable
     /**
      * @ORM\Column(type="string")
      */
-    protected $login;
+    protected $surname;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $name;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $patronymic;
 
     /**
      * @ORM\Column(type="string")
@@ -42,99 +52,252 @@ class User implements UserInterface, \Serializable
     protected $email;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="string")
      */
-    protected $date_reg;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    protected $date_confirm_reg;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    protected $date_confirm_recovery;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    protected $date_upload_avatar;
+    protected $info;
 
     /**
      * @ORM\Column(type="string")
      */
-    protected $salt;
+    protected $work;
 
     /**
      * @ORM\Column(type="string")
      */
-    protected $hash_code;
+    protected $dscribe;
 
     /**
      * @ORM\Column(type="string")
      */
-    protected $token;
+    protected $institute;
 
     /**
      * @ORM\Column(type="string")
      */
-    protected $avatar;
+    protected $chair;
 
     /**
      * @ORM\Column(type="string")
      */
-    protected $recovery_password;
+    protected $speciality;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
-    protected $is_active;
+    protected $gp;
 
     /**
-     * @ORM\Column(type="integer")
+     * @param mixed $chair
      */
-    protected $ip_reg;
+    public function setChair($chair)
+    {
+        $this->chair = $chair;
+    }
 
     /**
-     * @ORM\Column(type="integer")
+     * @return mixed
      */
-    protected $is_ban;
+    public function getChair()
+    {
+        return $this->chair;
+    }
+
+    public function setDescribe($describe)
+    {
+        $this->dscribe = $describe;
+    }
 
     /**
-     * @ORM\Column(type="integer")
+     * @return mixed
      */
-    protected $is_confirm;
+    public function getDescribe()
+    {
+        return $this->dscribe;
+    }
 
     /**
-     * @ORM\Column(type="integer")
+     * @param mixed $email
      */
-    protected $is_access_order;
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
 
     /**
-     * @ORM\Column(type="integer")
+     * @return mixed
      */
-    protected $account;
+    public function getEmail()
+    {
+        return $this->email;
+    }
 
     /**
-     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\UserOrder", mappedBy="user")
-     **/
-    protected $link_user_order;
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->gp = $group;
+    }
 
     /**
-     * @ORM\OneToMany(targetEntity="Openid", mappedBy="user")
-     **/
-    protected $link_openid;
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->gp;
+    }
 
     /**
-     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\Author\AuthorFile", mappedBy="user")
-     **/
-    protected $link_author_file;
+     * @param mixed $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
 
     /**
-     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\UserBid", mappedBy="user")
-     **/
-    protected $link_user_bid;
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param mixed $info
+     */
+    public function setInfo($info)
+    {
+        $this->info = $info;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInfo()
+    {
+        return $this->info;
+    }
+
+    /**
+     * @param mixed $institute
+     */
+    public function setInstitute($institute)
+    {
+        $this->institute = $institute;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInstitute()
+    {
+        return $this->institute;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $password
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * @param mixed $patronymic
+     */
+    public function setPatronymic($patronymic)
+    {
+        $this->patronymic = $patronymic;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPatronymic()
+    {
+        return $this->patronymic;
+    }
+
+    /**
+     * @param mixed $speciality
+     */
+    public function setSpeciality($speciality)
+    {
+        $this->speciality = $speciality;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSpeciality()
+    {
+        return $this->speciality;
+    }
+
+    /**
+     * @param mixed $surname
+     */
+    public function setSurname($surname)
+    {
+        $this->surname = $surname;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSurname()
+    {
+        return $this->surname;
+    }
+
+    public function getUserRole() {
+        return $this->role;
+    }
+
+    public function setUserRole($role) {
+        $this->role = $role;
+    }
+
+    /**
+     * @param mixed $work
+     */
+    public function setWork($work)
+    {
+        $this->work = $work;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWork()
+    {
+        return $this->work;
+    }
 
     /**
      * @ORM\ManyToOne(targetEntity="UserRole", inversedBy="link_role", cascade={"refresh"})
@@ -142,218 +305,18 @@ class User implements UserInterface, \Serializable
      **/
     protected $role;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="UserInfo", inversedBy="link_user_info", cascade={"refresh"})
-     * @ORM\JoinColumn(name="user_info_id", referencedColumnName="id")
-     **/
-    protected $userInfo;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\SelectBid", mappedBy="user")
-     **/
-    protected $link_select_user;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\FavoriteOrder", mappedBy="user")
-     **/
-    protected $link_favorite_user;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\WebchatMessage", mappedBy="user")
-     **/
-    protected $link_webchat_user;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\AuctionBid", mappedBy="user")
-     **/
-    private $link_auction_user;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\OrderFile", mappedBy="user")
-     **/
-    private $link_order_file_user;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\UserPs", mappedBy="user")
-     **/
-    protected $link_user_ps;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\MailOption", mappedBy="user")
-     **/
-    protected $link_mail_option;
-
-
-    private $unEncodePass = "";
-    private $clientIdInfo;
-
 
     public function __construct()
     {
-        $this->date_reg = new \DateTime();
-        $this->is_active = 1;
-        $this->ip_reg = ip2long($_SERVER['REMOTE_ADDR']);
-        $this->is_confirm = 0;
-        $this->recovery_password = '';
-        $this->hash_code = '';
-        $this->account = 0;
-        $this->avatar = "default.png";
-        $this->is_access_order = 0;
-        $this->link_user_order = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->link_openid = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->link_author_file = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->link_user_bid = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->link_select_user = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->link_webchat_user = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->link_favorite_user = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->link_auction_user = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->link_order_file_user = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->link_user_ps = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->link_mail_option = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->is_ban = 0;
-        $this->date_confirm_recovery = Helper::getFormatDateForInsert("0000-00-00 00:00:00", "Y-m-d H:i:s");
-        $this->date_confirm_reg = Helper::getFormatDateForInsert("0000-00-00 00:00:00", "Y-m-d H:i:s");
-        $this->date_upload_avatar = Helper::getFormatDateForInsert("0000-00-00 00:00:00", "Y-m-d H:i:s");
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setId($id)
-    {
-        $this->id = $id;
     }
 
     public function getUsername()
     {
     }
 
-    public function getIpReg()
-    {
-        return $this->ip_reg;
-    }
-
-    public function getHash()
-    {
-        return $this->hash_code;
-    }
-
-    public function setHash($hash)
-    {
-        $this->hash_code = $hash;
-    }
-
-    public function getToken() {
-        return $this->token;
-    }
-
-    public function setToken($val) {
-        $this->token = $val;
-    }
-
-    public function getIsBan()
-    {
-        return $this->is_ban;
-    }
-
-    public function setIsBan($ban)
-    {
-        $this->is_ban = $ban;
-    }
-
-    public function getSalt()
-    {
-        return $this->salt;
-    }
-
-    public function setSalt($value)
-    {
-        $this->salt = $value;
-    }
-
-    public function setRecoveryPassword($password)
-    {
-        $this->recovery_password = $password;
-    }
-
-    public function getRecoveryPassword()
-    {
-        return $this->recovery_password;
-    }
-
-    public function setIsConfirm($value)
-    {
-        $this->is_confirm = $value;
-    }
-
-    public function getIsConfirm()
-    {
-        return $this->is_confirm;
-    }
-
-    public function getUserRole()
-    {
-        return $this->role;
-    }
-
-    public function setUserRole($role)
-    {
-        $this->role = $role;
-    }
-
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    public function setPassword($password)
-    {
-        $this->password = $password;
-    }
-
-    public function getLogin()
-    {
-        return $this->login;
-    }
-
-    public function setLogin($login)
-    {
-        $this->login = $login;
-    }
-
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    public function setEmail($email)
-    {
-        $this->email = $email;
-    }
-
-    public function setDateReg($dateReg)
-    {
-        $this->date_reg = $dateReg;
-    }
-
-    public function getDateReg()
-    {
-        return $this->date_reg;
-    }
-
-    public function setDateConfirmReg($dateReg)
-    {
-        $this->date_confirm_reg = $dateReg;
-    }
-
-    public function getDateConfirmReg() {
-        return $this->date_confirm_reg;
-    }
 
     public function getRoles() {
-        return array('ROLE_AUTHOR');
+        return array('');
     }
 
     public function eraseCredentials() {
@@ -371,78 +334,9 @@ class User implements UserInterface, \Serializable
         return true;
     }
 
-    public function isEnabled() {
-        return $this->is_active;
+    public function getSalt() {
+        return true;
     }
-
-    public function setIsEnabled($active) {
-        $this->is_active = $active;
-    }
-
-    public function getDateConfirmRecovery() {
-        return $this->date_confirm_recovery;
-    }
-
-    public function setDateConfirmRecovery($date) {
-        $this->date_confirm_recovery = $date;
-    }
-
-    public function getDateUploadAvatar() {
-        return $this->date_upload_avatar;
-    }
-
-    public function setDateUploadAvatar($date) {
-        $this->date_upload_avatar = $date;
-    }
-
-    public function setUserInfo($userInfo) {
-        $this->userInfo = $userInfo;
-    }
-
-    public function getUserInfo() {
-        return $this->userInfo;
-    }
-
-    public function setAccount($account) {
-        $this->account = $account;
-    }
-
-    public function getAccount() {
-        return $this->account;
-    }
-
-    public function setIsAccessOrder($val) {
-        $this->is_access_order = $val;
-    }
-
-    public function getIsAccessOrder() {
-        return $this->is_access_order;
-    }
-
-    public function getAvatar() {
-        return $this->avatar;
-    }
-
-    public function setAvatar($val) {
-        return $this->avatar = $val;
-    }
-
-    public function setClientIdInfo($id) {
-        $this->clientIdInfo = $id;
-    }
-
-    public function getClientIdInfo() {
-        return $this->clientIdInfo;
-    }
-
-    public function setIsActive($val) {
-        $this->is_active = $val;
-    }
-
-    public function getIsActive() {
-        return $this->is_active;
-    }
-
 
 
     /**

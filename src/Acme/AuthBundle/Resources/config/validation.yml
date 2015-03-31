@@ -12,21 +12,21 @@ Acme\AuthBundle\Entity\ClientRegFormValidate:
           - Email: { message: "Указана неверная почта!", checkMX: false }
           - NotBlank: { message: "Введите почту!" }
 
-Acme\AuthBundle\Entity\AuthorRegFormValidate:
+Acme\AuthBundle\Entity\RegFormValidate:
     properties:
-        fieldMobilePhone:
-          - Length: { min: 7, minMessage: "Слишком короткий номер!" }
-          - Regex: { pattern: "/^((8|\+7|\+375)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,14}$/", message: "Некорректный номер!" }
-        fieldIcq:
-          - Length: { min: 6, minMessage: "Слишком короткий номер!" }
-          - Regex: { pattern: "/^[\d]+$/", message: "Только цифры!" }
-        fieldUsername:
+        #fieldMobilePhone:
+        #  - Length: { min: 7, minMessage: "Слишком короткий номер!" }
+        #  - Regex: { pattern: "/^((8|\+7|\+375)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,14}$/", message: "Некорректный номер!" }
+        #fieldIcq:
+        #  - Length: { min: 6, minMessage: "Слишком короткий номер!" }
+        #  - Regex: { pattern: "/^[\d]+$/", message: "Только цифры!" }
+        fieldName:
           - Length: { min: 1, minMessage: "Слишком короткое имя!" }
           - Regex: { pattern: "/^[а-яА-Я]+$/u", message: "Только русские буквы!" }
         fieldSurname:
           - Length: { min: 1, minMessage: "Слишком короткая фамилия!" }
           - Regex: { pattern: "/^[а-яА-Я]+$/u", message: "Только русские буквы!" }
-        fieldLastname:
+        fieldPatronymic:
           - Length: { min: 1, minMessage: "Слишком короткое отчество!" }
           - Regex: { pattern: "/^[а-яА-Я]+$/u", message: "Только русские буквы!" }
 
@@ -41,3 +41,11 @@ Acme\AuthBundle\Entity\LoginFormValidate:
           - Regex: { pattern: "/^[a-zA-Z0-9]+$/u", message: "Только латинские буквы и цифры!" }
           - NotBlank: { message: "Введите пароль!" }
 
+Acme\AuthBundle\Entity\RecoveryFormValidate:
+    properties:
+        fieldSurname:
+          - NotBlank: { message: "Введите фамилию!" }
+        fieldName:
+          - NotBlank: { message: "Введите имя!" }
+        fieldPatronymic:
+          - NotBlank: { message: "Введите отчество!" }

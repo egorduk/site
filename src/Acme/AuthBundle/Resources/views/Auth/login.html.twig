@@ -8,6 +8,7 @@
             #block-recovery {
                 display: none;
             }
+
         </style>
         {% form_theme formLogin "TwigBundle::layout.html.twig" %}
         <div class="row">
@@ -24,7 +25,9 @@
             <div class="row col-xs-12">
             {% block captcha %}
                 <div>
-                    {{ captchaError|raw }}
+                    {% if captchaError %}
+                        <p class="error-message"><span style="color:red" class="icon-warning">{{ captchaError|raw }}</span></p>
+                    {% endif %}
                     {{ captcha|raw }}
                 </div>
             {% endblock %}
@@ -45,23 +48,24 @@
                     <p><a href="{{ path('recovery_email') }}">Забыли почту?</a></p>
                 </div>
             </div>
-            {{ form_widget(formLogin.fieldMode) }}
             {{ form_end(formLogin) }}
         </div>
+        {% form_theme formRecovery "TwigBundle::layout.html.twig" %}
         <div class="row" id="block-recovery">
             {{ form_start(formRecovery, { 'attr': {'class': 'form-inline', 'id': 'form-recovery'} }) }}
-            {{ form_errors(formRecovery.fieldSurname) }}
             <div class="form-group">
+                {{ form_errors(formRecovery.fieldSurname) }}
                 {{ form_widget(formRecovery.fieldSurname) }}
             </div>
-            {{ form_errors(formRecovery.fieldName) }}
             <div class="form-group">
+                {{ form_errors(formRecovery.fieldName) }}
                 {{ form_widget(formRecovery.fieldName) }}
             </div>
-            {{ form_errors(formRecovery.fieldPatronymic) }}
             <div class="form-group">
+                {{ form_errors(formRecovery.fieldPatronymic) }}
                 {{ form_widget(formRecovery.fieldPatronymic) }}
             </div>
+            {{ form_widget(formRecovery.fieldEmail) }}
             {{ form_end(formRecovery) }}
             <p>Укажите почту, ФИО и снова нажмите <a href="#" class="link-forget-password">Забыли пароль?</a> после чего пароль будет выслан вам на почту.</p>
         </div>
@@ -73,7 +77,7 @@
                     c++;
                     $("#block-recovery").toggle();
                 } else {
-
+                    $("#form-recovery").submit();
                 }
             });
         });

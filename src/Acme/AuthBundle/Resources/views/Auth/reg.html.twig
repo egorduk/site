@@ -1,0 +1,143 @@
+{% extends "AcmeAuthBundle::layout.html.twig" %}
+{% block title "Регистрация пользователя" %}
+{% block content_header '' %}
+{% block content %}
+    <style>
+        ul li{
+            color: red;
+        }
+        .row label.required:after {
+            content: "*";
+        }
+        #formReg_fieldWork, #formReg_fieldDescribe  {
+            display: none;
+        }
+    </style>
+    {% form_theme formReg "TwigBundle::layout.html.twig" %}
+    <div class="row">
+        {{ form_start(formReg, { 'attr': {'class': '', 'id': 'form-reg'} }) }}
+        <div class="btn-group" data-toggle-name="profile_options" data-toggle="buttons-radio">
+            <button type="button" value="student" data-toggle="button" class="btn btn-primary active">Для учащиегося</button>
+            <button type="button" value="employee" data-toggle="button" class="btn btn-primary">Для сотрудника</button>
+            <button type="button" value="other" data-toggle="button" class="btn btn-primary">Для других</button>
+        </div>
+       {# <input type="hidden" name="profile_options" value="student">#}
+        {{ form_errors(formReg) }}
+        <div class="form-inline">
+            <div class="form-group">
+                {{ form_errors(formReg.fieldSurname) }}
+                {{ form_widget(formReg.fieldSurname) }}
+            </div>
+            <div class="form-group">
+                {{ form_errors(formReg.fieldName) }}
+                {{ form_widget(formReg.fieldName) }}
+            </div>
+            <div class="form-group">
+                {{ form_errors(formReg.fieldPatronymic) }}
+                {{ form_widget(formReg.fieldPatronymic) }}
+            </div>
+        </div>
+        <div class="form-group">
+            {{ form_errors(formReg.fieldInstitute) }}
+            {{ form_widget(formReg.fieldInstitute) }}
+        </div>
+        <div class="form-group">
+            {{ form_errors(formReg.fieldChair) }}
+            {{ form_widget(formReg.fieldChair) }}
+        </div>
+        <div class="form-group">
+            {{ form_errors(formReg.fieldSpeciality) }}
+            {{ form_widget(formReg.fieldSpeciality) }}
+        </div>
+        <div class="form-group">
+            {{ form_errors(formReg.fieldGroup) }}
+            {{ form_widget(formReg.fieldGroup) }}
+        </div>
+        <div class="form-group">
+            {{ form_errors(formReg.fieldInfo) }}
+            {{ form_widget(formReg.fieldInfo) }}
+        </div>
+        <div class="form-group">
+            {{ form_errors(formReg.fieldWork) }}
+            {{ form_widget(formReg.fieldWork) }}
+        </div>
+        <div class="form-group">
+            {{ form_errors(formReg.fieldDescribe) }}
+            {{ form_widget(formReg.fieldDescribe) }}
+        </div>
+        <div class="form-group">
+            {{ form_errors(formReg.fieldInfo) }}
+            {{ form_widget(formReg.fieldInfo) }}
+        </div>
+        <div class="form-group">
+            {{ form_errors(formReg.fieldEmail) }}
+            {{ form_widget(formReg.fieldEmail) }}
+        </div>
+        <div class="form-inline">
+            <div class="form-group">
+                {{ form_errors(formReg.fieldPass) }}
+                {{ form_widget(formReg.fieldPass) }}
+            </div>
+            <div class="form-group">
+                {{ form_errors(formReg.fieldPassApprove) }}
+                {{ form_widget(formReg.fieldPassApprove) }}
+            </div>
+        </div>
+        <div>
+            {{ form_row(formReg.fieldPassApprove) }}
+        </div>
+        {% block captcha %}
+            <div>
+                {% if (captchaError) %}
+                    <span class="icon-warning" style="color:red">{{ captchaError|raw }}</span>
+                {% endif %}
+                {{ captcha|raw }}
+            </div>
+        {% endblock %}
+        <div class="form-group">
+            <label for="formReg_reg" class="btn btn-success">&nbspРегистрация</label>
+            {{ form_widget(formReg.reg) }}
+            <label for="formReg_back" class="btn btn-success">&nbspВернуться на сайт</label>
+            {{ form_widget(formReg.back) }}
+        </div>
+        {{ form_end(formReg) }}
+    </div>
+    <script>
+        jQuery(function ($) {
+            $("#formReg_fieldWork, #formReg_fieldDescribe").removeAttr('required');
+            $("#formReg_fieldOptions").val('student');
+            $('div.btn-group[data-toggle-name]').each(function () {
+                var group = $(this),
+                        form = group.parents('form').eq(0),
+                        name = 'formReg[fieldOptions]',
+                        hidden = $('input[name="' + name + '"]', form);
+                $('button', group).each(function () {
+                    var button = $(this);
+                    button.live('click', function () {
+                        hidden.val($(this).val());
+                        group.find('.active').removeClass('active');
+                        if (button.val() == hidden.val()) {
+                            button.addClass('active');
+                        }
+                        if (hidden.val() == 'student') {
+                            $("#formReg_fieldWork, #formReg_fieldDescribe").hide();
+                            $("#formReg_fieldWork, #formReg_fieldDescribe").removeAttr('required');
+                            $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo").show();
+                            $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo").attr('required');
+                        } else if (hidden.val() == 'employee') {
+                            $("#formReg_fieldWork").show();
+                            $("#formReg_fieldWork").attr('required');
+                            $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo, #formReg_fieldDescribe").hide();
+                            $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo, #formReg_fieldDescribe").removeAttr('required');
+                        } else {
+                            $("#formReg_fieldInstitute, #formReg_fieldChair, #formReg_fieldWork").hide();
+                            $("#formReg_fieldInstitute, #formReg_fieldChair, #formReg_fieldWork").removeAttr('required');
+                            $("#formReg_fieldDescribe").show();
+                            $("#formReg_fieldDescribe").attr('required');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}

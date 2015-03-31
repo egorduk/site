@@ -1636,10 +1636,6 @@ class Helper
         $em->flush();
     }
 
-    /**
-     * Get user's role by user id
-     * @param $userId
-     */
     public static function getUserRoleByRoleId($roleId) {
         $em = self::getContainer()->get('doctrine')->getManager();
         $role = $em->getRepository(self::$_tableUserRole)
@@ -1649,15 +1645,6 @@ class Helper
         }
         return false;
     }
-
-
-    public static function addNewUser($user) {
-        $em = self::getContainer()->get('doctrine')->getManager();
-        $em->persist($user);
-        $em->flush();
-        return $user;
-    }
-
 
     public static function getChatMessages($user, $order, $lastId) {
        $em = self::getContainer()->get('doctrine')->getManager();
@@ -2550,4 +2537,28 @@ class Helper
             ->getResult();
         return $author;
     }
+
+
+
+
+
+
+    /*************************************************************************************************/
+    public static function getUserRoleByRoleName($val) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $role = $em->getRepository(self::$_tableUserRole)
+            ->findOneByName($val);
+        if ($role) {
+            return $role;
+        }
+        return false;
+    }
+
+    public static function addNewUser($user) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $em->persist($user);
+        $em->flush();
+        return $user;
+    }
+
 }

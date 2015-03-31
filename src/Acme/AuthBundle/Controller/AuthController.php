@@ -2,15 +2,15 @@
 
 namespace Acme\AuthBundle\Controller;
 
+use Acme\AuthBundle\Entity\RecoveryFormValidate;
+use Acme\AuthBundle\Entity\RegFormValidate;
 use Acme\AuthBundle\Entity\User;
-use Acme\AuthBundle\Entity\ClientRegFormValidate;
-use Acme\AuthBundle\Entity\AuthorRegFormValidate;
 use Acme\AuthBundle\Entity\LoginFormValidate;
 use Acme\AuthBundle\Form\LoginForm;
 use Acme\AuthBundle\Form\RecoveryForm;
 use Acme\AuthBundle\Entity\UserInfo;
-use Acme\AuthBundle\Form\ClientRegForm;
 use Acme\AuthBundle\Form\AuthorRegForm;
+use Acme\AuthBundle\Form\RegForm;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\ExpressionLanguage\Parser;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,19 +40,20 @@ class AuthController extends Controller
     public function loginAction(Request $request)
     {
         if (!$this->container->get('security.context')->isGranted('IS_AUTHENTICATED_FULLY')) {
+            $errorData = "";
+            $captchaError = "";
             $publicKeyRecaptcha = $this->container->getParameter('publicKeyRecaptcha');
             $captcha = recaptcha_get_html($publicKeyRecaptcha);
             $loginValidate = new LoginFormValidate();
             $formLogin = $this->createForm(new LoginForm(), $loginValidate);
             $formLogin->handleRequest($request);
-            $errorData = "";
-            $captchaError = "";
-            $formRecovery = $this->createForm(new RecoveryForm());
+            $recoveryValidate = new RecoveryFormValidate();
+            $formRecovery = $this->createForm(new RecoveryForm(), $recoveryValidate);
             $formRecovery->handleRequest($request);
             if ($request->isMethod('POST')) {
                 if ($formLogin->get('enter')->isClicked()) {
                     if ($formLogin->isValid()) {
-                        var_dump($request->request->get('formLogin'));die;
+                        //var_dump($request->request->get('formLogin'));die;
                         $privateKeyRecaptcha = $this->container->getParameter('privateKeyRecaptcha');
                         $resp = recaptcha_check_answer($privateKeyRecaptcha, $_SERVER["REMOTE_ADDR"], $request->request->get('recaptcha_challenge_field'), $request->request->get('recaptcha_response_field'));
                         if ($resp->is_valid) {
@@ -87,9 +88,10 @@ class AuthController extends Controller
                         }
                     }
                 } elseif ($formRecovery->get('recovery')->isClicked()) {
+                    $postData = $request->request->get('formRecovery');
+                    var_dump($postData);die;
                     if ($formRecovery->isValid()) {
-                        $postData = $request->request->get('formRecovery');
-                        var_dump($postData);die;
+
                         /*$userEmail = $postData['fieldEmail'];
                         $user = Helper::generateNewPassForRecovery($userEmail);
                         if ($user) {
@@ -110,53 +112,6 @@ class AuthController extends Controller
      */
     public function indexAction(Request $request)
     {
-        /*if (false === $this->container->get('security.context')->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-            //throw new AccessDeniedException();
-            throw new AccessException();
-        }*/
-
-        $session = $request->getSession();
-
-        /*if ($request->attributes->has(SecurityContext::AUTHENTICATION_ERROR)) {
-            $error = $request->attributes->get(SecurityContext::AUTHENTICATION_ERROR);
-        } else {
-            $error = $session->get(SecurityContext::AUTHENTICATION_ERROR);
-        }*/
-
-        //$this->get('security.context')->getToken()->getUser();
-        //$this->get('security.context')->getToken()->getRoles();
-
-        /*if (false === $this->get('security.context')->isGranted('ROLE_ADMIN'))
-        {
-            throw new AccessDeniedException();
-        }*/
-
-        //print_r($session->get('_security_secured_area'));
-        print_r($session);
-        //print_r($this->get('security.context')->getToken());
-
-        return array('test' => '');
-
-        /*$q = $this
-            ->createQueryBuilder('u')
-            ->where('u.username = :username OR u.email = :email')
-            ->setParameter('username', $username)
-            ->setParameter('email', $username)
-            ->getQuery();
-
-        try {
-            // The Query::getSingleResult() method throws an exception
-            // if there is no record matching the criteria.
-            $user = $q->getSingleResult();
-        } catch (NoResultException $e) {
-            $message = sprintf(
-                'Unable to find an active admin AcmeUserBundle:User object identified by "%s".',
-                $username
-            );
-            throw new UsernameNotFoundException($message, 0, $e);
-        }
-
-        return $user;*/
     }
 
 
@@ -176,61 +131,49 @@ class AuthController extends Controller
      * @Template()
      * @return array
      */
-    public function regAction(Request $request, $type)
+    public function regAction(Request $request)
     {
         $captchaError = "";
-        if ($type == "client") {
-            $clientValidate = new ClientRegFormValidate();
-            $formReg = $this->createForm(new ClientRegForm(), $clientValidate);
-            $formReg->handleRequest($request);
-            $publicKeyRecaptcha = $this->container->getParameter('publicKeyRecaptcha');
-            $captcha = recaptcha_get_html($publicKeyRecaptcha);
-            if ($request->isMethod('POST')) {
-                if ($formReg->get('reg')->isClicked()) {
-                    if ($formReg->isValid()) {
-                        $privateKeyRecaptcha = $this->container->getParameter('privateKeyRecaptcha');
-                        $resp = recaptcha_check_answer($privateKeyRecaptcha, $_SERVER["REMOTE_ADDR"], $request->request->get('recaptcha_challenge_field'), $request->request->get('recaptcha_response_field'));
-                        if ($resp->is_valid) {
-                            $postData = $request->request->get('formReg');
-                            $userLogin = $postData['fieldLogin'];
-                            $userPassword = $postData['fieldPass'];
-                            $userEmail = $postData['fieldEmail'];
-                            $userInfo = new UserInfo();
-                            //$countryCode = geoip_country_code_by_name($_SERVER["REMOTE_ADDR"]);
-                            $countryCode = 'by';
-                            $country = Helper::getCountryByCode($countryCode);
-                            $userInfo->setCountry($country);
-                            Helper::addNewUserInfo($userInfo);
-                            $user = new User();
-                            $user->setLogin($userLogin);
-                            $user->setEmail($userEmail);
-                            $role = Helper::getUserRoleByRoleId(2);
-                            $user->setUserRole($role);
-                            $salt = Helper::getSalt();
-                            $password = Helper::getRegPassword($userPassword, $salt);
-                            $user->setPassword($password);
-                            $user->setSalt($salt);
-                            $hashCode = Helper::getRandomValue(15);
-                            $user->setHash($hashCode);
-                            $user->setUserInfo($userInfo);
-                            $user = Helper::addNewUser($user);
-                            Helper::sendConfirmationReg($this->container, $user);
-                            $showWindow = true;
-                        }
-                        else {
-                            $captchaError = $resp->error;
-                        }
+        $regFormValidate = new RegFormValidate();
+        $formReg = $this->createForm(new RegForm(), $regFormValidate);
+        $formReg->handleRequest($request);
+        $publicKeyRecaptcha = $this->container->getParameter('publicKeyRecaptcha');
+        $captcha = recaptcha_get_html($publicKeyRecaptcha);
+        if ($request->isMethod('POST')) {
+            if ($formReg->get('reg')->isClicked()) {
+                if ($formReg->isValid()) {
+                    $privateKeyRecaptcha = $this->container->getParameter('privateKeyRecaptcha');
+                    $resp = recaptcha_check_answer($privateKeyRecaptcha, $_SERVER["REMOTE_ADDR"], $request->request->get('recaptcha_challenge_field'), $request->request->get('recaptcha_response_field'));
+                    if (!$resp->is_valid) {
+                        $postData = $request->request->get('formReg');
+                        $user = new User();
+                        $user->setEmail($postData['fieldEmail']);
+                        $user->setChair($postData['fieldChair']);
+                        $user->setDescribe($postData['fieldDescribe']);
+                        $user->setGroup($postData['fieldGroup']);
+                        $user->setInfo($postData['fieldInfo']);
+                        $user->setInstitute($postData['fieldInstitute']);
+                        $user->setWork($postData['fieldWork']);
+                        $user->setName($postData['fieldName']);
+                        $user->setPassword($postData['fieldPass']);
+                        $user->setPatronymic($postData['fieldPatronymic']);
+                        $user->setSpeciality($postData['fieldSpeciality']);
+                        $user->setSurname($postData['fieldSurname']);
+                        $role = Helper::getUserRoleByRoleName($postData['fieldOptions']);
+                        $user->setUserRole($role);
+                        $user = Helper::addNewUser($user);
+                        //Helper::sendConfirmationReg($this->container, $user);
+                    }
+                    else {
+                        $captchaError = $resp->error;
                     }
                 }
             }
-            return $this->render(
-                'AcmeAuthBundle:Client:reg.html.twig', array('formReg' => $formReg->createView(), 'captcha' => $captcha, 'captchaError' => $captchaError, 'showWindow' => $showWindow)
-            );
         }
-        else {
+        /*else {
             throw new AccessException();
-        }
-
+        }*/
+        return array('formReg' => $formReg->createView(), 'captcha' => $captcha, 'captchaError' => $captchaError);
     }
 
 

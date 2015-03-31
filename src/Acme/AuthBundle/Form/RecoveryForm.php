@@ -19,7 +19,8 @@ class RecoveryForm extends AbstractType
         $builder->add('fieldSurname', 'text', array('label'=>'', 'required' => true, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 25, 'maxlength' => 25, 'placeholder' => 'Фамилия')))
                 ->add('fieldName', 'text', array('label'=>'', 'required' => true, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 25, 'maxlength' => 25, 'placeholder' => 'Имя')))
                 ->add('fieldPatronymic', 'text', array('label'=>'', 'required' => true, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 25, 'maxlength' => 25, 'placeholder' => 'Отчество')))
-                ->add('recovery', 'submit', array('label'=>'Восстановить пароль', 'attr' => array('class' => 'hidden')));
+                ->add('recovery', 'submit', array('label'=>'Восстановить пароль', 'attr' => array('class' => 'hidden')))
+                ->add('fieldEmail', 'hidden', array());
 
         $builder->addEventListener(FormEvents::POST_BIND, function(FormEvent $event) {
            /* $form = $event->getForm();
@@ -38,9 +39,5 @@ class RecoveryForm extends AbstractType
     public function getName()
     {
         return 'formRecovery';
-    }
-
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
-    {
     }
 }
