@@ -18,7 +18,9 @@ secure_index:
   pattern:   /secure/index
   defaults:  { _controller: AcmeSecureBundle:Secure:index }
 
-
+secure_talk:
+  pattern:   /secure/talk
+  defaults:  { _controller: AcmeSecureBundle:Secure:talk }
 
 
 

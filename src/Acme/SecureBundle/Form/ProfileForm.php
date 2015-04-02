@@ -26,16 +26,18 @@ class ProfileForm extends AbstractType
                 ->add('fieldWork', 'text', array('label'=>'', 'required' => false, 'data' => $options['data']->fieldWork, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 12, 'placeholder' => 'Место работы и должность')))
                 ->add('fieldCourse', 'text', array('label'=>'', 'required' => false, 'data' => $options['data']->fieldCourse, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 12, 'placeholder' => 'Курс')))
                 //->add('fieldDescribe', 'text', array('label'=>'', 'required' => false, 'data' => $options['data']->fieldDescribe, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 12, 'placeholder' => 'Что связывает вас с университетом')))
-                ->add('fieldPassOld', 'password', array('label'=>'', 'required' => false, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 12, 'placeholder' => 'Старый')))
+                ->add('fieldPassOld', 'password', array('label'=>'', 'required' => false, 'data' => $options['data']->fieldPassOld, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 12, 'placeholder' => 'Старый')))
                 ->add('fieldPassNew', 'password', array('label'=>'', 'required' => false, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 12, 'placeholder' => 'Новый')))
                 ->add('fieldPassApprove', 'password', array('label'=>'', 'required' => false, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 12, 'placeholder' => 'Повтор нового')))
                 ->add('fieldEmail', 'text', array('label'=>'', 'required' => true, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 25, 'placeholder' => 'Почта')))
                 ->add('fieldOptions', 'hidden', array())
-                ->add('fieldTypeProfile', 'text', array('label'=>'', 'required' => false, 'data' => $options['data']->fieldTypeProfile, 'attr' => array('class' => 'form-control', 'disabled' => true,'title' => '', 'size' => 20, 'maxlength' => 25, 'placeholder' => 'День рождения')))
+                ->add('fieldUserId', 'hidden', array())
+                ->add('fieldTypeProfile', 'text', array('label'=>'', 'required' => false, 'data' => $options['data']->fieldTypeProfile, 'attr' => array('class' => 'form-control', 'disabled' => true,'title' => '', 'size' => 20, 'maxlength' => 25)))
                 ->add('fieldDateBirthday', 'text', array('label'=>'', 'required' => false, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 25, 'placeholder' => 'День рождения')))
                 ->add('fieldAbout', 'text', array('label'=>'', 'required' => false, 'data' => $options['data']->fieldAbout, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 25, 'placeholder' => 'Немного о себе')))
                 ->add('fieldPhone', 'text', array('label'=>'', 'required' => false, 'data' => $options['data']->fieldPhone, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 20, 'maxlength' => 25, 'placeholder' => 'Телефоны')))
                 ->add('fieldIsShowEmail', 'checkbox', array('label'=>'Показывать другим пользователям почту', 'required' => false, 'data' => (bool)($options['data']->fieldIsShowEmail), 'attr' => array('class' => 'form-control', 'title' => '')))
+                ->add('fieldPhoto', 'file', array('label'=>'', 'required' => false, 'attr' => array('class' => 'hidden')))
                 ->add('save', 'submit', array('attr' => array('class' => 'hidden')))
                 ->add('saveNewPassword', 'submit', array('attr' => array('class' => 'hidden')))
                 ->add('writeNewMessage', 'submit', array('attr' => array('class' => 'hidden')))
@@ -45,7 +47,6 @@ class ProfileForm extends AbstractType
         $builder->addEventListener(FormEvents::POST_BIND, function(FormEvent $event) {
             $form = $event->getForm();
             $data = $event->getData();
-            //var_dump($data);die;
             if ($data->getFieldPassNew() !== null && $data->getFieldPassApprove() !== null) {
                 $newPassword = $form->get('fieldPassNew')->getData();
                 $approvePassword = $form->get('fieldPassApprove')->getData();
@@ -55,6 +56,17 @@ class ProfileForm extends AbstractType
                 }
             }
         });
+        if ($options['data']->userRole == 'student') {
+            $builder->remove('fieldWork');
+        } elseif ($options['data']->userRole == 'employee') {
+            $builder->remove('fieldSpeciality');
+            $builder->remove('fieldGroup');
+            $builder->remove('fieldCourse');
+        } /*elseif ($options['data']->userRole == 'other') {
+            $builder->remove('fieldSpeciality');
+            $builder->remove('fieldGroup');
+            $builder->remove('fieldCourse');
+        }*/
     }
 
     public function getName() {

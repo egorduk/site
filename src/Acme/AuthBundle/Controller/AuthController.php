@@ -53,35 +53,31 @@ class AuthController extends Controller
             if ($request->isMethod('POST')) {
                 if ($formLogin->get('enter')->isClicked()) {
                     if ($formLogin->isValid()) {
-                        //var_dump($request->request->get('formLogin'));die;
                         $privateKeyRecaptcha = $this->container->getParameter('privateKeyRecaptcha');
                         $resp = recaptcha_check_answer($privateKeyRecaptcha, $_SERVER["REMOTE_ADDR"], $request->request->get('recaptcha_challenge_field'), $request->request->get('recaptcha_response_field'));
                         if ($resp->is_valid) {
                             $postData = $request->request->get('formLogin');
                             $userEmail = $postData['fieldEmail'];
                             $userPassword = $postData['fieldPass'];
-                            $user = Helper::getUserByEmailAndIsConfirm($userEmail);
+                            $user = Helper::getUserByEmailAndPassword($userEmail, $userPassword);
                             if (!$user) {
                                 $errorData = "Введен неправильный Email или пароль";
                             } else {
-                                $encodedPassword = Helper::getUserPassword($userPassword, $user->getSalt());
-                                if (!StringUtils::equals($encodedPassword, $user->getPassword())) {
-                                    $errorData = "Введен неправильный Email или пароль";
+                                $roleCode = $user->getUserRole()->getCode();
+                                if ($roleCode == 'student') {
+                                    $role = 'ROLE_STUDENT';
+                                } elseif ($roleCode == 'employee') {
+                                    $role = 'ROLE_EMPLOYEE';
+                                } elseif ($roleCode == 'admin') {
+                                    $role = 'ROLE_ADMIN';
+                                } elseif ($roleCode == 'other') {
+                                    $role = 'ROLE_OTHER';
                                 } else {
-                                    $roleCode = $user->getUserRole()->getCode();
-                                    if ($roleCode == 'author') {
-                                        $role = 'ROLE_AUTHOR';
-                                    } elseif ($roleCode == 'client') {
-                                        $role = 'ROLE_CLIENT';
-                                    }
-                                    $token = new UsernamePasswordToken($user, null, 'secured_area', array($role));
-                                    $this->get('security.context')->setToken($token);
-                                    if ($role == 'ROLE_AUTHOR') {
-                                        return new RedirectResponse($this->generateUrl('secure_author_index'));
-                                    } elseif ($role == 'ROLE_CLIENT') {
-                                        return new RedirectResponse($this->generateUrl('secure_client_index'));
-                                    }
+                                    $role = 'ROLE_DEVELOPER';
                                 }
+                                $token = new UsernamePasswordToken($user, null, 'secured_area', array($role));
+                                $this->get('security.context')->setToken($token);
+                                return new RedirectResponse($this->generateUrl('secure_index'));
                             }
                         } else {
                             $captchaError = $resp->error;
@@ -102,6 +98,7 @@ class AuthController extends Controller
             }
             return array('formLogin' => $formLogin->createView(), 'errorData' => $errorData, 'captcha' => $captcha, 'captchaError' => $captchaError, 'formRecovery' => $formRecovery->createView());
         } else {
+            return new RedirectResponse($this->generateUrl('secure_index'));
         }
     }
 

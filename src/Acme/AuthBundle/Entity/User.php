@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Serializer;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @ORM\Table(name="user")
@@ -182,7 +183,8 @@ class User implements UserInterface, \Serializable
      */
     public function setDateBirthday($date_birthday)
     {
-        $this->date_birthday = $date_birthday;
+        $sourceFormat = 'd.m.Y';
+        $this->date_birthday = Helper::getFormatDateForInsert($date_birthday, $sourceFormat);
     }
 
     /**
@@ -448,10 +450,36 @@ class User implements UserInterface, \Serializable
     public function __construct() {
         $this->link_message_response = new \Doctrine\Common\Collections\ArrayCollection();
         $this->link_message_writer = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->photo = 'default.png';
     }
 
     public function getUsername()
     {
+    }
+
+    /**
+     * @Assert\File(maxSize="6000000")
+     */
+    private $file;
+
+    /**
+     * Sets file.
+     *
+     * @param UploadedFile $file
+     */
+    public function setFile(UploadedFile $file = null)
+    {
+        $this->file = $file;
+    }
+
+    /**
+     * Get file.
+     *
+     * @return UploadedFile
+     */
+    public function getFile()
+    {
+        return $this->file;
     }
 
 
@@ -503,5 +531,43 @@ class User implements UserInterface, \Serializable
 
     public function getUnEncodePass() {
         return $this->unEncodePass;
+    }
+
+    public function upload() {
+        if (null === $this->getFile()) {
+            return;
+        }
+        $this->getFile()->move(
+            $this->getUploadRootDir(),
+            $this->getFile()->getClientOriginalName()
+        );
+        $this->path = $this->getFile()->getClientOriginalName();
+        $this->file = null;
+    }
+
+    public $path;
+
+    public function getAbsolutePath() {
+        return null === $this->path
+            ? null
+            : $this->getUploadRootDir().'/'.$this->path;
+    }
+
+    public function getWebPath() {
+        return null === $this->path
+            ? null
+            : $this->getUploadDir().'/'.$this->path;
+    }
+
+    protected function getUploadRootDir() {
+        // the absolute directory path where uploaded
+        // documents should be saved
+        return __DIR__.'/../../../../web/'.$this->getUploadDir();
+    }
+
+    protected function getUploadDir() {
+        // get rid of the __DIR__ so it doesn't screw up
+        // when displaying uploaded doc/image in the view.
+        return 'uploads/avatars';
     }
 }

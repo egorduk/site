@@ -14,7 +14,6 @@ use Acme\SecureBundle\Entity\UserOrder;
 use Acme\SecureBundle\Entity\UserPs;
 use Acme\SecureBundle\Entity\WebchatMessage;
 use Proxies\__CG__\Acme\AuthBundle\Entity\User;
-use Proxies\__CG__\Acme\SecureBundle\Entity\Author\AuthorFile;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Yaml\Yaml;
@@ -54,7 +53,7 @@ class Helper
     private static $_tableMailOption = 'AcmeSecureBundle:MailOption';
     //private static $kernel;
 
-    private static $_avatarFolder = '/study/web/uploads/avatars/';
+    private static $_avatarFolder = '/site/web/uploads/avatars/';
 
     public function __construct() {
     }
@@ -90,19 +89,7 @@ class Helper
         return date($format, $timestamp);
     }
 
-    /**
-     * Get user by email and if he confirmed activation
-     * @param $userEmail
-     * @return bool
-     */
-    public static function getUserByEmailAndIsConfirm($userEmail) {
-        $user = self::getContainer()->get('doctrine')->getRepository(self::$_tableUser)
-            ->findOneBy(array('email' => $userEmail, 'is_confirm' => 1, 'is_ban' => 0));
-        if (!$user) {
-            return false;
-        }
-        return $user;
-    }
+
 
     public static function isExistsUserByEmail($userEmail)
     {
@@ -563,11 +550,7 @@ class Helper
     }
 
 
-    public static function getFormatDateForInsert($sourceDate, $format) {
-        $date = \DateTime::createFromFormat($format, $sourceDate);
-        $date = $date->format('Y-m-d H:i:s');
-        return new \Datetime($date);
-    }
+
 
 
     public static function getCountOrdersForClientGrid($user) {
@@ -951,190 +934,6 @@ class Helper
     }
 
 
-    public static function getNewOrdersForAuthorGrid($sOper = null, $sField = null, $sData = null, $firstRowIndex, $rowsPerPage, $sortingField, $sortingOrder, $user) {
-        $em = self::getContainer()->get('doctrine')->getManager();
-        if ($sField != null && $sOper != null && $sData != null) {
-            if ($sField == "subject_order") {
-                $field = 'child_name';
-            }
-            elseif ($sField == "type_order") {
-                $field = 'name';
-            }
-            if ($sOper == 'eq') {
-                if ($sField != "subject_order" && $sField != "type_order") {
-                    $orders = $em->getRepository(self::$_tableUserOrder)
-                        ->findBy(
-                            array('is_show_author' => 1, $sField => $sData),
-                            array($sField => $sortingOrder),
-                            $rowsPerPage, $firstRowIndex
-                        );
-                }
-                else {
-                    $orders = $em->getRepository(self::$_tableUserOrder)->createQueryBuilder('o')
-                        ->andWhere('o.is_show_author = 1')
-                        ->innerJoin('o.' . $sField , 'a')
-                        ->andWhere('a.' . $field . ' = :data')
-                        ->setParameter('data', $sData)
-                        ->getQuery()
-                        ->getResult();
-                }
-            }
-            elseif ($sOper == 'ne') {
-                if ($sField != "subject_order" && $sField != "type_order") {
-                    $orders = $em->getRepository(self::$_tableUserOrder)->createQueryBuilder('o')
-                        ->andWhere('o.is_show_author = 1')
-                        ->andWhere('o.' . $sField . ' != :data')
-                        ->setParameter('data', $sData)
-                        ->getQuery()
-                        ->getResult();
-                }
-                else {
-                    $orders = $em->getRepository(self::$_tableUserOrder)->createQueryBuilder('o')
-                        ->andWhere('o.is_show_author = 1')
-                        ->innerJoin('o.' . $sField , 'a')
-                        ->andWhere('a.' . $field . ' != :data')
-                        ->setParameter('data', $sData)
-                        ->getQuery()
-                        ->getResult();
-                }
-            }
-            elseif ($sOper == 'bw') {
-                if ($sField != "subject_order" && $sField != "type_order") {
-                    $orders = $em->getRepository(self::$_tableUserOrder)->createQueryBuilder('o')
-                        ->andWhere('o.is_show_author = 1')
-                        ->andWhere('o.' . $sField . ' LIKE :data')
-                        ->setParameter('data', $sData . '%')
-                        ->getQuery()
-                        ->getResult();
-                }
-                else {
-                    $orders = $em->getRepository(self::$_tableUserOrder)->createQueryBuilder('o')
-                        ->andWhere('o.is_show_author = 1')
-                        ->innerJoin('o.' . $sField , 'a')
-                        ->andWhere('a.' . $field . ' LIKE :data')
-                        ->setParameter('data', '%' . $sData . '%')
-                        ->getQuery()
-                        ->getResult();
-                }
-            }
-            elseif ($sOper == 'cn') {
-                if ($sField != "subject_order" && $sField != "type_order") {
-                    $orders = $em->getRepository(self::$_tableUserOrder)->createQueryBuilder('o')
-                        ->andWhere('o.user = :user')
-                        ->andWhere('o.is_show_client = 1')
-                        ->andWhere('o.' . $sField . ' LIKE :data')
-                        ->setParameter('user', $user)
-                        ->setParameter('data', $sData . '%')
-                        ->getQuery()
-                        ->getResult();
-                }
-                else {
-                    $orders = $em->getRepository(self::$_tableUserOrder)->createQueryBuilder('o')
-                        ->andWhere('o.is_show_author = 1')
-                        ->innerJoin('o.' . $sField , 'a')
-                        ->andWhere('a.' . $field . ' LIKE :data')
-                        ->setParameter('data', '%' . $sData . '%')
-                        ->getQuery()
-                        ->getResult();
-                }
-            }
-        }
-        else {
-            if (isset($sortingField) && $sortingField != "" && isset($sortingOrder) && $sortingOrder != "") {
-                /*$orders = $em->getRepository(self::$_tableUserOrder)
-                    ->findBy(
-                        array('is_show_author' => 1, 'is_show_client' => 1),
-                        array($sortingField => $sortingOrder),
-                        $rowsPerPage,
-                        $firstRowIndex
-                    );*/
-                $now = new \DateTime('now');
-                $orders = $em->getRepository(self::$_tableUserOrder)->createQueryBuilder('uo')
-                    //->select('favorite_order AS favorite')
-                    //->select('MAX(ub.sum) AS max_sum, uo, ub.date_bid AS date_bid')
-                    //->select('fo')
-                    //->innerJoin('AcmeSecureBundle:UserBid', 'ub', 'WITH', 'ub.user_order = uo')
-                    //->innerJoin('AcmeSecureBundle:UserBid', 'ub')
-                    //->andWhere('ub.user_order = uo')
-                    //->innerJoin('AcmeSecureBundle:StatusOrder', 'so', 'WITH', 'so = uo.status_order')
-                    //->innerJoin(self::$_tableFavoriteOrder, 'fo')
-                    //->innerJoin(self::$_tableFavoriteOrder, 'uo')
-                    ->innerJoin('uo.status_order', 'so')
-                    ->andWhere('uo.is_show_author = 1')
-                    ->andWhere('uo.is_show_client = 1')
-                    ->andWhere('uo.date_expire > :now')
-                    ->andWhere('so.code IN(:code)')
-                    //->groupBy('ub.user_order')
-                    //->orWhere("so.code = 'ca'")
-                    ->orderBy('uo.' . $sortingField, $sortingOrder)
-                    ->setParameter('now', $now)
-                    ->setParameter('code', array_values(array('sa')))
-                    ->setFirstResult($firstRowIndex)
-                    ->setMaxResults($rowsPerPage)
-                    ->getQuery()
-                    ->getResult();
-                //var_dump(count($orders));die;
-                $query = $em->createQuery("SELECT MAX(ub.sum) AS max_sum, MIN(ub.sum) AS min_sum, uo.id AS order_id FROM AcmeSecureBundle:UserOrder AS uo
-                    JOIN AcmeSecureBundle:UserBid AS ub WITH ub.user_order = uo
-                    WHERE uo.is_show_author = 1
-                    AND uo.is_show_client = 1
-                    AND ub.is_show_author = 1
-                    AND ub.is_show_client = 1
-                    AND uo.date_expire > :now
-                    GROUP BY uo.id");
-                $query->setParameter('now', $now);
-                $bids = $query->getResult();
-                $favoriteOrders = $em->getRepository(self::$_tableFavoriteOrder)
-                    ->findByUser($user);
-
-                $userId = $user->getId();
-                $query = $em->getConnection()
-                    ->prepare("SELECT * FROM (
-                    SELECT ub.user_id AS uid,ub.sum,uo.id AS order_id FROM user_bid AS ub JOIN user_order AS uo ON ub.user_order_id = uo.id JOIN `user` AS u ON ub.user_id = u.id JOIN status_order so ON uo.status_order_id = so.id WHERE so.`code` = 'sa' AND ub.is_show_author = '1' AND u.id = '$userId' ORDER BY ub.date_bid DESC) AS t GROUP BY order_id");
-                $query->execute();
-                $authorBids = $query->fetchAll();
-                $countBids = count($authorBids);
-                //var_dump($countBids);die;
-
-                foreach($orders as $order) {
-                    foreach($bids as $index => $bid) {
-                        if ($order->getId() == $bid['order_id']) {
-                            $order->setMaxSum($bid['max_sum']);
-                            break;
-                        }
-                    }
-                    foreach($bids as $index => $bid) {
-                        if ($order->getId() == $bid['order_id']) {
-                            $order->setMinSum($bid['min_sum']);
-                            break;
-                        }
-                    }
-                    foreach($favoriteOrders as $index => $favoriteOrder) {
-                        if ($order->getId() == $favoriteOrder->getUserOrder()->getId()) {
-                            $order->setIsFavorite(1);
-                            break;
-                        }
-                    }
-                    for ($i = 0; $i < $countBids; $i++) {
-                        if ($order->getId() == $authorBids[$i]['order_id']) {
-                            $order->setAuthorLastSumBid($authorBids[$i]['sum']);
-                            break;
-                        }
-                    }
-                }
-            }
-            else {
-                $orders = $em->getRepository(self::$_tableUserOrder)
-                    ->findBy(
-                        array('is_show_author' => 1, 'is_show_client' => 1),
-                        //array('num' => 'ASC'),
-                        $rowsPerPage,
-                        $firstRowIndex
-                    );
-            }
-        }
-        return $orders;
-    }
 
 
     public static function getFavoriteOrdersForAuthorGrid($firstRowIndex = null, $rowsPerPage = null, $user, $mode) {
@@ -1356,19 +1155,7 @@ class Helper
 
 
     //public static function getFullPathToAvatar($user = null, $fileName = null, $userId = null) {
-    public static function getFullPathToAvatar($user = null, $userId = null) {
-        if (!$user && $userId) {
-            $user = self::getUserById($userId);
-        }
-        $fileName = $user->getAvatar();
-        $userRole = $user->getUserRole()->getCode();
-        if ($fileName == 'default_m.jpg' || $fileName == 'default_w.jpg' || $fileName == 'default.png') {
-            return self::$_avatarFolder . $fileName;
-        } else {
-            $userId = $user->getId();
-            return self::$_avatarFolder . $userRole . '/' . $userId . '/' . $fileName;
-        }
-    }
+
 
     /** Select author bid and send notice mail to author
      * @param $user
@@ -1702,12 +1489,7 @@ class Helper
     }*/
 
 
-    public static function getUserAvatar($user) {
-        $pathAvatar = Helper::getFullPathToAvatar($user);
-        $userAvatar = "<img src='$pathAvatar' align='middle' alt='Аватар' width='110px' height='auto' class='thumbnail'>";
-        $user->setAvatar($userAvatar);
-        return $user;
-    }
+
 
     public static function getUserAvatarForPdf($user) {
         $pathAvatar =  $_SERVER['DOCUMENT_ROOT'] . Helper::getFullPathToAvatar($user);
@@ -2540,13 +2322,16 @@ class Helper
         return false;
     }
 
-    public static function getUserNewMessages($user) {
-        $user = self::getContainer()->get('doctrine')->getRepository(self::$_tableMessage)
-            ->findByResponseId($user);
-        if ($user) {
-            return count($user);
-        }
-        return false;
+    public static function getUserMessages($user) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $messages = $em->getRepository(self::$_tableMessage)->createQueryBuilder('m')
+            ->innerJoin(self::$_tableUser, 'u', 'WITH', 'm.writerId = u')
+            ->andWhere('m.responseId = :user')
+            ->andWhere('m.is_read = 0')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+        return $messages;
     }
 
     public static function updateUser($postData, $user) {
@@ -2563,10 +2348,130 @@ class Helper
         $user->setCourse($postData['fieldCourse']);
         $user->setWork($postData['fieldWork']);
         $user->setIsShowEmail($postData['fieldIsShowEmail']);
-        //$user->setDateBirthday($postData['fieldDateBirthday']);
+        //var_dump($postData['fieldDateBirthday']);die;
+        $user->setDateBirthday($postData['fieldDateBirthday']);
         $user->setPhone($postData['fieldPhone']);
         $em->merge($user);
         $em->flush();
+        return $user;
+    }
+
+    /**
+     * Get user by email and password
+     */
+    public static function getUserByEmailAndPassword($userEmail, $userPassword) {
+        $user = self::getContainer()->get('doctrine')->getRepository(self::$_tableUser)
+            ->findOneBy(array('email' => $userEmail, 'password' => $userPassword));
+        if (!$user) {
+            return false;
+        }
+        return $user;
+    }
+
+    public static function getUserPhoto($user) {
+        $userPhoto = $user->getPhoto();
+        $pathAvatar = self::$_avatarFolder . $userPhoto;
+        $userAvatar = "<img src='$pathAvatar' align='middle' alt='' width='110px' height='auto' class='thumbnail'>";
+        return $userAvatar;
+    }
+
+    public static function getFormatDateForInsert($sourceDate, $format) {
+        $date = \DateTime::createFromFormat($format, $sourceDate);
+        $date = $date->format('Y-m-d');
+        return new \Datetime($date);
+    }
+
+    public static function changeUserPassword($postData, $user) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $user->setPassword($postData['fieldPassNew']);
+        $em->merge($user);
+        $em->flush();
+        return $user;
+    }
+
+    public static function getWriterFio($msg) {
+        return $msg->getWriter()->getSurname() . ' ' . $msg->getWriter()->getName() . ' ' . $msg->getWriter()->getPatronymic();
+    }
+
+    public static function getMessagesForGrid($firstRowIndex, $rowsPerPage, $user, $searchVal) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        if ($searchVal != null) {
+            $writer = $em->getRepository(self::$_tableUser)->findOneByName($searchVal);
+            if ($writer) {
+                $messages = $em->getRepository(self::$_tableMessage)->createQueryBuilder('m')
+                    ->innerJoin(self::$_tableUser, 'u', 'WITH', 'm.responseId = u')
+                    ->andWhere('m.writerId = :writer')
+                    ->andWhere('m.responseId = :user')
+                    ->setParameter('user', $user)
+                    ->setParameter('writer', $writer)
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                $messages = $em->getRepository(self::$_tableMessage)
+                    ->findBy(
+                        array('theme' => $searchVal),
+                        array('id' => 'ASC'),
+                        $rowsPerPage,
+                        $firstRowIndex
+                    );
+                if (!$messages) {
+                    return null;
+                }
+            }
+        } else {
+            /*$messages = $em->getRepository(self::$_tableMessage)
+                ->findBy(
+                    array('responseId' => $user),
+                    array('id' => 'ASC'),
+                    $rowsPerPage,
+                    $firstRowIndex
+                );*/
+            $messages = $em->getRepository(self::$_tableMessage)->createQueryBuilder('m')
+                ->innerJoin(self::$_tableUser, 'u', 'WITH', 'm.responseId = u')
+                ->andWhere('m.responseId = :user')
+                ->setParameter('user', $user)
+                ->groupBy('m.writerId')
+                ->getQuery()
+                ->getResult();
+        }
+        return $messages;
+    }
+
+    public static function deleteMessage($messagesId) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        foreach($messagesId as $msgId) {
+            $msg = $em->getRepository(self::$_tableMessage)
+                ->findOneById($msgId);
+            $em->remove($msg);
+            $em->flush();
+        }
+    }
+
+    public static function readMessage($messagesId) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        foreach($messagesId as $msgId) {
+            $msg = $em->getRepository(self::$_tableMessage)
+                ->findOneById($msgId);
+            $msg->setIsRead(1);
+            $em->flush();
+        }
+    }
+
+    public static function getTalkForGrid($user, $writerId) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        /*$writer = $em->getRepository(self::$_tableUser)
+            ->findById($writerId);*/
+       /* $messages = $em->getRepository(self::$_tableMessage)
+            ->findBy(array('writerId' => $writer, 'responseId' => $user));*/
+        $query = $em->createQuery('SELECT m.id,m.content,m.date_write,u.id AS writer_id,u.surname,u.name,u.patronymic FROM AcmeSecureBundle:Message m
+        INNER JOIN AcmeAuthBundle:User u WITH m.writerId = u.id
+        INNER JOIN AcmeAuthBundle:User u1 WITH m.responseId = u1.id
+        WHERE (m.writerId=:writer_id AND m.responseId=:response_id)
+        OR (m.writerId=:response_id AND m.responseId=:writer_id)');
+        $query->setParameter('writer_id', $writerId);
+        $query->setParameter('response_id', $user->getId());
+        $messages = $query->getResult();
+        return $messages;
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace Acme\SecureBundle\Controller;
 
+use Acme\AuthBundle\Entity\User;
 use Acme\SecureBundle\Entity\Author\MailOptionsFormValidate;
 use Acme\SecureBundle\Entity\Author\OutputPsFormValidate;
 use Acme\SecureBundle\Entity\CancelRequestFormValidate;
@@ -20,6 +21,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Csrf\CsrfProvider\CsrfProviderAdapter;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Finder\Iterator\SortableIterator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -50,8 +52,7 @@ class SecureController extends Controller
     public function indexAction(Request $request)
     {
         $user = $this->getUser();
-        $user = Helper::getUserById(1);
-        $profileFormValidate = new ProfileFormValidate();
+        $profileFormValidate = new ProfileFormValidate($user->getUserRole()->getCode());
         $profileFormValidate->setFieldSurname($user->getSurname());
         $profileFormValidate->setFieldName($user->getName());
         $profileFormValidate->setFieldPatronymic($user->getPatronymic());
@@ -68,42 +69,115 @@ class SecureController extends Controller
         $profileFormValidate->setFieldIsShowEmail($user->getIsShowEmail());
         $profileFormValidate->setFieldPassOld($user->getPassword());
         $profileFormValidate->setFieldTypeProfile($user->getUserRole()->getName());
+        $profileFormValidate->setFieldUserId($user->getId());
         $formProfile = $this->createForm(new ProfileForm(), $profileFormValidate);
         $formProfile->handleRequest($request);
-        $messages = Helper::getUserNewMessages($user);
-        var_dump($messages);die;
-        if ($request->isMethod('POST')) {
+        $messages = Helper::getUserMessages($user);
+        $message = [];
+        $message['support'] = 0;
+        $message['private'] = 0;
+        $message['chair'] = 0;
+        $message['request'] = 0;
+       /* foreach($messages as $msg) {
+            if ($msg->getWriter()->getUserRole()->getCode() == 'suppoer') {
+
+            }
+        }*/
+        $message['total'] = count($messages);
+        $userPhoto = Helper::getUserPhoto($user);
+        if ($request->isXmlHttpRequest()) {
+            $postData = $request->request->all();
+            if (isset($postData['oper']) && $postData['oper'] == 'del') {
+                $messagesId = explode(',', $postData['id']);
+                Helper::deleteMessage($messagesId);
+                exit;
+            } elseif (isset($postData['oper']) && $postData['oper'] == 'readable') {
+                $messagesId = explode(',', $postData['id']);
+                Helper::readMessage($messagesId);
+                exit;
+            }
+            $curPage = $postData['page'];
+            $rowsPerPage = $postData['rows'];
+            $search = $postData['search'];
+            $searchVal = null;
+            if (isset($search) && $search == "true") {
+                $searchVal = $postData['searchVal'];
+            }
+            $firstRowIndex = $curPage * $rowsPerPage - $rowsPerPage;
+            $messages = Helper::getMessagesForGrid($firstRowIndex, $rowsPerPage, $user, $searchVal);
+            $countMessages = count($messages);
+            $response = new Response();
+            $response->total = ceil($countMessages / $rowsPerPage);
+            $response->records = $countMessages;
+            $response->page = $curPage;
+            if ($messages) {
+                foreach($messages as $index => $msg) {
+                    $writerFio = Helper::getWriterFio($msg);
+                    $response->rows[$index]['id'] = $msg->getId();
+                    $response->rows[$index]['cell'] = array(
+                        $msg->getId(),
+                        $writerFio,
+                        $msg->getDateWrite()->format("d.m.Y H:i:s"),
+                        $msg->getTheme(),
+                        $msg->getWriter()->getId()
+                    );
+                }
+            }
+            return new JsonResponse($response);
+        } elseif ($request->isMethod('POST')) {
             if ($formProfile->get('save')->isClicked()) {
                 if ($formProfile->isValid()) {
+                    $uploadedFile = $request->files->get('formProfile')['fieldPhoto'];
+                    if ($uploadedFile) {
+                        $directory = $this->get('kernel')->getRootDir() . '/../web/uploads/avatars/';
+                        $uploadedFile->move($directory, $uploadedFile->getClientOriginalName());
+                        $user->setPhoto($uploadedFile->getClientOriginalName());
+                    }
                     $postData = $request->request->get('formProfile');
-                    Helper::updateUser($postData, $user);
-                    //var_dump($postData);die;
-                    /*$user = new User();
-                    $user->setEmail($postData['fieldEmail']);
-                    $user->setChair($postData['fieldChair']);
-                    $user->setDescribe($postData['fieldDescribe']);
-                    $user->setGroup($postData['fieldGroup']);
-                    $user->setInfo($postData['fieldInfo']);
-                    $user->setInstitute($postData['fieldInstitute']);
-                    $user->setWork($postData['fieldWork']);
-                    $user->setName($postData['fieldName']);
-                    $user->setPassword($postData['fieldPass']);
-                    $user->setPatronymic($postData['fieldPatronymic']);
-                    $user->setSpeciality($postData['fieldSpeciality']);
-                    $user->setSurname($postData['fieldSurname']);
-                    $role = Helper::getUserRoleByRoleName($postData['fieldOptions']);
-                    $user->setUserRole($role);
-                    $user = Helper::addNewUser($user);
-                    $responseMessage = 'Как только ваша заявка будет рассмотрена вам на почту придет ответ';*/
+                    $user = Helper::updateUser($postData, $user);
+                    $userPhoto = Helper::getUserPhoto($user);
                     //Helper::sendConfirmationReg($this->container, $user);
                 }
             } elseif ($formProfile->get('saveNewPassword')->isClicked()) {
                 if ($formProfile->isValid()) {
-
+                    $postData = $request->request->get('formProfile');
+                    $user = Helper::changeUserPassword($postData, $user);
                 }
             }
         }
-        return array('user' => $user, 'formProfile' => $formProfile->createView());
+        return array('user' => $user, 'formProfile' => $formProfile->createView(), 'messages' => $message, 'userPhoto' => $userPhoto);
+    }
+
+    /**
+     * @Template()
+     * @return array
+     */
+    public function talkAction(Request $request)
+    {
+        $user = $this->getUser();
+        if ($request->isXmlHttpRequest()) {
+            $postData = $request->request->all();
+            $writerId = $postData['writerId'];
+            $messages = Helper::getTalkForGrid($user, $writerId);
+            $response = new Response();
+            if ($messages) {
+                foreach($messages as $index => $msg) {
+                    $writerFio = 'Вы';
+                    if ($msg['writer_id'] != $user->getId()) {
+                        $writerFio = $msg['surname'] . ' ' . $msg['name'] . ' ' . $msg['patronymic'];
+                    }
+                    $response->rows[$index]['id'] = $msg['id'];
+                    $response->rows[$index]['cell'] = array(
+                        $msg['id'],
+                        $writerFio,
+                        $msg['content'],
+                        $msg['date_write']->format("d.m.Y H:i:s"),
+                        ''
+                    );
+                }
+            }
+            return new JsonResponse($response);
+        }
     }
 
 

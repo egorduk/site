@@ -61,7 +61,7 @@ class Message extends EntityRepository
     /**
      * @return mixed
      */
-    public function getResponseId()
+    public function getResponse()
     {
         return $this->responseId;
     }

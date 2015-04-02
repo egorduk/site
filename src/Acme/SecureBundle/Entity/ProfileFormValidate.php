@@ -25,6 +25,41 @@ class ProfileFormValidate
     public $fieldCourse;
     public $fieldPhone;
     public $fieldTypeProfile;
+    public $fieldUserId;
+    public $userRole;
+    public $fieldPhoto;
+
+    /**
+     * @param mixed $fieldPhoto
+     */
+    public function setFieldPhoto($fieldPhoto)
+    {
+        $this->fieldPhoto = $fieldPhoto;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFieldPhoto()
+    {
+        return $this->fieldPhoto;
+    }
+
+    /**
+     * @param mixed $fieldUserId
+     */
+    public function setFieldUserId($fieldUserId)
+    {
+        $this->fieldUserId = $fieldUserId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFieldUserId()
+    {
+        return $this->fieldUserId;
+    }
 
     /**
      * @param mixed $fieldTypeProfile
@@ -367,7 +402,7 @@ class ProfileFormValidate
 
 
 
-    public function __construct()
-    {
+    public function __construct($a) {
+        $this->userRole = $a;
     }
 }
