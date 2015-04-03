@@ -1544,19 +1544,6 @@ class Helper
     }
 
 
-    public static function deleteAuthorBid($user, $numOrder) {
-        $em = self::getContainer()->get('doctrine')->getManager();
-        $order = $em->getRepository(self::$_tableUserOrder)
-            ->findOneByNum($numOrder);
-        $bid = $em->getRepository(self::$_tableUserBid)
-            ->findOneBy(array('user_order' => $order, 'user' => $user));
-        if ($bid) {
-            $em->remove($bid);
-            $em->flush();
-            return true;
-        }
-        return false;
-    }
 
 
     public static function getWorkOrdersForAuthorGrid($firstRowIndex = null, $rowsPerPage = null, $user, $mode) {
@@ -2472,6 +2459,40 @@ class Helper
         $query->setParameter('response_id', $user->getId());
         $messages = $query->getResult();
         return $messages;
+    }
+
+    public static function deleteSelectedMessage($messageId) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $msg = $em->getRepository(self::$_tableMessage)
+            ->findOneById($messageId);
+        if ($msg) {
+            $em->remove($msg);
+            $em->flush();
+            return true;
+        }
+        return false;
+    }
+
+    public static function deleteTalk($user, $writerId) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $writer = $em->getRepository(self::$_tableUser)
+            ->findOneById($writerId);
+        $messages = $em->getRepository(self::$_tableMessage)
+            ->findBy(array('responseId' => $user, 'writerId' => $writer));
+        if ($messages) {
+            foreach($messages as $msg) {
+                $em->remove($msg);
+            }
+            $em->flush();
+        }
+        $messages = $em->getRepository(self::$_tableMessage)
+            ->findBy(array('responseId' => $writer, 'writerId' => $user));
+        if ($messages) {
+            foreach($messages as $msg) {
+                $em->remove($msg);
+            }
+            $em->flush();
+        }
     }
 
 }

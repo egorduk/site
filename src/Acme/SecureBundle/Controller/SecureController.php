@@ -13,6 +13,7 @@ use Acme\SecureBundle\Entity\CancelRequest;
 use Acme\SecureBundle\Form\Author\AuthorMailOptionsForm;
 use Acme\SecureBundle\Form\Author\OutputPsForm;
 use Acme\SecureBundle\Form\CancelRequestForm;
+use Acme\SecureBundle\Form\MessageTalkForm;
 use Acme\SecureBundle\Form\ProfileForm;
 use Doctrine\Common\Cache\ApcCache;
 use Doctrine\Common\Cache\ArrayCache;
@@ -59,7 +60,7 @@ class SecureController extends Controller
         $profileFormValidate->setFieldInstitute($user->getInstitute());
         $profileFormValidate->setFieldChair($user->getChair());
         $profileFormValidate->setFieldSpeciality($user->getSpeciality());
-        $profileFormValidate->setFieldGroup($user->getGroup());
+        $profileFormValidate->setFieldGroup($user->getGroup()->getName());
         $profileFormValidate->setFieldCourse($user->getCourse());
         $profileFormValidate->setFieldWork($user->getWork());
         $profileFormValidate->setFieldDateBirthday($user->getDateBirthday()->format("d.m.Y"));
@@ -67,11 +68,12 @@ class SecureController extends Controller
         $profileFormValidate->setFieldAbout($user->getAbout());
         $profileFormValidate->setFieldEmail($user->getEmail());
         $profileFormValidate->setFieldIsShowEmail($user->getIsShowEmail());
-        $profileFormValidate->setFieldPassOld($user->getPassword());
         $profileFormValidate->setFieldTypeProfile($user->getUserRole()->getName());
         $profileFormValidate->setFieldUserId($user->getId());
         $formProfile = $this->createForm(new ProfileForm(), $profileFormValidate);
         $formProfile->handleRequest($request);
+        $formMessageTalk = $this->createForm(new MessageTalkForm());
+        $formMessageTalk->handleRequest($request);
         $messages = Helper::getUserMessages($user);
         $message = [];
         $message['support'] = 0;
@@ -143,9 +145,12 @@ class SecureController extends Controller
                     $postData = $request->request->get('formProfile');
                     $user = Helper::changeUserPassword($postData, $user);
                 }
+            } elseif ($formMessageTalk->get('send')->isClicked()) {
+                $postData = $request->request->get('formProfile');
+                var_dump($postData);die;
             }
         }
-        return array('user' => $user, 'formProfile' => $formProfile->createView(), 'messages' => $message, 'userPhoto' => $userPhoto);
+        return array('user' => $user, 'formProfile' => $formProfile->createView(), 'messages' => $message, 'userPhoto' => $userPhoto, 'formMessageTalk' => $formMessageTalk->createView());
     }
 
     /**
@@ -158,6 +163,14 @@ class SecureController extends Controller
         if ($request->isXmlHttpRequest()) {
             $postData = $request->request->all();
             $writerId = $postData['writerId'];
+            $oper = $postData['oper'];
+            if ($oper == 'delete-message') {
+                $messageId = $postData['id'];
+                Helper::deleteSelectedMessage($messageId);
+            } elseif ($oper == 'delete-talk') {
+                $writerId = $postData['id'];
+                Helper::deleteTalk($user, $writerId);
+            }
             $messages = Helper::getTalkForGrid($user, $writerId);
             $response = new Response();
             if ($messages) {

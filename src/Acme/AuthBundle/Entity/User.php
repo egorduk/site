@@ -83,11 +83,6 @@ class User implements UserInterface, \Serializable
     protected $speciality;
 
     /**
-     * @ORM\Column(type="string")
-     */
-    protected $gp;
-
-    /**
      * @param mixed $photo
      */
     public function setPhoto($photo)
@@ -445,6 +440,12 @@ class User implements UserInterface, \Serializable
      * @ORM\JoinColumn(name="user_role_id", referencedColumnName="id")
      **/
     protected $role;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Gp", inversedBy="link_group", cascade={"refresh"})
+     * @ORM\JoinColumn(name="gp_id", referencedColumnName="id")
+     **/
+    protected $gp;
 
 
     public function __construct() {
