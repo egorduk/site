@@ -16,8 +16,9 @@ class MessageTalkForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add('fieldTheme', 'text', array('label'=>'', 'required' => false, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 25, 'maxlength' => 25, 'placeholder' => 'Тема')))
-                ->add('fieldMessage', 'text', array('label'=>'', 'required' => false, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 25, 'maxlength' => 25, 'placeholder' => 'Сообщение')))
+                ->add('fieldMessage', 'text', array('label'=>'', 'required' => false, 'attr' => array('class' => 'form-control', 'title' => '', 'size' => 25, 'maxlength' => 255, 'placeholder' => 'Сообщение')))
                 ->add('fieldShowAll', 'checkbox', array('label'=>'Для всех', 'required' => false, 'attr' => array('class' => 'form-control', 'title' => '')))
+                ->add('fieldResponseId', 'hidden')
                 ->add('send', 'submit', array('attr' => array('class' => 'hidden')));
     }
 

@@ -146,8 +146,8 @@ class SecureController extends Controller
                     $user = Helper::changeUserPassword($postData, $user);
                 }
             } elseif ($formMessageTalk->get('send')->isClicked()) {
-                $postData = $request->request->get('formProfile');
-                var_dump($postData);die;
+                $postData = $request->request->get('formMessageTalk');
+                Helper::sendMessage($postData, $user);
             }
         }
         return array('user' => $user, 'formProfile' => $formProfile->createView(), 'messages' => $message, 'userPhoto' => $userPhoto, 'formMessageTalk' => $formMessageTalk->createView());
@@ -191,6 +191,16 @@ class SecureController extends Controller
             }
             return new JsonResponse($response);
         }
+    }
+
+
+    /**
+     * @Template()
+     * @return array
+     */
+    public function scheduleAction(Request $request)
+    {
+
     }
 
 

@@ -166,5 +166,6 @@ class Message extends EntityRepository
 
     public function __construct(){
         $this->date_write = new \DateTime();
+        $this->is_read = 0;
     }
 }

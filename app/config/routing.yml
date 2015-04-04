@@ -22,7 +22,9 @@ secure_talk:
   pattern:   /secure/talk
   defaults:  { _controller: AcmeSecureBundle:Secure:talk }
 
-
+secure_schedule:
+  pattern:   /secure/schedule
+  defaults:  { _controller: AcmeSecureBundle:Secure:schedule }
 
 
 

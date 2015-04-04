@@ -5,6 +5,7 @@ namespace Helper;
 use Acme\SecureBundle\Entity\AuctionBid;
 use Acme\SecureBundle\Entity\CancelRequest;
 use Acme\SecureBundle\Entity\FavoriteOrder;
+use Acme\SecureBundle\Entity\Message;
 use Acme\SecureBundle\Entity\MoneyOutput;
 use Acme\SecureBundle\Entity\OrderFile;
 use Acme\SecureBundle\Entity\SelectBid;
@@ -2493,6 +2494,19 @@ class Helper
             }
             $em->flush();
         }
+    }
+
+    public static function sendMessage($postData, $user) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $response = $em->getRepository(self::$_tableUser)
+            ->findOneById($postData['fieldResponseId']);
+        $msg = new Message();
+        $msg->setTheme($postData['fieldTheme']);
+        $msg->setContent($postData['fieldMessage']);
+        $msg->setWriter($user);
+        $msg->setResponse($response);
+        $em->persist($msg);
+        $em->flush();
     }
 
 }

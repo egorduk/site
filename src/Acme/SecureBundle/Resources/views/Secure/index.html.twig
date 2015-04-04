@@ -219,8 +219,19 @@
                             {{ form_errors(formMessageTalk.fieldMessage) }}
                             {{ form_widget(formMessageTalk.fieldMessage) }}
                         </div>
-                        <div id="block-smiles" style="font-size: 20px;">
-                            ?-) :)
+                        <div id="block-smiles" style="font-size: 20px;cursor:pointer;">
+                            <span>?-)</span>
+                            <span>:)</span>
+                            <span>:O</span>
+                            <span>:-(</span>
+                            <span>=(</span>
+                            <span>:-)</span>
+                            <span>:o)</span>
+                            <span>:^)</span>
+                            <span>:c)</span>
+                            <span>:-D</span>
+                            <span>:-9</span>
+                            <span>:X</span>
                         </div>
                         <div class="form-inline">
                             <div class="form-group">
@@ -229,7 +240,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="formProfile_save" class="btn btn-success">&nbspОтправить</label>
+                            <label for="formMessageTalk_send" class="btn btn-success">&nbspОтправить</label>
                             {{ form_widget(formMessageTalk.send) }}
                         </div>
                         {{ form_end(formMessageTalk) }}
@@ -239,6 +250,7 @@
             <script>
                 jQuery(function ($) {
                     $.fn.button.noConflict();
+                    var writerId;
                     var initGridMessages = function () {
                         var grid = $("#list-messages");
                         grid.jqGrid({
@@ -283,11 +295,13 @@
                             },
                             onCellSelect: function(rowid, iCol) {
                                 if (iCol == 4) {
-                                    var rowData = grid.getRowData(rowid), writerId = rowData['writerId'];
+                                    var rowData = grid.getRowData(rowid);
+                                    writerId = rowData['writerId'];
                                     $("#block-messages").hide();
                                     $("#block-talk").show();
                                     $("#block-form-message-talk").show();
                                     initGridTalk(writerId);
+                                    $("#formMessageTalk_fieldResponseId").val(writerId);
                                 }
                             }
                         }).navGrid('#pager',{view:false,del:true,search:false,add:false,edit:false,refresh:true,refreshtext:'Обновить',deltext:'Удалить'},
@@ -347,6 +361,9 @@
                                     return rowId;
                                 }
                                 grid.find("tr").find("td").removeAttr('title');
+                                grid.find("tr").find("td").emoticonize({
+                                    animate: false
+                                });
                                 $(".delete-message").click(function(e) {
                                     var rowId = getRowId(e);
                                     if (rowId) {
@@ -446,25 +463,15 @@
                     function customDelete() {
                         return ("<span class='glyphicon glyphicon-remove delete-message'></span>");
                     }
-                    $('#block-smiles').emoticonize({
-                        //delay: 800,
-                        animate: false,
-                        //exclude: 'pre, code, .no-emoticons'
+                    $("#block-smiles span").emoticonize({
+                        animate: false
+                    }).on('click', function() {
+                        var smile = $(this).text(),
+                                fieldMessage = $("#formMessageTalk_fieldMessage"),
+                                currentVal = fieldMessage.val();
+                        fieldMessage.val(currentVal + ' ' + smile);
+                        fieldMessage.focus();
                     });
-/*                    $('#toggle-headline').toggle(
-                            function(){
-                                $('#large').unemoticonize({
-                                    //delay: 800,
-                                    //animate: false
-                                })
-                            },
-                            function(){
-                                $('#large').emoticonize({
-                                    //delay: 800,
-                                    //animate: false
-                                })
-                            }
-                    );*/
                 });
             </script>
         {% endblock %}
