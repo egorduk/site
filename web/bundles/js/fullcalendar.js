@@ -3119,7 +3119,6 @@ var Grid = fc.Grid = RowRenderer.extend({
 		var isSelectable = view.opt('selectable');
 		var dayClickCell; // null if invalid dayClick
 		var selectionRange; // null if invalid selection
-
 		// this listener tracks a mousedown on a day element, and a subsequent drag.
 		// if the drag ends on the same day, it is a 'dayClick'.
 		// if 'selectable' is enabled, this listener also detects selections.
@@ -3247,6 +3246,7 @@ var Grid = fc.Grid = RowRenderer.extend({
 			start: dates[0].clone(),
 			end: dates[3].clone()
 		};
+        console.log(range);
 
 		if (!this.view.calendar.isSelectionRangeAllowed(range)) {
 			return null;
@@ -4496,27 +4496,24 @@ var DayGrid = Grid.extend({
 		var html = '';
 		var row;
 		var i, cell;
-
+        //console.log(row);
 		for (row = 0; row < rowCnt; row++) {
 			html += this.dayRowHtml(row, isRigid);
 		}
 		this.el.html(html);
-
 		this.rowEls = this.el.find('.fc-row');
 		this.dayEls = this.el.find('.fc-day');
-
 		// trigger dayRender with each cell's element
 		for (i = 0; i < cellCnt; i++) {
 			cell = this.getCell(i);
+            //console.log(cell.start);
 			view.trigger('dayRender', null, cell.start, this.dayEls.eq(i));
 		}
 	},
 
-
 	destroyDates: function() {
 		this.destroySegPopover();
 	},
-
 
 	renderBusinessHours: function() {
 		var events = this.view.calendar.getBusinessHoursEvents(true); // wholeDay=true
@@ -4528,13 +4525,12 @@ var DayGrid = Grid.extend({
 
 	// Generates the HTML for a single row. `row` is the row number.
 	dayRowHtml: function(row, isRigid) {
+        console.log(row);
 		var view = this.view;
 		var classes = [ 'fc-row', 'fc-week', view.widgetContentClass ];
-
 		if (isRigid) {
 			classes.push('fc-rigid');
 		}
-
 		return '' +
 			'<div class="' + classes.join(' ') + '">' +
 				'<div class="fc-bg">' +
@@ -5055,7 +5051,7 @@ DayGrid.mixin({
 			'<span class="fc-title">' +
 				(htmlEscape(event.title || '') || '&nbsp;') + // we always want one line of height
 			'</span>';
-		
+
 		return '<a class="' + classes.join(' ') + '"' +
 				(event.url ?
 					' href="' + htmlEscape(event.url) + '"' :
@@ -5661,6 +5657,7 @@ var TimeGrid = Grid.extend({
 		this.el.html(this.renderHtml());
 		this.dayEls = this.el.find('.fc-day');
 		this.slatEls = this.el.find('.fc-slats tr');
+		console.log(this.slatEls);
 	},
 
 
@@ -5708,14 +5705,14 @@ var TimeGrid = Grid.extend({
         var cnt = 0;
 
 		// Calculate the time for each slot
-		while (slotTime < this.maxTime) {
+	/*	while (slotTime <= this.maxTime) {
 			slotDate = this.start.clone().time(slotTime); // will be in UTC but that's good. to avoid DST issues
             if (cnt > 0) {
                 slotDate.add('minutes', 10);
             }
 			minutes = slotDate.minutes();
 
-			/*axisHtml =
+			*//*axisHtml =
 				'<td class="fc-axis fc-time ' + view.widgetContentClass + '" ' + view.axisStyleAttr() + '>' +
 					((!slotNormal || !minutes) ? // if irregular slot duration, or on the hour, then display the time
 						'<span>' + // for matchCellWidths
@@ -5723,33 +5720,39 @@ var TimeGrid = Grid.extend({
 						'</span>' :
 						''
 						) +
-				'</td>';*/
-
-            axisHtml =
-                '<td class="fc-axis fc-time ' + view.widgetContentClass + '" ' + view.axisStyleAttr() + '>' +
-                    // if irregular slot duration, or on the hour, then display the time
-                    '<span>' + // for matchCellWidths
-                    htmlEscape(slotDate.format(this.axisFormat)) +
-                    '</span>'
-                    +
-                    '</td>';
-
-			/*html +=
-				'<tr ' + (!minutes ? '' : 'class="fc-minor"') + '>' +
-					(!isRTL ? axisHtml : '') +
-					'<td class="' + view.widgetContentClass + '"/>' +
-					(isRTL ? axisHtml : '') +
-				"</tr>";*/
-            html += '<tr ' + (!minutes ? '' : 'class="fc-minor"') + '>' +
-                (!isRTL ? axisHtml : '') +
-                '<td class="' + view.widgetContentClass + '"/>' +
-                (isRTL ? axisHtml : '') +
-                "</tr>"
-
+				'</td>';*//*
+            *//*html +=
+             '<tr ' + (!minutes ? '' : 'class="fc-minor"') + '>' +
+             (!isRTL ? axisHtml : '') +
+             '<td class="' + view.widgetContentClass + '"/>' +
+             (isRTL ? axisHtml : '') +
+             "</tr>";*//*
+            //if (cnt % 2 == 0)
+            {
+                axisHtml =
+                    '<td class="fc-axis fc-time ' + view.widgetContentClass + '" ' + view.axisStyleAttr() + '>' +
+                        // if irregular slot duration, or on the hour, then display the time
+                        '<span>' + // for matchCellWidths
+                        htmlEscape(slotDate.format(this.axisFormat)) +
+                        '</span>'
+                        +
+                        '</td>';
+                html += '<tr ' + (!minutes ? '' : 'class="fc-minor"') + '>' +
+                    (!isRTL ? axisHtml : '') +
+                    '<td class="' + view.widgetContentClass + '"/>' +
+                    (isRTL ? axisHtml : '') +
+                    "</tr>";
+            }
 			slotTime.add(this.slotDuration);
             cnt++;
 		}
-
+*/
+        var arrDuration = ['8:30-10:00','10:10-11:40','12:10-13:40','13:50-15:20','15:30-17:00','17:30-19:00','19:10-20:40'];
+        for(index in arrDuration) {
+            axisHtml = '<td class="fc-axis fc-time ' + view.widgetContentClass + '"' + view.axisStyleAttr() + '>' +
+                '<span>' + arrDuration[index] + '</span></td>';
+            html += "<tr class='fc-minor'>" + axisHtml + "<td class='" + view.widgetContentClass + "'/></></tr>";
+        }
 		return html;
 	},
 

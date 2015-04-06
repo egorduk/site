@@ -1,12 +1,21 @@
 {% extends "AcmeAuthBundle::layout.html.twig" %}
     {% block title "Расписание занятий" %}
         {% block content %}
-            <link rel="stylesheet" href="{{ asset('bundles/css/fullcalendar.min.css') }}" />
-            <script type="text/javascript" src="{{ asset('bundles/js/moment.min.js') }}"></script>
-            <script type="text/javascript" src="{{ asset('bundles/js/fullcalendar.js') }}"></script>
-            <style>
-            </style>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/locale/locale_ru.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <link rel="stylesheet" href="{{ asset('bundles/css/schedule/dhtmlxscheduler.css') }}" charset="utf-8" />
             <div class="container">
+                <style>
+                    .dhtmlx_popup_text {
+                        font-size: 13px;
+                    }
+                    .dhtmlx_popup_button {
+                        height: 35px;
+                    }
+                    .dhx_scale_hour{
+                        line-height:normal;
+                    }
+                </style>
                 <div class="row">
                     <div class="btn-group" data-toggle-name="profile_options" data-toggle="buttons-radio">
                         <button type="button" value="profile" data-toggle="button" class="btn btn-primary active">Расписание занятий</button>
@@ -23,117 +32,45 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div id='calendar'></div>
+                    <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:1200px;'>
+                        <div class="dhx_cal_navline">
+                            <div class="dhx_cal_prev_button">&nbsp;</div>
+                            <div class="dhx_cal_next_button">&nbsp;</div>
+                            <div class="dhx_cal_today_button"></div>
+                            <div class="dhx_cal_date"></div>
+                            <div class="dhx_cal_tab" name="day_tab" style="right:204px;"></div>
+                            <div class="dhx_cal_tab" name="week_tab" style="right:140px;"></div>
+                            <div class="dhx_cal_tab" name="month_tab" style="right:76px;"></div>
+                        </div>
+                        <div class="dhx_cal_header">
+                        </div>
+                        <div class="dhx_cal_data">
+                        </div>
+                    </div>
                 </div>
             </div>
             <script>
                 jQuery(function ($) {
                     $.fn.button.noConflict();
-                    $('#calendar').fullCalendar({
-                        header: {
-                            left: 'prev,next today',
-                            center: 'title',
-                            right: 'month,agendaWeek,agendaDay'
-                        },
-                        defaultDate: '2015-02-12',
-                        minTime: '8:30:00',
-                        maxTime: '20:30:00',
-                        allDaySlot: false,
-                       /* slotDuration: '01:30:00',*/
-                        timeFormat: 'H:mm',
-                        axisFormat: 'H:mm',
-                        defaultView: 'agendaDay',
-                        //slotMinutes: 15,
-                        selectable: true,
-                        selectHelper: true,
-                        select: function(start, end) {
-                            var title = prompt('Event Title:');
-                            var eventData;
-                            if (title) {
-                                eventData = {
-                                    title: title,
-                                    start: start,
-                                    end: end
-                                };
-                                $('#calendar').fullCalendar('renderEvent', eventData, true); // stick? = true
-                            }
-                            $('#calendar').fullCalendar('unselect');
-                        },
-                        /*eventRender: function(event, element) {
-                            element.find(".fc-event-title").remove();
-                            element.find(".fc-event-time").remove();
-                            var new_description = moment(event.start).format("HH:mm") + '-'
-                                                    + moment(event.end).format("HH:mm") + '<br/>'
-                                                    + event.customer + '<br/>'
-                                                    + '<strong>Address: </strong><br/>' + event.address + '<br/>'
-                                                    + '<strong>Task: </strong><br/>' + event.task + '<br/>'
-                                                    + '<strong>Place: </strong>' + event.place + '<br/>';
-                            element.append(new_description);
-                        },*/
-                        editable: true,
-                        eventLimit: true, // allow "more" link when too many events
-                        events: [
-                            {
-                                title: 'Conference',
-                                start: '2015-04-04T19:10:00',
-                                end: '2015-04-04T20:40:00'
-                            },
-                           /* {
-                                title: 'All Day Event',
-                                start: '2015-02-01'
-                            },
-                            {
-                                title: 'Long Event',
-                                start: '2015-02-07',
-                                end: '2015-02-10'
-                            },
-                            {
-                                id: 999,
-                                title: 'Repeating Event',
-                                start: '2015-02-09T16:00:00'
-                            },
-                            {
-                                id: 999,
-                                title: 'Repeating Event',
-                                start: '2015-02-16T16:00:00'
-                            },
-                            {
-                                title: 'Conference',
-                                start: '2015-02-11',
-                                end: '2015-02-13'
-                            },
-                            {
-                                title: 'Meeting',
-                                start: '2015-02-12T10:30:00',
-                                end: '2015-02-12T12:30:00'
-                            },
-                            {
-                                title: 'Lunch',
-                                start: '2015-02-12T12:00:00'
-                            },
-                            {
-                                title: 'Meeting',
-                                start: '2015-02-12T14:30:00'
-                            },
-                            {
-                                title: 'Happy Hour',
-                                start: '2015-02-12T17:30:00'
-                            },
-                            {
-                                title: 'Dinner',
-                                start: '2015-02-12T20:00:00'
-                            },
-                            {
-                                title: 'Birthday Party',
-                                start: '2015-02-13T07:00:00'
-                            },
-                            {
-                                title: 'Click for Google',
-                                url: 'http://google.com/',
-                                start: '2015-02-28'
-                            }*/
-                        ]
-                    });
+
+                    var step = 30, format = scheduler.date.date_to_str("%H:%i");
+                    scheduler.config.xml_date="%Y-%m-%d %H:%i";
+                    scheduler.config.first_hour = 8;
+                    scheduler.config.last_hour = 21;
+                    scheduler.config.time_step = 10;
+                    scheduler.config.separate_short_events = true;
+                    scheduler.config.hour_size_px = (60 / step) * 22;
+                    scheduler.templates.hour_scale = function(date){
+                        var html = "";
+                        for (var i = 0; i < 60 / step; i++){
+                            html += "<div style='height:22px;line-height:22px;'>" + format(date) + "</div>";
+                            date = scheduler.date.add(date, step, "minute");
+                        }
+                        return html;
+                    };
+                    scheduler.init('scheduler_here', null, "week");
+                    scheduler.load("/data/events.xml");
+
                     //$("#formProfile_fieldOptions").val('profile');
                     //$("#messages-options").val('profile');
                     $('div.btn-group[data-toggle-name]').eq(0).each(function () {
