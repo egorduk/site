@@ -43,6 +43,8 @@ use Acme\SecureBundle\Form\Author\BidForm;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Zend\I18n\Validator\DateTime;
 
+require_once '..\src\Acme\SecureBundle\common\scheduler_connector.php';
+
 
 class SecureController extends Controller
 {
@@ -198,9 +200,17 @@ class SecureController extends Controller
      * @Template()
      * @return array
      */
-    public function scheduleAction(Request $request)
+    public function scheduleAction(Request $request, $mode)
     {
-
+        //var_dump($mode);die;
+        if ($mode == 'data') {
+            $res = mysql_connect("localhost", "root", "");
+            mysql_select_db("project_site");
+           /* $scheduler = new \JSONSchedulerConnector($res);
+            $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");*/
+            $scheduler = new \schedulerConnector($res);
+            $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");
+        }
     }
 
 

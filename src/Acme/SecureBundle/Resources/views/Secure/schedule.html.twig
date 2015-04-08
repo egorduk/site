@@ -69,7 +69,9 @@
                         return html;
                     };
                     scheduler.init('scheduler_here', null, "week");
-                    scheduler.load("/data/events.xml");
+                    scheduler.load("schedule/data");
+                    var dp = new dataProcessor("schedule/data");
+                    dp.init(scheduler);
 
                     //$("#formProfile_fieldOptions").val('profile');
                     //$("#messages-options").val('profile');
