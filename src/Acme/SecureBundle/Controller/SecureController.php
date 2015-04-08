@@ -43,7 +43,7 @@ use Acme\SecureBundle\Form\Author\BidForm;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Zend\I18n\Validator\DateTime;
 
-require_once '..\src\Acme\SecureBundle\common\scheduler_connector.php';
+require_once '..\src\Acme\SecureBundle\common\connector\scheduler_connector.php';
 
 
 class SecureController extends Controller
