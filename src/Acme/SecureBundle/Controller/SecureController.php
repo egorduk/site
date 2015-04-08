@@ -43,6 +43,7 @@ use Acme\SecureBundle\Form\Author\BidForm;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Zend\I18n\Validator\DateTime;
 
+require_once '..\src\Acme\SecureBundle\common\connector\scheduler_connector.php';
 
 class SecureController extends Controller
 {
@@ -198,9 +199,14 @@ class SecureController extends Controller
      * @Template()
      * @return array
      */
-    public function scheduleAction(Request $request)
+    public function scheduleAction(Request $request, $mode)
     {
-
+        if ($mode == 'data') {
+            $res = mysql_connect("localhost", "root", "");//connects to the server with our DB
+            mysql_select_db("project_site");//connects to the DB.'sampleDB' is the DB's name
+            $calendar = new \schedulerConnector($res);//connector initialization
+            $calendar->render_table("schedule", "id", "start_date, end_date, text, even, odd");
+        }
     }
 
 

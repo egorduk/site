@@ -3,6 +3,7 @@
         {% block content %}
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/locale/locale_ru.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/ext/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <link rel="stylesheet" href="{{ asset('bundles/css/schedule/dhtmlxscheduler.css') }}" charset="utf-8" />
             <div class="container">
                 <style>
@@ -59,7 +60,26 @@
                     scheduler.config.last_hour = 21;
                     scheduler.config.time_step = 10;
                     scheduler.config.separate_short_events = true;
+                    scheduler.config.auto_end_date = true;
+                    scheduler.config.details_on_create = true;
+                    scheduler.config.details_on_dblclick = true;
                     scheduler.config.hour_size_px = (60 / step) * 22;
+                    scheduler.config.limit_time_select = true;
+                    //scheduler.config.event_duration = 60;
+                    scheduler.locale.labels.section_check_divide = "Разделить на 2 подгруппы";
+                    scheduler.locale.labels.section_check_full = "Заполнить на последующие недели";
+                    scheduler.config.lightbox.sections = [
+                        {name: "description", height: 100, map_to: "text", type: "textarea", focus: true},
+                        {name: "check_divide", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40},
+                        {name: "check_full", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40},
+                        {name:"reccuring", height:21, type:"select", map_to:"rec_type", options:[
+                            {key:"", label:"Do not repeat"},
+                            {key:"day", label:"Each day"},
+                            {key:"week", label:"Each week"},
+                            {key:"month", label:"Each month"}
+                        ]},
+                        {name: "time", height: 72, type: "time", map_to: "auto"}
+                    ];
                     scheduler.templates.hour_scale = function(date){
                         var html = "";
                         for (var i = 0; i < 60 / step; i++){
@@ -69,7 +89,9 @@
                         return html;
                     };
                     scheduler.init('scheduler_here', null, "week");
-                    scheduler.load("/data/events.xml");
+                    scheduler.load("schedule/data");
+                    var dp = new dataProcessor("schedule/data");
+                    dp.init(scheduler);
 
                     //$("#formProfile_fieldOptions").val('profile');
                     //$("#messages-options").val('profile');
