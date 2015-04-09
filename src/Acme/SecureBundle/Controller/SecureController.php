@@ -15,6 +15,7 @@ use Acme\SecureBundle\Form\Author\OutputPsForm;
 use Acme\SecureBundle\Form\CancelRequestForm;
 use Acme\SecureBundle\Form\MessageTalkForm;
 use Acme\SecureBundle\Form\ProfileForm;
+use Acme\SecureBundle\Form\ScheduleCreateForm;
 use Doctrine\Common\Cache\ApcCache;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\MemcachedCache;
@@ -203,6 +204,7 @@ class SecureController extends Controller
     public function scheduleAction(Request $request, $mode)
     {
         //var_dump($mode);die;
+        $formSchedule = $this->createForm(new ScheduleCreateForm());
         if ($mode == 'data') {
             $res = mysql_connect("localhost", "root", "");
             mysql_select_db("project_site");
@@ -211,6 +213,7 @@ class SecureController extends Controller
             $scheduler = new \schedulerConnector($res);
             $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");
         }
+        return array('formSchedule' => $formSchedule->createView());
     }
 
 

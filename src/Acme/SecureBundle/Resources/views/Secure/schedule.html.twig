@@ -4,7 +4,10 @@
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/locale/locale_ru.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/ext/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/select2.min.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/sorting_select2.js') }}"></script>
             <link rel="stylesheet" href="{{ asset('bundles/css/schedule/dhtmlxscheduler.css') }}" charset="utf-8" />
+            <link rel="stylesheet" href="{{ asset('bundles/css/select2.css') }}"/>
             <div class="container">
                 <style>
                     .dhtmlx_popup_text {
@@ -49,10 +52,17 @@
                         </div>
                     </div>
                 </div>
+                {{ form_start(formSchedule, {'attr': {'class' : 'form', 'data-spinner' : 1}}) }}
+                {{ form_label(formSchedule.selectorSubject) }}
+                <div class="input-group">
+                    {{ form_widget(formSchedule.selectorSubject) }}
+                </div>
+                {{ form_end(formSchedule) }}
             </div>
             <script>
                 jQuery(function ($) {
                     $.fn.button.noConflict();
+                    $(".js-example-basic-multiple").select2();
 
                     var step = 30, format = scheduler.date.date_to_str("%H:%i");
                     scheduler.config.xml_date="%Y-%m-%d %H:%i";
@@ -68,6 +78,7 @@
                     //scheduler.config.event_duration = 60;
                     scheduler.locale.labels.section_check_divide = "Разделить на 2 подгруппы";
                     scheduler.locale.labels.section_check_full = "Заполнить на последующие недели";
+                    scheduler.locale.labels.section_template = 'Details';
                     scheduler.config.lightbox.sections = [
                         {name: "description", height: 100, map_to: "text", type: "textarea", focus: true},
                         {name: "check_divide", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40},
@@ -78,8 +89,29 @@
                             {key:"week", label:"Each week"},
                             {key:"month", label:"Each month"}
                         ]},
+                        {name: "template", height: 40, type: "template", map_to: "my_template"},
                         {name: "time", height: 72, type: "time", map_to: "auto"}
                     ];
+                    scheduler.attachEvent("onEventCreated", function(id, e) {
+                        /*var ev = scheduler.getEvent(id);
+                        ev.my_template = "<b>Holder:</b>"+ ev.holder+"<br><b>Room:</b>"+ ev.room;*/
+                        var ev = scheduler.getEvent(id);
+                        /*$(".js-example-basic-multiple").select2({
+                            placeholder: "Выберите предмет",
+                            allowClear: true,
+                            width: 300,
+                            maximumSelectionSize: 2,
+                            formatNoMatches: "Не найден такой предмет",
+                            sortResults: sortingResults
+                        }).on("select2-selecting", function(e) {
+                            var selectorSubject = $("#formCreateOrder_selectorSubject");
+                             hidePopover(selectorSubject);
+                        });*/
+                        ev.my_template = '<select class="js-example-basic-multiple" multiple="multiple">'+
+                                '<option value="AL">Alabama</option>'+
+                                '<option value="WY">Wyoming</option>'+
+                                '</select>';
+                    });
                     scheduler.templates.hour_scale = function(date){
                         var html = "";
                         for (var i = 0; i < 60 / step; i++){
@@ -92,6 +124,8 @@
                     scheduler.load("schedule/data");
                     var dp = new dataProcessor("schedule/data");
                     dp.init(scheduler);
+
+
 
                     //$("#formProfile_fieldOptions").val('profile');
                     //$("#messages-options").val('profile');
