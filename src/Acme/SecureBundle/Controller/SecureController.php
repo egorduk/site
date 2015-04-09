@@ -45,6 +45,7 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Zend\I18n\Validator\DateTime;
 
 require_once '..\src\Acme\SecureBundle\common\connector\scheduler_connector.php';
+require_once '..\src\Acme\SecureBundle\common\connector\combo_connector.php';
 
 
 class SecureController extends Controller
@@ -204,16 +205,26 @@ class SecureController extends Controller
     public function scheduleAction(Request $request, $mode)
     {
         //var_dump($mode);die;
-        $formSchedule = $this->createForm(new ScheduleCreateForm());
+        //$formSchedule = $this->createForm(new ScheduleCreateForm());
         if ($mode == 'data') {
             $res = mysql_connect("localhost", "root", "");
             mysql_select_db("project_site");
            /* $scheduler = new \JSONSchedulerConnector($res);
             $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");*/
-            $scheduler = new \schedulerConnector($res);
-            $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");
+            /*$scheduler = new \schedulerConnector($res);
+            $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");*/
+
+            $combo = new \ComboConnector($res);
+            $combo->event->attach("subject", "by_id");
+            function by_id($filter) {
+                if (isset($_GET['id'])) {
+                    $filter->add("id", $_GET['id'], '=');
+                }
+            }
+            $combo->dynamic_loading(3);
+            $combo->render_table("subject","id","name");
         }
-        return array('formSchedule' => $formSchedule->createView());
+        //return array('formSchedule' => $formSchedule->createView());
     }
 
 

@@ -4,9 +4,11 @@
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/locale/locale_ru.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/ext/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/select2.min.js') }}"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/sorting_select2.js') }}"></script>
             <link rel="stylesheet" href="{{ asset('bundles/css/schedule/dhtmlxscheduler.css') }}" charset="utf-8" />
+            <link rel="stylesheet" href="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.css') }}" charset="utf-8" />
             <link rel="stylesheet" href="{{ asset('bundles/css/select2.css') }}"/>
             <div class="container">
                 <style>
@@ -52,12 +54,6 @@
                         </div>
                     </div>
                 </div>
-                {{ form_start(formSchedule, {'attr': {'class' : 'form', 'data-spinner' : 1}}) }}
-                {{ form_label(formSchedule.selectorSubject) }}
-                <div class="input-group">
-                    {{ form_widget(formSchedule.selectorSubject) }}
-                </div>
-                {{ form_end(formSchedule) }}
             </div>
             <script>
                 jQuery(function ($) {
@@ -78,25 +74,32 @@
                     //scheduler.config.event_duration = 60;
                     scheduler.locale.labels.section_check_divide = "Разделить на 2 подгруппы";
                     scheduler.locale.labels.section_check_full = "Заполнить на последующие недели";
-                    scheduler.locale.labels.section_template = 'Details';
+                    //scheduler.locale.labels.section_template = 'Details';
+                    scheduler.locale.labels.section_subject = "Предмет";
                     scheduler.config.lightbox.sections = [
                         {name: "description", height: 100, map_to: "text", type: "textarea", focus: true},
                         {name: "check_divide", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40},
                         {name: "check_full", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40},
-                        {name:"reccuring", height:21, type:"select", map_to:"rec_type", options:[
+                        /*{name:"reccuring", height:21, type:"select", map_to:"rec_type", options:[
                             {key:"", label:"Do not repeat"},
                             {key:"day", label:"Each day"},
                             {key:"week", label:"Each week"},
                             {key:"month", label:"Each month"}
-                        ]},
-                        {name: "template", height: 40, type: "template", map_to: "my_template"},
+                        ]},*/
+                       // {name: "template", height: 40, type: "template", map_to: "my_template"},
+                        { name:"subject",/* options:[
+                                { key: 1, label: 'James' },
+                                { key: 2, label: 'Alex' },
+                                { key: 3, label: 'Antony' },
+                                { key: 4, label: 'Andrew' }
+                            ],*/ map_to: "subject", type: "combo", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
                         {name: "time", height: 72, type: "time", map_to: "auto"}
                     ];
-                    scheduler.attachEvent("onEventCreated", function(id, e) {
-                        /*var ev = scheduler.getEvent(id);
-                        ev.my_template = "<b>Holder:</b>"+ ev.holder+"<br><b>Room:</b>"+ ev.room;*/
+                  /*  scheduler.attachEvent("onEventCreated", function(id, e) {
+                        *//*var ev = scheduler.getEvent(id);
+                        ev.my_template = "<b>Holder:</b>"+ ev.holder+"<br><b>Room:</b>"+ ev.room;*//*
                         var ev = scheduler.getEvent(id);
-                        /*$(".js-example-basic-multiple").select2({
+                        *//*$(".js-example-basic-multiple").select2({
                             placeholder: "Выберите предмет",
                             allowClear: true,
                             width: 300,
@@ -106,12 +109,12 @@
                         }).on("select2-selecting", function(e) {
                             var selectorSubject = $("#formCreateOrder_selectorSubject");
                              hidePopover(selectorSubject);
-                        });*/
+                        });*//*
                         ev.my_template = '<select class="js-example-basic-multiple" multiple="multiple">'+
                                 '<option value="AL">Alabama</option>'+
                                 '<option value="WY">Wyoming</option>'+
                                 '</select>';
-                    });
+                    });*/
                     scheduler.templates.hour_scale = function(date){
                         var html = "";
                         for (var i = 0; i < 60 / step; i++){
