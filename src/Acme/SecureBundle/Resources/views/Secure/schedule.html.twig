@@ -5,11 +5,17 @@
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/locale/locale_ru.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/ext/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcombo_extra.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcommon.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/select2.min.js') }}"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/sorting_select2.js') }}"></script>
+           {# <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+            <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>#}
             <link rel="stylesheet" href="{{ asset('bundles/css/schedule/dhtmlxscheduler.css') }}" charset="utf-8" />
             <link rel="stylesheet" href="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.css') }}" charset="utf-8" />
             <link rel="stylesheet" href="{{ asset('bundles/css/select2.css') }}"/>
+            <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
             <div class="container">
                 <style>
                     .dhtmlx_popup_text {
@@ -57,9 +63,7 @@
             </div>
             <script>
                 jQuery(function ($) {
-                    $.fn.button.noConflict();
-                    $(".js-example-basic-multiple").select2();
-
+                   /* $.fn.button.noConflict();*/
                     var step = 30, format = scheduler.date.date_to_str("%H:%i");
                     scheduler.config.xml_date="%Y-%m-%d %H:%i";
                     scheduler.config.first_hour = 8;
@@ -76,30 +80,173 @@
                     scheduler.locale.labels.section_check_full = "Заполнить на последующие недели";
                     //scheduler.locale.labels.section_template = 'Details';
                     scheduler.locale.labels.section_subject = "Предмет";
+                    scheduler.locale.labels.section_room = "Аудитория";
+                    scheduler.locale.labels.section_user = "Преподаватель";
+                    scheduler.locale.labels.section_type_lesson = "Тип занятия";
+                    scheduler.locale.labels.section_group = "Группы";
                     scheduler.config.lightbox.sections = [
-                        {name: "description", height: 100, map_to: "text", type: "textarea", focus: true},
-                        {name: "check_divide", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40},
-                        {name: "check_full", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40},
-                        /*{name:"reccuring", height:21, type:"select", map_to:"rec_type", options:[
-                            {key:"", label:"Do not repeat"},
-                            {key:"day", label:"Each day"},
-                            {key:"week", label:"Each week"},
-                            {key:"month", label:"Each month"}
-                        ]},*/
+                       /* {name: "description", height: 100, map_to: "text", type: "textarea", focus: true},*/
+                        { name: "check_divide", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
+                        { name: "check_full", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 60 },
                        // {name: "template", height: 40, type: "template", map_to: "my_template"},
-                        { name:"subject",/* options:[
+                       /* { name: "description", height:200, *//*map_to:"text", *//*type:"my_editor" , focus:true},*/
+                        {name:"contact", height:103, map_to:"phone", type:"contact_view", focus:true},
+                        { name: "subject", /*options:[
                                 { key: 1, label: 'James' },
                                 { key: 2, label: 'Alex' },
                                 { key: 3, label: 'Antony' },
                                 { key: 4, label: 'Andrew' }
-                            ],*/ map_to: "subject", type: "combo", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
-                        {name: "time", height: 72, type: "time", map_to: "auto"}
+                            ],*/ map_to: "subject", type: "combo", script_path: "schedule/data?p=subject", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
+                        { name: "room", map_to: "room", type: "combo", script_path: "schedule/data?p=room", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
+                        { name: "type_lesson", map_to: "type_lesson", type: "combo", script_path: "schedule/data?p=type_lesson", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
+                        { name: "user", map_to: "user", type: "combo", script_path: "schedule/data?p=user", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
+                        { name: "group", map_to: "group", type: "combo", comboType: "checkbox", script_path: "schedule/data?p=group", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
+                        { name: "time", height: 72, type: "time", map_to: "auto" }
                     ];
-                  /*  scheduler.attachEvent("onEventCreated", function(id, e) {
-                        *//*var ev = scheduler.getEvent(id);
+
+                    scheduler.form_blocks["contact_view"]={
+                        render:function(sns){
+                            var html = '<div class="dhx_cal_ltext" style="height:100px;">';
+                            /*html += '<input type="text" placeholder="Phone" size="25" class="search" id="phone">&nbsp;';
+                            html += '<input type="text" placeholder="Email Address" size="32" id="email"></div>';*/
+                            html += '<select multiple="multiple" id="a" /></select></div>';
+                            return html;
+                        },
+                        set_value:function(node,value,ev){
+                            /*node.childNodes[0].value=value||"";
+                            $.each(node.childNodes, function(index, item) {
+                                if ($(item).attr("id") == "email") {
+                                    node.childNodes[index].value=ev.email||"";
+                                }
+                            });*/
+                        },
+                        get_value:function(node,ev){
+                           /* $.each(node.childNodes, function(index, item) {
+                                if ($(item).attr("id") == "email") {
+                                    ev.email = node.childNodes[index].value;
+                                }
+                            });
+                            return node.childNodes[0].value;*/
+                        },
+                        focus:function(node){
+                            //var a=node.childNodes[0]; a.select(); a.focus();
+                        }
+                    }
+
+                    scheduler.attachEvent("onLightbox", function(event_id) {
+                        $("#a").select2({
+                            placeholder: "Выбор групп",
+                            allowClear: true,
+                            width: 300,
+                            maximumSelectionSize: 2,
+                            formatNoMatches: "Не найдена группа",
+                            //sortResults: sortingResults
+                            /*placeholder: "Select an option",
+                            ajax: {
+                                url: "schedule/data?p=group",
+                                dataType: 'json',
+                                delay: 250,
+                                data: function (params) {
+                                    return {
+                                        q: params.term, // search term
+                                        page: params.page
+                                    };
+                                },
+                                processResults: function (data, page) {
+                                    return {
+                                        results: data.items
+                                    };
+                                },
+                                cache: true
+                            },
+                            escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+                            minimumInputLength: 1
+                           // templateResult: formatRepo, // omitted for brevity, see the source of this page
+                           // templateSelection: formatRepoSelection // omitted for brevity, see the source of this page*/
+                        });
+
+                        /* $( ".search" ).autocomplete({
+                             minLength: 5, // only start searching 5 digits into the phone number
+                             source: function( request, response ) {
+                                 $.ajax({
+                                     url: "clients/search_clients/some_ajax_url",
+                                     type: "POST",
+                                     dataType: "json",
+                                     data: {
+                                         contact_number: $("#contact_number").val(),
+                                         '677ubdbs7s7busbfisf8sbfs_some_post_token_to_prevent_csrf' : "1"
+                                     },
+                                     success: function( data ) {
+                                         response(jQuery.map(data, function(item) {
+                                             return {
+                                                 client_id: item.client_id,
+                                                 country_id: item.country_id,
+                                                 contact_number: item.contact_number,
+                                                 email: item.email,
+                                                 first_name: item.first_name,
+                                                 last_name: item.last_name,
+                                                 gender: item.gender,
+                                                 dob_day: item.dob_day,
+                                                 dob_month: item.dob_month,
+                                                 dob_year: item.dob_year,
+                                                 client_notes: item.client_notes,
+                                                 value: item.contact_number,
+                                                 desc: item.first_name + " " + item.last_name
+                                             }
+                                         }));
+                                     }
+                                 });
+                             },
+                             focus: function( event, ui ) {
+                                 $( ".search" ).val( ui.item.value );
+                                 return false;
+                             },
+                             select: function( event, ui ) {
+                                 $("#contact_number").val( ui.item.contact_number );
+                                 $("#country_id").val( ui.item.country_id );
+                                 $("#email").val( ui.item.email );
+                                 $("#first_name").val( ui.item.first_name );
+                                 $("#last_name").val( ui.item.last_name );
+                                 $("#client_id").val( ui.item.client_id );
+                                 $("#gender").val( ui.item.gender );
+                                 $("#dob_day").val( ui.item.dob_day );
+                                 $("#dob_month").val( ui.item.dob_month );
+                                 $("#dob_year").val( ui.item.dob_year );
+                                 $("#client_notes").val( ui.item.client_notes );
+                                 return false;
+                             }
+                         }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+                             return $( "<li>" )
+                                     .data( "item.autocomplete", item )
+                                     .append( "<a>" + item.contact_number + "<br><small>" + item.desc + "</small></a>" )
+                                     .appendTo( ul );
+                         };*/
+                    });
+
+                    /*scheduler.form_blocks["my_editor"] = {
+                        render:function(sns) {
+                            return "<div class='dhx_cal_ltext' style='height:60px;'><select data-tags='true' data-placeholder='Select an option' id='select-subject'></select></div>";
+                        },
+                        set_value:function(node, value, ev) {
+                            *//*node.childNodes[1].value = value || "";
+                            node.childNodes[4].value = ev.details || "";*//*
+                        },
+                        get_value:function(node, ev) {
+                            *//*ev.details = node.childNodes[4].value;
+                            return node.childNodes[1].value;*//*
+                        },
+                        focus:function(node) {
+                            *//*var a = node.childNodes[1];
+                            a.select();
+                            a.focus();*//*
+                        }
+                    };*/
+
+                    /*  scheduler.attachEvent("onEventCreated", function(id, e) {
+                          *//*var ev = scheduler.getEvent(id);
                         ev.my_template = "<b>Holder:</b>"+ ev.holder+"<br><b>Room:</b>"+ ev.room;*//*
-                        var ev = scheduler.getEvent(id);
-                        *//*$(".js-example-basic-multiple").select2({
+                        var ev = scheduler.getEvent(id);*/
+                        /*$("#select-subject").select2({
                             placeholder: "Выберите предмет",
                             allowClear: true,
                             width: 300,
@@ -109,8 +256,8 @@
                         }).on("select2-selecting", function(e) {
                             var selectorSubject = $("#formCreateOrder_selectorSubject");
                              hidePopover(selectorSubject);
-                        });*//*
-                        ev.my_template = '<select class="js-example-basic-multiple" multiple="multiple">'+
+                        });*/
+                       /* ev.my_template = '<select class="js-example-basic-multiple" multiple="multiple">'+
                                 '<option value="AL">Alabama</option>'+
                                 '<option value="WY">Wyoming</option>'+
                                 '</select>';
@@ -124,9 +271,9 @@
                         return html;
                     };
                     scheduler.init('scheduler_here', null, "week");
-                    scheduler.load("schedule/data");
+                    /*scheduler.load("schedule/data");
                     var dp = new dataProcessor("schedule/data");
-                    dp.init(scheduler);
+                    dp.init(scheduler);*/
 
 
 
@@ -140,7 +287,7 @@
                                 hidden = $('input[name="' + name + '"]');
                         $('button', group).each(function () {
                             var button = $(this);
-                            button.live('click', function () {
+                            button.on('click', function () {
                                 hidden.val($(this).val());
                                 group.find('.active').removeClass('active');
                                 if (button.val() == hidden.val()) {
@@ -169,7 +316,7 @@
                         group.find('.active').removeClass('active');
                         $('button', group).each(function () {
                             var button = $(this);
-                            button.live('click', function () {
+                            button.on('click', function () {
                                 hidden.val($(this).val());
                                 group.find('.active').removeClass('active');
                                 if (button.val() == hidden.val()) {

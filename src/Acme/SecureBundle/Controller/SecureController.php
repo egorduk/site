@@ -204,27 +204,86 @@ class SecureController extends Controller
      */
     public function scheduleAction(Request $request, $mode)
     {
-        //var_dump($mode);die;
-        //$formSchedule = $this->createForm(new ScheduleCreateForm());
-        if ($mode == 'data') {
-            $res = mysql_connect("localhost", "root", "");
-            mysql_select_db("project_site");
-           /* $scheduler = new \JSONSchedulerConnector($res);
-            $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");*/
-            /*$scheduler = new \schedulerConnector($res);
-            $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");*/
-
-            $combo = new \ComboConnector($res);
-            $combo->event->attach("subject", "by_id");
-            function by_id($filter) {
-                if (isset($_GET['id'])) {
-                    $filter->add("id", $_GET['id'], '=');
-                }
-            }
-            $combo->dynamic_loading(3);
-            $combo->render_table("subject","id","name");
+        $param = $request->query->get('p');
+        $groups = Helper::getGroups();
+        $resp = [];
+        foreach($groups as $group) {
+            $resp[] = array("id" => $group->getId(), "text" => $group->getName());
         }
-        //return array('formSchedule' => $formSchedule->createView());
+        //return new Response(json_encode($resp));
+        echo json_encode($resp);
+        if ($mode == 'data') {
+            if ($param == 'subject') {
+                /* $scheduler = new \JSONSchedulerConnector($res);
+                 $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");*/
+                /*$scheduler = new \schedulerConnector($res);
+                $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");*/
+                $res = self::getDB();
+                $combo = new \ComboConnector($res);
+                $combo->event->attach("subject", "by_id");
+                function by_id($filter) {
+                    if (isset($_GET['id'])) {
+                        $filter->add("id", $_GET['id'], '=');
+                    }
+                }
+                //$combo->dynamic_loading(3);
+                $combo->render_table("subject","id","name");
+                /*$scheduler = new \schedulerConnector($res);
+                if ($scheduler->is_select_mode())//code for loading data
+                    $scheduler->render_sql("Select * from tableA, tableB  where  tableA.id=tableB.id",
+                        "a.id","name,price,other");
+                else //code for other operations - i.e. update/insert/delete
+                    $scheduler->render_table("tableA","id","name,price");*/
+            } elseif ($param == 'room') {
+                $res = self::getDB();
+                $combo = new \ComboConnector($res);
+                $combo->event->attach("room", "by_id");
+                function by_id($filter) {
+                    if (isset($_GET['id'])) {
+                        $filter->add("id", $_GET['id'], '=');
+                    }
+                }
+                $combo->render_table("room","id","num");
+            } elseif ($param == 'type_lesson') {
+                $res = self::getDB();
+                $combo = new \ComboConnector($res);
+                $combo->event->attach("type_lesson", "by_id");
+                function by_id($filter) {
+                    if (isset($_GET['id'])) {
+                        $filter->add("id", $_GET['id'], '=');
+                    }
+                }
+                $combo->render_table("type_lesson","id","name");
+            } elseif ($param == 'user') {
+                $res = self::getDB();
+                $combo = new \ComboConnector($res);
+                $combo->event->attach("user", "by_id");
+                function by_id($filter) {
+                    if (isset($_GET['id'])) {
+                        $filter->add("id", $_GET['id'], '=');
+                    }
+                }
+                //$combo->render_table("user","id","surname");
+                $combo->render_sql("SELECT * FROM user u INNER JOIN user_role r ON u.user_role_id = r.id WHERE r.code = 'employee'", "id", "surname");
+            } elseif ($param == 'group') {
+
+                /*$res = self::getDB();
+                $combo = new \ComboConnector($res);
+                $combo->event->attach("type_lesson", "by_id");
+                function by_id($filter) {
+                    if (isset($_GET['id'])) {
+                        $filter->add("id", $_GET['id'], '=');
+                    }
+                }
+                $combo->render_table("type_lesson","id","name");*/
+            };
+        }
+    }
+
+    public function getDB() {
+        $res = mysql_connect("localhost", "root", "");
+        mysql_select_db("project_site");
+        return $res;
     }
 
 

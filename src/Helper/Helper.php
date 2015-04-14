@@ -52,6 +52,7 @@ class Helper
     private static $_tableUserPs = 'AcmeSecureBundle:UserPs';
     private static $_tableTypePs = 'AcmeSecureBundle:TypePs';
     private static $_tableMailOption = 'AcmeSecureBundle:MailOption';
+    private static $_tableGp = 'AcmeAuthBundle:Gp';
     //private static $kernel;
 
     private static $_avatarFolder = '/site/web/uploads/avatars/';
@@ -2507,6 +2508,14 @@ class Helper
         $msg->setResponse($response);
         $em->persist($msg);
         $em->flush();
+    }
+
+
+    public static function getGroups() {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $groups = $em->getRepository(self::$_tableGp)
+            ->findAll();
+        return $groups;
     }
 
 }
