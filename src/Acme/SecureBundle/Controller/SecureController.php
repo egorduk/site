@@ -205,13 +205,6 @@ class SecureController extends Controller
     public function scheduleAction(Request $request, $mode)
     {
         $param = $request->query->get('p');
-        $groups = Helper::getGroups();
-        $resp = [];
-        foreach($groups as $group) {
-            $resp[] = array("id" => $group->getId(), "text" => $group->getName());
-        }
-        //return new Response(json_encode($resp));
-        echo json_encode($resp);
         if ($mode == 'data') {
             if ($param == 'subject') {
                 /* $scheduler = new \JSONSchedulerConnector($res);
@@ -230,10 +223,11 @@ class SecureController extends Controller
                 $combo->render_table("subject","id","name");
                 /*$scheduler = new \schedulerConnector($res);
                 if ($scheduler->is_select_mode())//code for loading data
-                    $scheduler->render_sql("Select * from tableA, tableB  where  tableA.id=tableB.id",
-                        "a.id","name,price,other");
+                    $scheduler->render_sql("Select * from subject", "id", "name");
                 else //code for other operations - i.e. update/insert/delete
                     $scheduler->render_table("tableA","id","name,price");*/
+                //$scheduler = new \schedulerConnector($res);
+                //$scheduler->render_table("subject","id","name");
             } elseif ($param == 'room') {
                 $res = self::getDB();
                 $combo = new \ComboConnector($res);
@@ -266,16 +260,15 @@ class SecureController extends Controller
                 //$combo->render_table("user","id","surname");
                 $combo->render_sql("SELECT * FROM user u INNER JOIN user_role r ON u.user_role_id = r.id WHERE r.code = 'employee'", "id", "surname");
             } elseif ($param == 'group') {
-
-                /*$res = self::getDB();
+                $res = self::getDB();
                 $combo = new \ComboConnector($res);
-                $combo->event->attach("type_lesson", "by_id");
+                $combo->event->attach("gp", "by_id");
                 function by_id($filter) {
                     if (isset($_GET['id'])) {
                         $filter->add("id", $_GET['id'], '=');
                     }
                 }
-                $combo->render_table("type_lesson","id","name");*/
+                $combo->render_table("gp","id","name");
             };
         }
     }

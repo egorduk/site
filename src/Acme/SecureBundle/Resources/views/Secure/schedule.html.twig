@@ -3,18 +3,15 @@
         {% block content %}
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/locale/locale_ru.js') }}" media="screen" title="no title" charset="utf-8"></script>
-            <script type="text/javascript" src="{{ asset('bundles/js/schedule/ext/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>
-            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.js') }}" media="screen" title="no title" charset="utf-8"></script>
-            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>
-            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcombo_extra.js') }}" media="screen" title="no title" charset="utf-8"></script>
-            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcommon.js') }}" media="screen" title="no title" charset="utf-8"></script>
-            <script type="text/javascript" src="{{ asset('bundles/js/select2.min.js') }}"></script>
-            <script type="text/javascript" src="{{ asset('bundles/js/sorting_select2.js') }}"></script>
+            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/ext/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
+            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
+            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
+            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcombo_extra.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
+            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcommon.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
            {# <script src="//code.jquery.com/jquery-1.10.2.js"></script>
             <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>#}
             <link rel="stylesheet" href="{{ asset('bundles/css/schedule/dhtmlxscheduler.css') }}" charset="utf-8" />
             <link rel="stylesheet" href="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.css') }}" charset="utf-8" />
-            <link rel="stylesheet" href="{{ asset('bundles/css/select2.css') }}"/>
             <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
             <div class="container">
                 <style>
@@ -43,6 +40,7 @@
                         <input id="messages-options" type="hidden">
                     </div>
                 </div>
+                <div id="combo_zone" style="width:230px;"></div>
                 <div class="row">
                     <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:1200px;'>
                         <div class="dhx_cal_navline">
@@ -90,19 +88,75 @@
                         { name: "check_full", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 60 },
                        // {name: "template", height: 40, type: "template", map_to: "my_template"},
                        /* { name: "description", height:200, *//*map_to:"text", *//*type:"my_editor" , focus:true},*/
-                        {name:"contact", height:103, map_to:"phone", type:"contact_view", focus:true},
+                      /*  {name:"contact", height:103, map_to:"phone", type:"contact_view", focus:true},*/
+
+                        {name:"user", /*map_to:"subject", */type:"combo", script_path: "schedule/data?p=subject"},
+
+
                         { name: "subject", /*options:[
                                 { key: 1, label: 'James' },
                                 { key: 2, label: 'Alex' },
                                 { key: 3, label: 'Antony' },
                                 { key: 4, label: 'Andrew' }
-                            ],*/ map_to: "subject", type: "combo", script_path: "schedule/data?p=subject", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
-                        { name: "room", map_to: "room", type: "combo", script_path: "schedule/data?p=room", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
-                        { name: "type_lesson", map_to: "type_lesson", type: "combo", script_path: "schedule/data?p=type_lesson", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
-                        { name: "user", map_to: "user", type: "combo", script_path: "schedule/data?p=user", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
-                        { name: "group", map_to: "group", type: "combo", comboType: "checkbox", script_path: "schedule/data?p=group", image_path: "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}", height: 30, filtering: true},
+                            ],*/ map_to: "subject", type: "combo", script_path: "schedule/data?p=subject", height: 30, filtering: true},
+                        { name: "room", map_to: "room", type: "combo", script_path: "schedule/data?p=room", height: 30, filtering: true},
+                        { name: "type_lesson", map_to: "type_lesson", type: "combo", script_path: "schedule/data?p=type_lesson", height: 30, filtering: true},
+                        { name: "user", map_to: "user", type: "combo", script_path: "schedule/data?p=user", height: 30, filtering: true},
+                        { name: "group", map_to: "gp", type: "combo", comboType: "checkbox", script_path: "schedule/data?p=group", height: 30, filtering: true},
                         { name: "time", height: 72, type: "time", map_to: "auto" }
                     ];
+
+                    dhtmlx.image_path = "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}";
+
+                    var myCombo = new dhtmlXCombo("combo_zone"/*, "combo", 230*/);
+                   // myCombo.enableFilteringMode(true);
+                   // myCombo.clearAll();
+                    myCombo.load('<complete><option value="1">The Adventures of Tom Sawyer</option></complete>');
+                    dhtmlxAjax.get("schedule/data?p=subject", function(xml){
+                        /*console.log(value);
+                        node.combo.setComboValue(value || "");*/
+                        //myCombo.load(xml.xmlDoc.responseText);
+                    });
+                    /*myCombo.attachEvent("onDynXLS", myComboFilter);
+                    function myComboFilter(text){
+                        myCombo.clearAll();
+                        dhtmlxAjax.get("schedule/data?p=subject", function(xml){
+                            myCombo.setComboValue(xml.xmlDoc.responseText);
+                        })
+                    }*/
+
+                    scheduler.form_blocks["combo1"] = {
+                        render: function(sns){
+                            var height=(sns.height||"23")+"px";
+                            var html="<div data='"+sns.xml+"' class='dhx_cal_ltext' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
+                            return html;
+                        },
+                        set_value: function(node,value,ev) {
+                            if (!node.combo) {
+                                /*node.combo = new dhtmlXCombo(node.id,"dummy","553px");
+                                node.combo.loadXML(node.getAttribute("data"),function(){
+                                    node.combo.setComboValue(value||"");
+                                }); */
+                               /* node.combo.load("schedule/data?p=subject", function(){
+                                    node.combo.setComboValue(value||"");
+                                });*/
+                               /* dhtmlxAjax.get("schedule/data?p=subject", function(xml){
+                                    console.log(value);
+                                    node.combo.setComboValue(value || "");
+                                });
+                                return;*/
+                            }
+                           /* console.log(value);
+                            node.combo.setComboValue(value||"");*/
+
+                        },
+                        get_value: function(node,ev){
+                            return node.combo.getActualValue();
+                        },
+                        focus: function(node){
+                            node.combo.DOMelem_input.focus();
+                        }
+                    }
 
                     scheduler.form_blocks["contact_view"]={
                         render:function(sns){
@@ -134,14 +188,14 @@
                     }
 
                     scheduler.attachEvent("onLightbox", function(event_id) {
-                        $("#a").select2({
+                        /*$("#a").select2({
                             placeholder: "Выбор групп",
                             allowClear: true,
                             width: 300,
                             maximumSelectionSize: 2,
                             formatNoMatches: "Не найдена группа",
                             //sortResults: sortingResults
-                            /*placeholder: "Select an option",
+                            *//*placeholder: "Select an option",
                             ajax: {
                                 url: "schedule/data?p=group",
                                 dataType: 'json',
@@ -162,8 +216,8 @@
                             escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
                             minimumInputLength: 1
                            // templateResult: formatRepo, // omitted for brevity, see the source of this page
-                           // templateSelection: formatRepoSelection // omitted for brevity, see the source of this page*/
-                        });
+                           // templateSelection: formatRepoSelection // omitted for brevity, see the source of this page*//*
+                        });*/
 
                         /* $( ".search" ).autocomplete({
                              minLength: 5, // only start searching 5 digits into the phone number
@@ -262,6 +316,7 @@
                                 '<option value="WY">Wyoming</option>'+
                                 '</select>';
                     });*/
+
                     scheduler.templates.hour_scale = function(date){
                         var html = "";
                         for (var i = 0; i < 60 / step; i++){
