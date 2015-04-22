@@ -3,16 +3,18 @@
         {% block content %}
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/locale/locale_ru.js') }}" media="screen" title="no title" charset="utf-8"></script>
-            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/ext/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
-            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
-            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
-            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcombo_extra.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
-            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcommon.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxscheduler_editors.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcommon.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.js') }}" media="screen" title="no title" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcombo_extra.js') }}" charset="utf-8"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlx.js') }}"></script>
+            {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlx.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
            {# <script src="//code.jquery.com/jquery-1.10.2.js"></script>
             <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>#}
             <link rel="stylesheet" href="{{ asset('bundles/css/schedule/dhtmlxscheduler.css') }}" charset="utf-8" />
             <link rel="stylesheet" href="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.css') }}" charset="utf-8" />
             <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+            <link href="{{ asset('bundles/js/schedule/dhtmlx.css') }}" rel="stylesheet" type="text/css" />
             <div class="container">
                 <style>
                     .dhtmlx_popup_text {
@@ -23,6 +25,9 @@
                     }
                     .dhx_scale_hour{
                         line-height:normal;
+                    }
+                    .dhx_combo_box.dhx_skyblue {
+                        width: 590px !important;
                     }
                 </style>
                 <div class="row">
@@ -41,6 +46,7 @@
                     </div>
                 </div>
                 <div id="combo_zone" style="width:230px;"></div>
+                <div id="combo_zone3" style="width:230px;"></div>
                 <div class="row">
                     <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:1200px;'>
                         <div class="dhx_cal_navline">
@@ -90,33 +96,39 @@
                        /* { name: "description", height:200, *//*map_to:"text", *//*type:"my_editor" , focus:true},*/
                       /*  {name:"contact", height:103, map_to:"phone", type:"contact_view", focus:true},*/
 
-                        {name:"user", /*map_to:"subject", */type:"combo", script_path: "schedule/data?p=subject"},
+                        { name:"subject", type:"comboAutocomplete", id:"subject", data: "schedule/data?p=subject" },
+                        { name:"room", type:"comboAutocomplete", id:"room", data: "schedule/data?p=room" },
+                        { name:"type_lesson", type:"comboAutocomplete", id:"type_lesson", data: "schedule/data?p=type_lesson" },
+                        { name:"user", type:"comboAutocomplete", id:"user", data: "schedule/data?p=user" },
+                        { name:"group", type:"comboAutocomplete", id:"group", data: "schedule/data?p=group" },
 
-
-                        { name: "subject", /*options:[
-                                { key: 1, label: 'James' },
-                                { key: 2, label: 'Alex' },
-                                { key: 3, label: 'Antony' },
-                                { key: 4, label: 'Andrew' }
-                            ],*/ map_to: "subject", type: "combo", script_path: "schedule/data?p=subject", height: 30, filtering: true},
-                        { name: "room", map_to: "room", type: "combo", script_path: "schedule/data?p=room", height: 30, filtering: true},
-                        { name: "type_lesson", map_to: "type_lesson", type: "combo", script_path: "schedule/data?p=type_lesson", height: 30, filtering: true},
-                        { name: "user", map_to: "user", type: "combo", script_path: "schedule/data?p=user", height: 30, filtering: true},
-                        { name: "group", map_to: "gp", type: "combo", comboType: "checkbox", script_path: "schedule/data?p=group", height: 30, filtering: true},
+                        //{ name: "subject", map_to: "subject", type: "combo", script_path: "schedule/data?p=subject", height: 30, filtering: true},
+                        //{ name: "room", map_to: "room", type: "combo", script_path: "schedule/data?p=room", height: 30, filtering: true},
+                        //{ name: "type_lesson", map_to: "type_lesson", type: "combo", script_path: "schedule/data?p=type_lesson", height: 30, filtering: true},
+                        //{ name: "user", map_to: "user", type: "combo", script_path: "schedule/data?p=user", height: 30, filtering: true},
+                       // { name: "group", map_to: "gp", type: "combo", comboType: "checkbox", script_path: "schedule/data?p=group", height: 30, filtering: true},
                         { name: "time", height: 72, type: "time", map_to: "auto" }
                     ];
-
                     dhtmlx.image_path = "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}";
-
-                    var myCombo = new dhtmlXCombo("combo_zone"/*, "combo", 230*/);
-                   // myCombo.enableFilteringMode(true);
-                   // myCombo.clearAll();
-                    myCombo.load('<complete><option value="1">The Adventures of Tom Sawyer</option></complete>');
+                   /* var myCombo = new dhtmlXCombo("combo_zone", "combo", 230);
+                    //console.log(myCombo);
+                    myCombo.enableFilteringMode(true);
+                    myCombo.clearAll();
                     dhtmlxAjax.get("schedule/data?p=subject", function(xml){
-                        /*console.log(value);
-                        node.combo.setComboValue(value || "");*/
-                        //myCombo.load(xml.xmlDoc.responseText);
-                    });
+                        myCombo.loadXMLString(xml.xmlDoc.responseText);
+                    });*/
+                    var myCombo3 = new dhtmlXCombo("combo_zone3", null, 200, "checkbox");
+                    myCombo3.loadXMLString('<complete>'+
+                            '<option value="1">The Adventures of Tom Sawyer</option>'+
+                            '<option value="2" checked="1">The Dead Zone</option>'+
+                            '<option value="3" checked="1">The First Men in the Moon</option>'+
+                            '</complete>');
+                    //myCombo3.readonly(1);
+                    myCombo3.enableFilteringMode(true);
+                    myCombo3.enableOptionAutoHeight(1);
+
+                    //combobox.setComboValue(value);
+                    //combobox.selectOption(optionIndex);
                     /*myCombo.attachEvent("onDynXLS", myComboFilter);
                     function myComboFilter(text){
                         myCombo.clearAll();
@@ -124,37 +136,49 @@
                             myCombo.setComboValue(xml.xmlDoc.responseText);
                         })
                     }*/
+                    /*var z2 = new dhtmlXCombo("combo_zone3", "alfa3", 200, 'checkbox');
+                    z2.addOption([[1, 1111], [2, 2222], [3, 3333], [4, 4444], [5, 5555]]);
+                    z2.setChecked(1, true);
+                    alert(z2.getChecked());*/
 
-                    scheduler.form_blocks["combo1"] = {
+                    scheduler.form_blocks["comboAutocomplete"] = {
                         render: function(sns){
+                            //console.log(sns);
                             var height=(sns.height||"23")+"px";
-                            var html="<div data='"+sns.xml+"' class='dhx_cal_ltext' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
+                            var html="<div data='"+sns.data+"' class='dhx_cal_ltext' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
                             return html;
                         },
-                        set_value: function(node,value,ev) {
+                        set_value: function(node, value, ev) {
                             if (!node.combo) {
-                                /*node.combo = new dhtmlXCombo(node.id,"dummy","553px");
-                                node.combo.loadXML(node.getAttribute("data"),function(){
-                                    node.combo.setComboValue(value||"");
-                                }); */
-                               /* node.combo.load("schedule/data?p=subject", function(){
-                                    node.combo.setComboValue(value||"");
-                                });*/
-                               /* dhtmlxAjax.get("schedule/data?p=subject", function(xml){
-                                    console.log(value);
-                                    node.combo.setComboValue(value || "");
+                                //console.log(value);
+                                node.combo = new dhtmlXCombo(node.id, "combo", 590);
+                                node.combo.enableFilteringMode(true);
+                                node.combo.clearAll();
+                                dhtmlxAjax.get(node.getAttribute("data"), function(xml){
+                                    node.combo.loadXMLString(xml.xmlDoc.responseText);
                                 });
-                                return;*/
-                            }
-                           /* console.log(value);
-                            node.combo.setComboValue(value||"");*/
+                                /*node.combo = new dhtmlXCombo(node.id,"dummy","553px");
+                                 node.combo.loadXML(node.getAttribute("data"),function(){
+                                 node.combo.setComboValue(value||"");
+                                 }); */
+                                /* node.combo.load("schedule/data?p=subject", function(){
+                                 node.combo.setComboValue(value||"");
+                                 });*/
+                                /* dhtmlxAjax.get("schedule/data?p=subject", function(xml){
+                                 console.log(value);
+                                 node.combo.setComboValue(value || "");
+                                 });
+                                 return;*/
 
+
+                            }
+                           /*node.combo.setComboValue(value||"");*/
                         },
                         get_value: function(node,ev){
-                            return node.combo.getActualValue();
+                            //return node.combo.getActualValue();
                         },
                         focus: function(node){
-                            node.combo.DOMelem_input.focus();
+                            //node.combo.DOMelem_input.focus();
                         }
                     }
 

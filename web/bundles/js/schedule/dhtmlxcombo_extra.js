@@ -1,14 +1,183 @@
-/*
-dhtmlxScheduler v.4.3.0 Stardard
 
-This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
+dhtmlXCombo_imageOption = function(){
+    this.init();
+}
+dhtmlXCombo_imageOption.prototype = new dhtmlXCombo_defaultOption;
 
-(c) Dinamenta, UAB.
+dhtmlXCombo_imageOption.prototype.setValue = function(attr){
+    this.value = attr.value||"";
+    this.text = attr.text||"";
+    this.css = attr.css||"";
+    this.img_src = attr.img_src||this.getDefImage();
+}
+dhtmlXCombo_imageOption.prototype.render = function(){
+    if (!this.content) {
+        this.content=document.createElement("DIV");
+        this.content._self = this;
+        this.content.style.cssText='width:100%; overflow:hidden; '+this.css;
+        var html = '';
+        if (this.img_src != '')
+        	html += '<img style="float:left;" src="'+this.img_src+'" />';
+        html += '<div style="float:left">'+this.text+'</div>';
+        this.content.innerHTML=html;
+//        this.content.firstChild.onclick = function(e) {(e||event).cancelBubble=true;}
+    }
+    return this.content;
+}
+dhtmlXCombo_imageOption.prototype.data = function(){
+    return [this.value,this.text,this.img_src];
+}
+
+
+dhtmlXCombo_imageOption.prototype.DrawHeader = function(self, name, width)
+{
+    var z=document.createElement("DIV");
+    z.style.width = width+"px";
+    z.className = 'dhx_combo_box';
+    z._self = self;
+	self.DOMelem = z;
+    this._DrawHeaderImage(self, name, width);
+    this._DrawHeaderInput(self, name, width-23);
+	this._DrawHeaderButton(self, name, width);
+    self.DOMParent.appendChild(self.DOMelem);
+}
+
+dhtmlXCombo_imageOption.prototype._DrawHeaderImage = function(self, name, width)
+{
+	var z= document.createElement('img');
+    //z.src='';
+ 
+	   z.className = (self.rtl)? 'dhx_combo_option_img_rtl':'dhx_combo_option_img';
+    z.style.visibility = 'hidden';
+    self.DOMelem.appendChild(z);
+	self.DOMelem_image=z;
+}
+
+dhtmlXCombo_imageOption.prototype.RedrawHeader = function(self)
+{
+	self.DOMelem_image.style.visibility = 'visible';
+	self.DOMelem_image.src = this.img_src;
+}
+
+dhtmlXCombo_imageOption.prototype.getDefImage = function(self){ return ""; }
+
+/**
+	@descr: set default image for image based options
+	@param: url - url of default image
+	@type: public
 */
-scheduler.form_blocks.combo={render:function(e){e.cached_options||(e.cached_options={});var t="";return t+="<div class='"+e.type+"' style='height:"+(e.height||20)+"px;' ></div>"},set_value:function(e,t,s,i){!function(){function t(){if(e._combo&&e._combo.DOMParent){var t=e._combo;t.unload?t.unload():t.destructor&&t.destructor(),t.DOMParent=t.DOMelem=null}}t();var s=scheduler.attachEvent("onAfterLightbox",function(){t(),scheduler.detachEvent(s)})}(),window.dhx_globalImgPath=i.image_path||"/",e._combo=new dhtmlXCombo(e,i.name,e.offsetWidth-8),i.onchange&&e._combo.attachEvent("onChange",i.onchange),i.options_height&&e._combo.setOptionHeight(i.options_height);
-var a=e._combo;if(a.enableFilteringMode(i.filtering,i.script_path||null,!!i.cache),i.script_path){var r=s[i.map_to];r?i.cached_options[r]?(a.addOption(r,i.cached_options[r]),a.disable(1),a.selectOption(0),a.disable(0)):dhtmlxAjax.get(i.script_path+"?id="+r+"&uid="+scheduler.uid(),function(e){var t=e.doXPath("//option")[0],s=t.childNodes[0].nodeValue;i.cached_options[r]=s,a.addOption(r,s),a.disable(1),a.selectOption(0),a.disable(0)}):a.setComboValue("")}else{for(var n=[],d=0;d<i.options.length;d++){var l=i.options[d],o=[l.key,l.label,l.css];
-n.push(o)}if(a.addOption(n),s[i.map_to]){var h=a.getIndexByValue(s[i.map_to]);a.selectOption(h)}}},get_value:function(e,t,s){var i=e._combo.getSelectedValue();return s.script_path&&(s.cached_options[i]=e._combo.getSelectedText()),i},focus:function(){}},scheduler.form_blocks.radio={render:function(e){var t="";t+="<div class='dhx_cal_ltext dhx_cal_radio' style='height:"+e.height+"px;' >";for(var s=0;s<e.options.length;s++){var i=scheduler.uid();t+="<input id='"+i+"' type='radio' name='"+e.name+"' value='"+e.options[s].key+"'><label for='"+i+"'> "+e.options[s].label+"</label>",e.vertical&&(t+="<br/>")
-}return t+="</div>"},set_value:function(e,t,s,i){for(var a=e.getElementsByTagName("input"),r=0;r<a.length;r++){a[r].checked=!1;var n=s[i.map_to]||t;a[r].value==n&&(a[r].checked=!0)}},get_value:function(e){for(var t=e.getElementsByTagName("input"),s=0;s<t.length;s++)if(t[s].checked)return t[s].value},focus:function(){}},scheduler.form_blocks.checkbox={render:function(e){return scheduler.config.wide_form?'<div class="dhx_cal_wide_checkbox" '+(e.height?"style='height:"+e.height+"px;'":"")+"></div>":""
-},set_value:function(e,t,s,i){e=document.getElementById(i.id);var a=scheduler.uid(),r="undefined"!=typeof i.checked_value?t==i.checked_value:!!t;e.className+=" dhx_cal_checkbox";var n="<input id='"+a+"' type='checkbox' value='true' name='"+i.name+"'"+(r?"checked='true'":"")+"'>",d="<label for='"+a+"'>"+(scheduler.locale.labels["section_"+i.name]||i.name)+"</label>";if(scheduler.config.wide_form?(e.innerHTML=d,e.nextSibling.innerHTML=n):e.innerHTML=n+d,i.handler){var l=e.getElementsByTagName("input")[0];
-l.onclick=i.handler}},get_value:function(e,t,s){e=document.getElementById(s.id);var i=e.getElementsByTagName("input")[0];return i||(i=e.nextSibling.getElementsByTagName("input")[0]),i.checked?s.checked_value||!0:s.unchecked_value||!1},focus:function(){}};
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_editors.js.map
+dhtmlXCombo.prototype.setDefaultImage=function(url){
+	dhtmlXCombo_imageOption.prototype.getDefImage=function(){
+		return url;
+	}
+}
+
+
+
+
+
+
+dhtmlXCombo_optionTypes['image'] = dhtmlXCombo_imageOption;
+
+/*
+	CHECKBOX OPTION
+*/
+dhtmlXCombo_checkboxOption = function(){
+    this.init();
+}
+dhtmlXCombo_checkboxOption.prototype = new dhtmlXCombo_defaultOption;
+
+dhtmlXCombo_checkboxOption.prototype.setValue = function(attr){
+    this.value = attr.value||"";
+    this.text = attr.text||"";
+    this.css = attr.css||"";
+	this.checked = attr.checked||0; //set checkbox state
+}
+dhtmlXCombo_checkboxOption.prototype.render = function(){
+    if (!this.content) {
+        this.content=document.createElement("DIV");
+        this.content._self = this;
+        this.content.style.cssText='width:100%; overflow:hidden; '+this.css;
+        var html = '';
+		if(this.checked)  //set checkbox state
+        	html += '<input style="float:left;" type="checkbox" checked   />';
+		else html += '<input style="float:left;" type="checkbox" />';
+        html += '<div style="float:left">'+this.text+'</div>';
+        this.content.innerHTML=html;
+        this.content.firstChild.onclick = function(e) {
+			this.parentNode.parentNode.combo.DOMelem_input.focus(); 
+			(e||event).cancelBubble=true; 	if(!this.parentNode.parentNode.combo.callEvent("onCheck",[this.parentNode._self.value,this.checked])){this.checked=!this.checked; return false;} 
+        }
+    }
+    return this.content;
+}
+dhtmlXCombo_checkboxOption.prototype.data = function(){
+    return [this.value,this.text,this.render().firstChild.checked];
+}
+
+
+dhtmlXCombo_checkboxOption.prototype.DrawHeader = function(self, name, width)
+{
+    self.DOMelem = document.createElement("DIV");
+    self.DOMelem.style.width = width+"px";
+    self.DOMelem.className = 'dhx_combo_box';
+    self.DOMelem._self = self;
+    this._DrawHeaderCheckbox(self, name, width);
+    this._DrawHeaderInput(self, name, width-18);
+	this._DrawHeaderButton(self, name, width);
+    self.DOMParent.appendChild(self.DOMelem);
+}
+
+dhtmlXCombo_checkboxOption.prototype._DrawHeaderCheckbox = function(self, name, width)
+{
+	var z= document.createElement('input');
+    z.type='checkbox';
+    z.className = (self.rtl)? 'dhx_combo_option_img_rtl':'dhx_combo_option_img';
+    z.style.visibility = 'hidden';
+    z.onclick = function(e) {(e||event).cancelBubble=true;}
+    self.DOMelem.appendChild(z);
+	self.DOMelem_checkbox = z;
+}
+
+dhtmlXCombo_checkboxOption.prototype.RedrawHeader = function(self)
+{
+	
+    self.DOMelem_checkbox.style.visibility = '';
+	self.DOMelem_checkbox.checked = this.content.firstChild.checked;
+}
+
+
+dhtmlXCombo_optionTypes['checkbox'] = dhtmlXCombo_checkboxOption;
+
+/**
+*     @desc: gets list of checked options values
+*     @return:  list of checked option values separated by commas
+*     @type: public
+*/
+dhtmlXCombo.prototype.getChecked=function(){
+	  var res=[];
+      for(var i=0; i<this.optionsArr.length; i++)
+         if(this.optionsArr[i].data()[2])
+         	res.push(this.optionsArr[i].value)
+      return res;
+}
+
+/**
+*     @desc: sets option checked
+*     @param: index - option index
+*     @param: mode- true/false
+*     @type: public
+*/
+dhtmlXCombo.prototype.setChecked=function(index,mode){
+	this.optionsArr[index].content.firstChild.checked=(!(mode===false));
+}
+
+/**
+*     @desc: sets option checked
+*     @param: index - option value
+*     @param: mode- true/false
+*     @type: public
+*/
+dhtmlXCombo.prototype.setCheckedByValue=function(value,mode){
+	return this.setChecked(this.getIndexByValue(value),mode);
+}
