@@ -270,6 +270,14 @@ class SecureController extends Controller
                 }
                 $combo->render_table("gp","id","name");
             };
+        } elseif ($mode == 'proc') {
+            if ($param == 'insert') {
+
+            } elseif ($param == 'update') {
+
+            } else {
+                
+            }
         }
     }
 

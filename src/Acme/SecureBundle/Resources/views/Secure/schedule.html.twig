@@ -29,6 +29,12 @@
                     .dhx_combo_box.dhx_skyblue {
                         width: 590px !important;
                     }
+                    #combo-checkbox {
+                        width: 610px;
+                    }
+                    #combo-checkbox .dhx_combo_img {
+                        right: 18px;
+                    }
                 </style>
                 <div class="row">
                     <div class="btn-group" data-toggle-name="profile_options" data-toggle="buttons-radio">
@@ -45,8 +51,6 @@
                         <input id="messages-options" type="hidden">
                     </div>
                 </div>
-                <div id="combo_zone" style="width:230px;"></div>
-                <div id="combo_zone3" style="width:230px;"></div>
                 <div class="row">
                     <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:1200px;'>
                         <div class="dhx_cal_navline">
@@ -89,19 +93,14 @@
                     scheduler.locale.labels.section_type_lesson = "Тип занятия";
                     scheduler.locale.labels.section_group = "Группы";
                     scheduler.config.lightbox.sections = [
-                       /* {name: "description", height: 100, map_to: "text", type: "textarea", focus: true},*/
+//                        {name: "description", height: 100, map_to: "text", type: "textarea", focus: true},
                         { name: "check_divide", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
                         { name: "check_full", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 60 },
-                       // {name: "template", height: 40, type: "template", map_to: "my_template"},
-                       /* { name: "description", height:200, *//*map_to:"text", *//*type:"my_editor" , focus:true},*/
-                      /*  {name:"contact", height:103, map_to:"phone", type:"contact_view", focus:true},*/
-
-                        { name:"subject", type:"comboAutocomplete", id:"subject", data: "schedule/data?p=subject" },
-                        { name:"room", type:"comboAutocomplete", id:"room", data: "schedule/data?p=room" },
-                        { name:"type_lesson", type:"comboAutocomplete", id:"type_lesson", data: "schedule/data?p=type_lesson" },
-                        { name:"user", type:"comboAutocomplete", id:"user", data: "schedule/data?p=user" },
-                        { name:"group", type:"comboAutocomplete", id:"group", data: "schedule/data?p=group" },
-
+                        { name:"subject", map_to:"subject", label:"subject", type:"comboAutocomplete", id:"subject", data: "schedule/data?p=subject" },
+                        { name:"room", map_to:"room", type:"comboAutocomplete", id:"room", data: "schedule/data?p=room" },
+                        { name:"type_lesson", map_to:"type_lesson", type:"comboAutocomplete", id:"type_lesson", data: "schedule/data?p=type_lesson" },
+                        { name:"user", map_to:"user", type:"comboAutocomplete", id:"user", data: "schedule/data?p=user" },
+                        { name:"group", map_to:"group", type:"comboAutocompleteCheckbox", id:"group", data: "schedule/data?p=group" },
                         //{ name: "subject", map_to: "subject", type: "combo", script_path: "schedule/data?p=subject", height: 30, filtering: true},
                         //{ name: "room", map_to: "room", type: "combo", script_path: "schedule/data?p=room", height: 30, filtering: true},
                         //{ name: "type_lesson", map_to: "type_lesson", type: "combo", script_path: "schedule/data?p=type_lesson", height: 30, filtering: true},
@@ -110,22 +109,7 @@
                         { name: "time", height: 72, type: "time", map_to: "auto" }
                     ];
                     dhtmlx.image_path = "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}";
-                   /* var myCombo = new dhtmlXCombo("combo_zone", "combo", 230);
-                    //console.log(myCombo);
-                    myCombo.enableFilteringMode(true);
-                    myCombo.clearAll();
-                    dhtmlxAjax.get("schedule/data?p=subject", function(xml){
-                        myCombo.loadXMLString(xml.xmlDoc.responseText);
-                    });*/
-                    var myCombo3 = new dhtmlXCombo("combo_zone3", null, 200, "checkbox");
-                    myCombo3.loadXMLString('<complete>'+
-                            '<option value="1">The Adventures of Tom Sawyer</option>'+
-                            '<option value="2" checked="1">The Dead Zone</option>'+
-                            '<option value="3" checked="1">The First Men in the Moon</option>'+
-                            '</complete>');
-                    //myCombo3.readonly(1);
-                    myCombo3.enableFilteringMode(true);
-                    myCombo3.enableOptionAutoHeight(1);
+                    dhtmlx.skin = "dhx_skyblue";
 
                     //combobox.setComboValue(value);
                     //combobox.selectOption(optionIndex);
@@ -169,18 +153,40 @@
                                  node.combo.setComboValue(value || "");
                                  });
                                  return;*/
-
-
                             }
                            /*node.combo.setComboValue(value||"");*/
                         },
                         get_value: function(node,ev){
-                            //return node.combo.getActualValue();
+                            return node.combo.getActualValue();
                         },
                         focus: function(node){
-                            //node.combo.DOMelem_input.focus();
+                            node.combo.DOMelem_input.focus();
                         }
-                    }
+                    };
+
+                    scheduler.form_blocks["comboAutocompleteCheckbox"] = {
+                        render: function(sns){
+                            var height=(sns.height||"23")+"px";
+                            return "<div data='"+sns.data+"' class='dhx_cal_ltext' id='combo-checkbox' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
+                        },
+                        set_value: function(node, value, ev) {
+                            if (!node.combo) {
+                                node.combo = new dhtmlXCombo(node.id, null, 590, "checkbox");
+                                node.combo.clearAll();
+                                dhtmlxAjax.get(node.getAttribute("data"), function(xml){
+                                    node.combo.loadXMLString(xml.xmlDoc.responseText);
+                                });
+                                node.combo.enableFilteringMode(true);
+                                //node.combo.enableOptionAutoHeight(1);
+                            }
+                        },
+                        get_value: function(node,ev){
+                            return node.combo.getChecked();
+                        },
+                        focus: function(node){
+                            node.combo.DOMelem_input.focus();
+                        }
+                    };
 
                     scheduler.form_blocks["contact_view"]={
                         render:function(sns){
@@ -209,116 +215,32 @@
                         focus:function(node){
                             //var a=node.childNodes[0]; a.select(); a.focus();
                         }
-                    }
+                    };
 
                     scheduler.attachEvent("onLightbox", function(event_id) {
-                        /*$("#a").select2({
-                            placeholder: "Выбор групп",
-                            allowClear: true,
-                            width: 300,
-                            maximumSelectionSize: 2,
-                            formatNoMatches: "Не найдена группа",
-                            //sortResults: sortingResults
-                            *//*placeholder: "Select an option",
-                            ajax: {
-                                url: "schedule/data?p=group",
-                                dataType: 'json',
-                                delay: 250,
-                                data: function (params) {
-                                    return {
-                                        q: params.term, // search term
-                                        page: params.page
-                                    };
-                                },
-                                processResults: function (data, page) {
-                                    return {
-                                        results: data.items
-                                    };
-                                },
-                                cache: true
-                            },
-                            escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-                            minimumInputLength: 1
-                           // templateResult: formatRepo, // omitted for brevity, see the source of this page
-                           // templateSelection: formatRepoSelection // omitted for brevity, see the source of this page*//*
-                        });*/
-
-                        /* $( ".search" ).autocomplete({
-                             minLength: 5, // only start searching 5 digits into the phone number
-                             source: function( request, response ) {
-                                 $.ajax({
-                                     url: "clients/search_clients/some_ajax_url",
-                                     type: "POST",
-                                     dataType: "json",
-                                     data: {
-                                         contact_number: $("#contact_number").val(),
-                                         '677ubdbs7s7busbfisf8sbfs_some_post_token_to_prevent_csrf' : "1"
-                                     },
-                                     success: function( data ) {
-                                         response(jQuery.map(data, function(item) {
-                                             return {
-                                                 client_id: item.client_id,
-                                                 country_id: item.country_id,
-                                                 contact_number: item.contact_number,
-                                                 email: item.email,
-                                                 first_name: item.first_name,
-                                                 last_name: item.last_name,
-                                                 gender: item.gender,
-                                                 dob_day: item.dob_day,
-                                                 dob_month: item.dob_month,
-                                                 dob_year: item.dob_year,
-                                                 client_notes: item.client_notes,
-                                                 value: item.contact_number,
-                                                 desc: item.first_name + " " + item.last_name
-                                             }
-                                         }));
-                                     }
-                                 });
-                             },
-                             focus: function( event, ui ) {
-                                 $( ".search" ).val( ui.item.value );
-                                 return false;
-                             },
-                             select: function( event, ui ) {
-                                 $("#contact_number").val( ui.item.contact_number );
-                                 $("#country_id").val( ui.item.country_id );
-                                 $("#email").val( ui.item.email );
-                                 $("#first_name").val( ui.item.first_name );
-                                 $("#last_name").val( ui.item.last_name );
-                                 $("#client_id").val( ui.item.client_id );
-                                 $("#gender").val( ui.item.gender );
-                                 $("#dob_day").val( ui.item.dob_day );
-                                 $("#dob_month").val( ui.item.dob_month );
-                                 $("#dob_year").val( ui.item.dob_year );
-                                 $("#client_notes").val( ui.item.client_notes );
-                                 return false;
-                             }
-                         }).autocomplete( "instance" )._renderItem = function( ul, item ) {
-                             return $( "<li>" )
-                                     .data( "item.autocomplete", item )
-                                     .append( "<a>" + item.contact_number + "<br><small>" + item.desc + "</small></a>" )
-                                     .appendTo( ul );
-                         };*/
+                        /*$(".dhx_save_btn_set").on('click', function() {
+                            var subject = scheduler.formSection('subject').getValue();
+                            var room = scheduler.formSection('room').getValue();
+                            var typeLesson = scheduler.formSection('type_lesson').getValue();
+                            var user = scheduler.formSection('user').getValue();
+                            var group = scheduler.formSection('group').getValue();
+                        })*/
                     });
 
-                    /*scheduler.form_blocks["my_editor"] = {
-                        render:function(sns) {
-                            return "<div class='dhx_cal_ltext' style='height:60px;'><select data-tags='true' data-placeholder='Select an option' id='select-subject'></select></div>";
-                        },
-                        set_value:function(node, value, ev) {
-                            *//*node.childNodes[1].value = value || "";
-                            node.childNodes[4].value = ev.details || "";*//*
-                        },
-                        get_value:function(node, ev) {
-                            *//*ev.details = node.childNodes[4].value;
-                            return node.childNodes[1].value;*//*
-                        },
-                        focus:function(node) {
-                            *//*var a = node.childNodes[1];
-                            a.select();
-                            a.focus();*//*
-                        }
-                    };*/
+                   /* var custom_form = document.getElementById("combo_zone");
+                    scheduler.showLightbox = function(id){
+                        var ev = scheduler.getEvent(id);
+                        scheduler.startLightbox(id, custom_form );
+                        //document.getElementById("some_input").value = ev.text;
+                    }
+                    function save_form() {
+                        var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
+                            //ev.text = document.getElementById("some_input").value;
+                                scheduler.endLightbox(true, custom_form);
+                    }
+                    function close_form(argument) {
+                        scheduler.endLightbox(false, custom_form);
+                    }*/
 
                     /*  scheduler.attachEvent("onEventCreated", function(id, e) {
                           *//*var ev = scheduler.getEvent(id);
@@ -350,9 +272,9 @@
                         return html;
                     };
                     scheduler.init('scheduler_here', null, "week");
-                    /*scheduler.load("schedule/data");
-                    var dp = new dataProcessor("schedule/data");
-                    dp.init(scheduler);*/
+                    //scheduler.load("schedule/data");
+                    var dp = new dataProcessor("schedule/proc?p=insert");
+                    dp.init(scheduler);
 
 
 
