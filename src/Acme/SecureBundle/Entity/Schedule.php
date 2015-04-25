@@ -4,6 +4,7 @@ namespace Acme\SecureBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\EntityRepository;
+use Helper\Helper;
 
 /**
  * @ORM\Entity
@@ -44,26 +45,26 @@ class Schedule extends EntityRepository
     private $end_date;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Subject", inversedBy="link_subject", cascade={"all"})
+     * @ORM\ManyToOne(targetEntity="Subject", inversedBy="link_subject", cascade={"refresh"})
      * @ORM\JoinColumn(name="subject_id", referencedColumnName="id")
      **/
     private $subject;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Acme\AuthBundle\Entity\User", inversedBy="link_user", cascade={"all"})
+     * @ORM\ManyToOne(targetEntity="Acme\AuthBundle\Entity\User", inversedBy="link_user", cascade={"refresh"})
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      **/
     protected $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="TypeLesson", inversedBy="link_type_lesson", cascade={"all"})
+     * @ORM\ManyToOne(targetEntity="TypeLesson", inversedBy="link_type_lesson", cascade={"refresh"})
      * @ORM\JoinColumn(name="type_lesson_id", referencedColumnName="id")
      **/
     private $type_lesson;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Room", inversedBy="link_room", cascade={"all"})
-     * @ORM\JoinColumn(name="room", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="Room", inversedBy="link_room", cascade={"refresh"})
+     * @ORM\JoinColumn(name="room_id", referencedColumnName="id")
      **/
     private $room;
 
@@ -74,23 +75,13 @@ class Schedule extends EntityRepository
     private $link_gps;
 
 
-    public function __construct($container, $action = null){
- /*       $this->date_create = new \DateTime();
-        $this->date_edit = new \DateTime();*/
+    public function __construct() {
         $this->link_gps = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     public function setDateCreate($date) {
         $format = 'd/m/Y';
         $this->date_create = Helper::getFormatDateForInsert($date, $format);
-    }
-
-    /**
-     * @param mixed $end_date
-     */
-    public function setEndDate($end_date)
-    {
-        $this->end_date = $end_date;
     }
 
     /**
@@ -186,7 +177,17 @@ class Schedule extends EntityRepository
      */
     public function setStartDate($start_date)
     {
-        $this->start_date = $start_date;
+        $format = 'Y-m-d H:i';
+        $this->start_date = Helper::getFormatDateForInsert1($start_date, $format);
+    }
+
+    /**
+     * @param mixed $end_date
+     */
+    public function setEndDate($end_date)
+    {
+        $format = 'Y-m-d H:i';
+        $this->end_date = Helper::getFormatDateForInsert1($end_date, $format);
     }
 
     /**

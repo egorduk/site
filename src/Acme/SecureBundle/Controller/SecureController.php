@@ -7,6 +7,7 @@ use Acme\SecureBundle\Entity\Author\MailOptionsFormValidate;
 use Acme\SecureBundle\Entity\Author\OutputPsFormValidate;
 use Acme\SecureBundle\Entity\CancelRequestFormValidate;
 use Acme\SecureBundle\Entity\ProfileFormValidate;
+use Acme\SecureBundle\Entity\Schedule;
 use Acme\SecureBundle\Form\Author\AuthorCreatePsForm;
 use Acme\SecureBundle\Entity\Author\CreatePsFormValidate;
 use Acme\SecureBundle\Entity\CancelRequest;
@@ -213,12 +214,12 @@ class SecureController extends Controller
                 $scheduler->render_table("schedule","id","start_date,end_date,text,user_id,room_id,subject_id,type_lesson_id");*/
                 $res = self::getDB();
                 $combo = new \ComboConnector($res);
-                $combo->event->attach("subject", "by_id");
+               /* $combo->event->attach("subject", "by_id");
                 function by_id($filter) {
                     if (isset($_GET['id'])) {
                         $filter->add("id", $_GET['id'], '=');
                     }
-                }
+                }*/
                 //$combo->dynamic_loading(3);
                 $combo->render_table("subject","id","name");
                 /*$scheduler = new \schedulerConnector($res);
@@ -231,52 +232,36 @@ class SecureController extends Controller
             } elseif ($param == 'room') {
                 $res = self::getDB();
                 $combo = new \ComboConnector($res);
-                $combo->event->attach("room", "by_id");
-                function by_id($filter) {
-                    if (isset($_GET['id'])) {
-                        $filter->add("id", $_GET['id'], '=');
-                    }
-                }
+
                 $combo->render_table("room","id","num");
             } elseif ($param == 'type_lesson') {
                 $res = self::getDB();
                 $combo = new \ComboConnector($res);
-                $combo->event->attach("type_lesson", "by_id");
-                function by_id($filter) {
-                    if (isset($_GET['id'])) {
-                        $filter->add("id", $_GET['id'], '=');
-                    }
-                }
                 $combo->render_table("type_lesson","id","name");
             } elseif ($param == 'user') {
                 $res = self::getDB();
                 $combo = new \ComboConnector($res);
-                $combo->event->attach("user", "by_id");
-                function by_id($filter) {
-                    if (isset($_GET['id'])) {
-                        $filter->add("id", $_GET['id'], '=');
-                    }
-                }
                 //$combo->render_table("user","id","surname");
                 $combo->render_sql("SELECT * FROM user u INNER JOIN user_role r ON u.user_role_id = r.id WHERE r.code = 'employee'", "id", "surname");
             } elseif ($param == 'group') {
                 $res = self::getDB();
                 $combo = new \ComboConnector($res);
-                $combo->event->attach("gp", "by_id");
-                function by_id($filter) {
-                    if (isset($_GET['id'])) {
-                        $filter->add("id", $_GET['id'], '=');
-                    }
-                }
                 $combo->render_table("gp","id","name");
             };
         } elseif ($mode == 'proc') {
-            if ($param == 'insert') {
-
-            } elseif ($param == 'update') {
-
+            if ($param == 'load_data') {
+                $res = self::getDB();
+                $scheduler = new \schedulerConnector($res);
+                $scheduler->render_table("schedule", "id", "start_date,end_date,text,even,odd,user_id,subject_id,type_lesson_id, room_id");
             } else {
-                
+                $data = $request->query->all();
+                if ($data['!nativeeditor_status'] == 'inserted') {
+                    Helper::addNewSchedule($data);
+                } elseif ($data['!nativeeditor_status'] == 'updated') {
+
+                } else {
+                    Helper::deleteSchedule($data);
+                }
             }
         }
     }

@@ -8,6 +8,7 @@ use Acme\SecureBundle\Entity\FavoriteOrder;
 use Acme\SecureBundle\Entity\Message;
 use Acme\SecureBundle\Entity\MoneyOutput;
 use Acme\SecureBundle\Entity\OrderFile;
+use Acme\SecureBundle\Entity\Schedule;
 use Acme\SecureBundle\Entity\SelectBid;
 use Acme\SecureBundle\Entity\StatusOrder;
 use Acme\SecureBundle\Entity\UserBid;
@@ -35,13 +36,16 @@ class Helper
     private static $_tableUser = 'AcmeAuthBundle:User';
     private static $_tableMessage = 'AcmeSecureBundle:Message';
     private static $_tableUserRole = 'AcmeAuthBundle:UserRole';
+    private static $_tableRoom = 'AcmeSecureBundle:Room';
+    private static $_tableSubject = 'AcmeSecureBundle:Subject';
+    private static $_tableTypeLesson = 'AcmeSecureBundle:TypeLesson';
+    private static $_tableSchedule = 'AcmeSecureBundle:Schedule';
 
 
 
     private static $_tableProvider = 'AcmeAuthBundle:Provider';
     private static $_tableCountry = 'AcmeAuthBundle:Country';
     private static $_tableUserInfo = 'AcmeAuthBundle:UserInfo';
-    private static $_tableSubject = 'AcmeSecureBundle:SubjectOrder';
     private static $_tableTypeOrder = 'AcmeSecureBundle:TypeOrder';
     private static $_tableUserOrder = 'AcmeSecureBundle:UserOrder';
     private static $_tableStatusOrder = 'AcmeSecureBundle:StatusOrder';
@@ -2510,12 +2514,42 @@ class Helper
         $em->flush();
     }
 
-
-    public static function getGroups() {
+    public static function addNewSchedule($data) {
         $em = self::getContainer()->get('doctrine')->getManager();
-        $groups = $em->getRepository(self::$_tableGp)
-            ->findAll();
-        return $groups;
+        $room = $em->getRepository(self::$_tableRoom)
+            ->findOneById($data['room']);
+        $typeLesson = $em->getRepository(self::$_tableTypeLesson)
+            ->findOneById($data['type_lesson']);
+        $user = $em->getRepository(self::$_tableUser)
+            ->findOneById($data['user']);
+        $subject = $em->getRepository(self::$_tableSubject)
+            ->findOneById($data['subject']);
+        $schedule = new Schedule();
+        $schedule->setStartDate($data['start_date']);
+        $schedule->setEndDate($data['end_date']);
+        $schedule->setText($data['text']);
+        $schedule->setEven($data['even']);
+        $schedule->setOdd($data['odd']);
+        $schedule->setRoom($room);
+        $schedule->setTypeLesson($typeLesson);
+        $schedule->setUser($user);
+        $schedule->setSubject($subject);
+        $em->persist($schedule);
+        $em->flush();
+    }
+
+    public static function deleteSchedule($data) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $schedule = $em->getRepository(self::$_tableSchedule)
+            ->findOneById($data['id']);
+        $em->remove($schedule);
+        $em->flush();
+    }
+
+    public static function getFormatDateForInsert1($sourceDate, $format) {
+        $date = \DateTime::createFromFormat($format, $sourceDate);
+        $date = $date->format('Y-m-d H:i');
+        return new \Datetime($date);
     }
 
 }
