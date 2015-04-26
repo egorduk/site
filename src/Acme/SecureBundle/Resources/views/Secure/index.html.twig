@@ -373,16 +373,6 @@
                                     }
                                 });
                             },
-                            /*onCellSelect: function(rowid, iCol) {
-                                if (iCol == 4) {
-                                    var rowData = grid.getRowData(rowid), writerId = rowData['writerId'];
-                                    $("#block-messages").toggle();
-                                    $("#block-talk").toggle();
-                                    initGridTalk(writerId);
-                                    //var num = $("tr.jqgrow#" + rowid).find('td').eq(1).find('span')[0].innerHTML, url = "{{ path("secure_author_order", {'num': 'num'}) }}";
-                                    //location.href = url.replace("num", num);
-                                }
-                            }*/
                         });
                         $("#t_list-talk").append("<input type='button' id='btn-delete-talk' value='Удалить всю переписку' style='height:auto;float:right'/>");
                         $("#btn-delete-talk").on('click', function(){

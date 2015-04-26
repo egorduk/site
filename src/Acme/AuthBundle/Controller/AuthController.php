@@ -8,8 +8,6 @@ use Acme\AuthBundle\Entity\User;
 use Acme\AuthBundle\Entity\LoginFormValidate;
 use Acme\AuthBundle\Form\LoginForm;
 use Acme\AuthBundle\Form\RecoveryForm;
-use Acme\AuthBundle\Entity\UserInfo;
-use Acme\AuthBundle\Form\AuthorRegForm;
 use Acme\AuthBundle\Form\RegForm;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\ExpressionLanguage\Parser;
@@ -188,98 +186,6 @@ class AuthController extends Controller
 
 
     /**
-     * Auth by openID provider
-     * @Template()
-     * @return array
-     */
-    public function openidAction(Request $request)
-    {
-        $session = $request->getSession();
-        if ($session->has('socialToken')) {
-            $socialToken = $session->get('socialToken');
-            $socialResponse = file_get_contents('http://ulogin.ru/token.php?token=' . $socialToken . '&host=' . $_SERVER['HTTP_HOST']);
-            $socialData = json_decode($socialResponse, true);
-            $showWindow = false;
-            $captchaError = "";
-            if (!isset($socialData['error'])) {
-                $userEmail = $socialData['email'];
-                $session->remove('socialToken');
-                $isExistsUser = Helper::isExistsUserByEmailAndIsConfirmAndIsUnban($userEmail);
-                if ($isExistsUser) {
-                    $role = Helper::getUserRoleByEmail($userEmail);
-                    $roleId = $role->getId();
-                    if ($roleId == 1) {
-                        $role = 'ROLE_AUTHOR';
-                        $pathRedirect = 'secure_author_index';
-                    }
-                    else {
-                        $role = 'ROLE_CLIENT';
-                        $pathRedirect = 'secure_client_index';
-                    }
-                    $token = new UsernamePasswordToken($userEmail, null, 'secured_area', array($role));
-                    $this->get('security.context')->setToken($token);
-                    return new RedirectResponse($this->generateUrl($pathRedirect));
-                }
-                else {
-                    $clientValidate = new ClientRegFormValidate();
-                    $clientValidate->setLogin($socialData['nickname']);
-                    $clientValidate->setEmail($socialData['email']);
-                    $formReg = $this->createForm(new ClientRegForm(), $clientValidate);
-                    $formReg->handleRequest($request);
-                    $publicKeyRecaptcha = $this->container->getParameter('publicKeyRecaptcha');
-                    $captcha = recaptcha_get_html($publicKeyRecaptcha);
-                    if ($request->isMethod('POST')) {
-                        if ($formReg->get('reg')->isClicked()) {
-                            if ($formReg->isValid()) {
-                                $privateKeyRecaptcha = $this->container->getParameter('privateKeyRecaptcha');
-                                $resp = recaptcha_check_answer($privateKeyRecaptcha, $_SERVER["REMOTE_ADDR"], $request->request->get('recaptcha_challenge_field'), $request->request->get('recaptcha_response_field'));
-                                if (!$resp->is_valid) {
-                                    $session->remove('socialToken');
-                                    $postData = $request->request->get('formReg');
-                                    $userLogin = $postData['fieldLogin'];
-                                    $userPassword = $postData['fieldPass'];
-                                    $userEmail = $postData['fieldEmail'];
-                                    $userInfo = new UserInfo();
-                                    //$countryCode = geoip_country_code_by_name($_SERVER["REMOTE_ADDR"]);
-                                    $countryCode = 'by';
-                                    $country = Helper::getCountryByCode($countryCode);
-                                    $userInfo->setCountry($country);
-                                    Helper::addNewUserInfo($userInfo);
-                                    $user = new User();
-                                    $user->setLogin($userLogin);
-                                    $user->setEmail($userEmail);
-                                    $role = Helper::getUserRoleByRoleId(2);
-                                    $user->setUserRole($role);
-                                    $salt = Helper::getSalt();
-                                    $password = Helper::getRegPassword($userPassword, $salt);
-                                    $user->setPassword($password);
-                                    $user->setSalt($salt);
-                                    $hashCode = Helper::getRandomValue(15);
-                                    $user->setHash($hashCode);
-                                    $user->setUserInfo($userInfo);
-                                    $userId = Helper::addNewOpenIdData($socialData, $country, $user);
-                                    Helper::sendConfirmationReg($this->container, $userEmail, $userId, $hashCode);
-                                    $showWindow = true;
-                                }
-                                else {
-                                    $captchaError = $resp->error;
-                                }
-                            }
-                        }
-                    }
-                }
-                return $this->render(
-                    'AcmeAuthBundle:Client:reg.html.twig', array('formReg' => $formReg->createView(), 'captcha' => $captcha, 'captchaError' => $captchaError, 'showWindow' => $showWindow)
-                );
-            }
-        }
-        else {
-            return $this->redirect($this->generateUrl('login'));
-        }
-    }
-
-
-    /**
      * @Template()
      * @return array
      */
@@ -304,44 +210,4 @@ class AuthController extends Controller
         }
         return array('formRecovery' => $formRecovery->createView(), 'showWindow' => $showWindow);
     }
-
-
-    /**
-     * Confirm register and recovery password by Email
-     *
-     * @Template()
-     * @return array
-     */
-    public function confirmAction(Request $request)
-    {
-        $hashCode = $request->get('hash_code');
-        $userId = $request->get('id');
-        $type = $request->get('type');
-        $isCorrectUrl = Helper::isCorrectConfirmUrl($hashCode, $userId, $type);
-        $showSuccessWindow = false;
-        if ($isCorrectUrl) {
-            if ($type == "reg") {
-                $isExistsUser = Helper::isExistsUserByHashAndByIdAndIsConfirm($userId, $hashCode, 0);
-                if ($isExistsUser) {
-                    $isSuccess = Helper::updateUserAfterConfirmByMail($userId, $hashCode, $type);
-                    if ($isSuccess) {
-                        $showSuccessWindow = true;
-                    }
-                }
-            }
-            elseif ($type == "rec") {
-                $isExistsUser = Helper::isExistsUserByHashAndByIdAndIsConfirm($userId, $hashCode, 1);
-                if ($isExistsUser) {
-                    $isSuccess = Helper::updateUserAfterConfirmByMail($userId, $hashCode, $type);
-                    if ($isSuccess) {
-                        $showSuccessWindow = true;
-                    }
-                }
-            }
-        }
-        return array('showSuccessWindow' => $showSuccessWindow);
-    }
-
-
-
 }

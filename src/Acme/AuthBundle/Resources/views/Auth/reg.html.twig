@@ -101,7 +101,7 @@
             {{ form_widget(formReg.back) }}
         </div>
         {{ form_end(formReg) }}
-        <p>{{ responseMessage }}<>
+        <p>{{ responseMessage }}</p>
     </div>
     <script>
         jQuery(function ($) {
@@ -123,16 +123,16 @@
                         if (hidden.val() == 'student') {
                             $("#formReg_fieldWork, #formReg_fieldDescribe").hide();
                             $("#formReg_fieldWork, #formReg_fieldDescribe").removeAttr('required');
-                            $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo").show();
-                            $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo").attr('required');
+                            $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo, #formReg_fieldInstitute, #formReg_fieldChair").show();
+                            $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo, #formReg_fieldInstitute, #formReg_fieldChair").attr('required');
                         } else if (hidden.val() == 'employee') {
-                            $("#formReg_fieldWork").show();
-                            $("#formReg_fieldWork").attr('required');
+                            $("#formReg_fieldWork, #formReg_fieldInstitute, #formReg_fieldChair").show();
+                            $("#formReg_fieldWork, #formReg_fieldInstitute, #formReg_fieldChair").attr('required');
                             $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo, #formReg_fieldDescribe").hide();
                             $("#formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo, #formReg_fieldDescribe").removeAttr('required');
-                        } else {
-                            $("#formReg_fieldInstitute, #formReg_fieldChair, #formReg_fieldWork").hide();
-                            $("#formReg_fieldInstitute, #formReg_fieldChair, #formReg_fieldWork").removeAttr('required');
+                        } else if (hidden.val() == 'other') {
+                            $("#formReg_fieldInstitute, #formReg_fieldChair, #formReg_fieldWork, #formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo").hide();
+                            $("#formReg_fieldInstitute, #formReg_fieldChair, #formReg_fieldWork, #formReg_fieldSpeciality, #formReg_fieldGroup, #formReg_fieldInfo").removeAttr('required');
                             $("#formReg_fieldDescribe").show();
                             $("#formReg_fieldDescribe").attr('required');
                         }

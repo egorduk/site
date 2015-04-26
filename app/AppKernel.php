@@ -18,13 +18,8 @@ class AppKernel extends Kernel
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new Genemu\Bundle\FormBundle\GenemuFormBundle(),
             new PunkAve\FileUploaderBundle\PunkAveFileUploaderBundle(),
-            //new Beryllium\CacheBundle\BerylliumCacheBundle(),
-            //new Aequasi\Bundle\MemcachedBundle\AequasiMemcachedBundle(),
-            //new winzou\CacheBundle\winzouCacheBundle(),
             new Maxmind\Bundle\GeoipBundle\MaxmindGeoipBundle(),
-            //new WhiteOctober\TCPDFBundle\WhiteOctoberTCPDFBundle(),
             new Slik\DompdfBundle\SlikDompdfBundle()
-            //new Knp\Bundle\SnappyBundle\KnpSnappyBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
@@ -34,8 +29,6 @@ class AppKernel extends Kernel
             $bundles[] = new Acme\IndexBundle\AcmeIndexBundle();
             $bundles[] = new Acme\AuthBundle\AcmeAuthBundle();
             $bundles[] = new Acme\SecureBundle\AcmeSecureBundle();
-            $bundles[] = new Acme\AdminBundle\AcmeAdminBundle();
-            //$bundles[] = new DMS\Bundle\FilterBundle\DMSFilterBundle();
         }
 
         return $bundles;

@@ -15,7 +15,6 @@ use Symfony\Component\PropertyAccess\Exception\AccessException;
 
 class IndexController extends Controller
 {
-
     /**
      * @Template()
      * @return Response
@@ -23,15 +22,5 @@ class IndexController extends Controller
     public function indexAction()
     {
         return array();
-    }
-
-
-    /**
-     * @Template()
-     * @return Array
-     */
-    public function rulesAction($type)
-    {
-
     }
 }

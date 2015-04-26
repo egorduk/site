@@ -3,8 +3,8 @@
 {% block content_header '' %}
 {% block content %}
         <div id="content">
-            <p><a href="{{ path('login') }}">Вход в систему</a></p>
-            <p><a href="{{ path('client_reg', {'type': 'client'}) }}">Регистрация как заказчик</a></p>
-            <p><a href="{{ path('author_reg', {'type': 'author'}) }}">Регистрация как исполнитель</a></p>
+            <div class="col-xs-4">
+                <a class="btn btn-success" id="btn-back" href="{{ path('login') }}">Вход на сайт</a>
+            </div>
         </div>
 {% endblock %}

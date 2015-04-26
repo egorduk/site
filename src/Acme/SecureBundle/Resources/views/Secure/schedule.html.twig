@@ -86,6 +86,8 @@
                     //scheduler.config.event_duration = 60;
                     scheduler.locale.labels.section_check_divide = "Разделить на 2 подгруппы";
                     scheduler.locale.labels.section_check_full = "Заполнить на последующие недели";
+                    scheduler.locale.labels.section_check_even = "Четные недели";
+                    scheduler.locale.labels.section_check_odd = "Нечетные недели";
                     //scheduler.locale.labels.section_template = 'Details';
                     scheduler.locale.labels.section_subject = "Предмет";
                     scheduler.locale.labels.section_room = "Аудитория";
@@ -94,32 +96,21 @@
                     scheduler.locale.labels.section_group = "Группы";
                     scheduler.config.lightbox.sections = [
 //                        {name: "description", height: 100, map_to: "text", type: "textarea", focus: true},
-                        { name: "check_divide", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
-                        { name: "check_full", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 60 },
+                        { name: "check_divide", map_to: "", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
+                        { name: "check_full", map_to: "", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 60 },
+                        { name: "check_even", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
+                        { name: "check_odd", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
                         { name:"subject", map_to:"subject", label:"subject", type:"comboAutocomplete", id:"subject", data: "schedule/data?p=subject" },
                         { name:"room", map_to:"room", type:"comboAutocomplete", id:"room", data: "schedule/data?p=room" },
                         { name:"type_lesson", map_to:"type_lesson", type:"comboAutocomplete", id:"type_lesson", data: "schedule/data?p=type_lesson" },
                         { name:"user", map_to:"user", type:"comboAutocomplete", id:"user", data: "schedule/data?p=user" },
                         { name:"group", map_to:"group", type:"comboAutocompleteCheckbox", id:"group", data: "schedule/data?p=group" },
                         //{ name: "subject", map_to: "subject", type: "combo", script_path: "schedule/data?p=subject", height: 30, filtering: true},
-                        //{ name: "room", map_to: "room", type: "combo", script_path: "schedule/data?p=room", height: 30, filtering: true},
-                        //{ name: "type_lesson", map_to: "type_lesson", type: "combo", script_path: "schedule/data?p=type_lesson", height: 30, filtering: true},
-                        //{ name: "user", map_to: "user", type: "combo", script_path: "schedule/data?p=user", height: 30, filtering: true},
-                       // { name: "group", map_to: "gp", type: "combo", comboType: "checkbox", script_path: "schedule/data?p=group", height: 30, filtering: true},
                         { name: "time", height: 72, type: "time", map_to: "auto" }
                     ];
                     dhtmlx.image_path = "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}";
                     dhtmlx.skin = "dhx_skyblue";
 
-                    //combobox.setComboValue(value);
-                    //combobox.selectOption(optionIndex);
-                    /*myCombo.attachEvent("onDynXLS", myComboFilter);
-                    function myComboFilter(text){
-                        myCombo.clearAll();
-                        dhtmlxAjax.get("schedule/data?p=subject", function(xml){
-                            myCombo.setComboValue(xml.xmlDoc.responseText);
-                        })
-                    }*/
                     /*var z2 = new dhtmlXCombo("combo_zone3", "alfa3", 200, 'checkbox');
                     z2.addOption([[1, 1111], [2, 2222], [3, 3333], [4, 4444], [5, 5555]]);
                     z2.setChecked(1, true);
@@ -139,10 +130,16 @@
                                 node.combo.clearAll();
                                 dhtmlxAjax.get(node.getAttribute("data"), function(xml){
                                     node.combo.loadXMLString(xml.xmlDoc.responseText);
-                                    node.combo.setComboValue(ev[field]);
+                                    if (ev[field] !== undefined) {
+                                        node.combo.setComboValue(ev[field]);
+                                    }
                                 });
                             } else {
-                                node.combo.setComboValue(ev[field]);
+                                if (ev[field] !== undefined) {
+                                    node.combo.setComboValue(ev[field]);
+                                } else {
+                                    node.combo.setComboValue("");
+                                }
                             }
                         },
                         get_value: function(node,ev){
@@ -207,46 +204,10 @@
                     };
 
                     scheduler.attachEvent("onLightbox", function(event_id) {
-                        //console.log(event_id);
-                        //console.log(scheduler.formSection('subject').getValue());
-                        /*$(".dhx_save_btn_set").on('click', function() {
-                            var subject = scheduler.formSection('subject').getValue();
-                            var room = scheduler.formSection('room').getValue();
-                            var typeLesson = scheduler.formSection('type_lesson').getValue();
-                            var user = scheduler.formSection('user').getValue();
-                            var group = scheduler.formSection('group').getValue();
-                        })*/
                     });
                     scheduler.attachEvent("onEventLoading", function(ev){
-                        /*console.log(ev);
-                        scheduler.formSection('subject').setValue('1');*/
                         return true;
                     });
-
-                   /* var custom_form = document.getElementById("combo_zone");
-                    scheduler.showLightbox = function(id){
-                        var ev = scheduler.getEvent(id);
-                        scheduler.startLightbox(id, custom_form );
-                        //document.getElementById("some_input").value = ev.text;
-                    }
-                    function save_form() {
-                        var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
-                            //ev.text = document.getElementById("some_input").value;
-                                scheduler.endLightbox(true, custom_form);
-                    }
-                    function close_form(argument) {
-                        scheduler.endLightbox(false, custom_form);
-                    }*/
-
-                    /*  scheduler.attachEvent("onEventCreated", function(id, e) {
-                          *//*var ev = scheduler.getEvent(id);
-                        ev.my_template = "<b>Holder:</b>"+ ev.holder+"<br><b>Room:</b>"+ ev.room;*//*
-                        var ev = scheduler.getEvent(id);*/
-                       /* ev.my_template = '<select class="js-example-basic-multiple" multiple="multiple">'+
-                                '<option value="AL">Alabama</option>'+
-                                '<option value="WY">Wyoming</option>'+
-                                '</select>';
-                    });*/
                     scheduler.templates.hour_scale = function(date){
                         var html = "";
                         for (var i = 0; i < 60 / step; i++){

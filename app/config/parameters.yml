@@ -8,11 +8,8 @@ parameters:
     database_password: null
     locale: ru_RU
     secret: 6LcYmecSAAAAAJlYNqogbOXJVMvGgim5JoegorLcYmecSAAAAANaq8JFPxT3xEA_urO6st1gfVOXL
-    mail_sender: egorduk@yandex.com
-    mail_title: Study
     publicKeyRecaptcha: 6LcYmecSAAAAAJlYNqogbOXJVMvGgim5JoM0hcAi
     privateKeyRecaptcha: 6LcYmecSAAAAANaq8JFPxT3xEA_urO6st1gfVOXL
-    confirmPath: http://localhost/study/web/app_dev.php/auth/confirm
 doctrine:
     dbal:
         driver: '%database_driver%'
