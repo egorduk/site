@@ -231,7 +231,14 @@ class SecureController extends Controller
             if ($param == 'load_data') {
                 $res = self::getDB();
                 $scheduler = new \schedulerConnector($res);
-                $scheduler->render_table("schedule", "id", "start_date,end_date,text,even,odd,user_id,subject_id,type_lesson_id,room_id");
+                //$scheduler->render_table("schedule", "id", "start_date,end_date,text,even,odd,user_id,subject_id,type_lesson_id,room_id");
+                $scheduler->render_sql("SELECT sch.*,s.name AS subject,t.name AS type_lesson,r.num AS room,u.surname AS user,g.gp_id AS groups FROM schedule sch
+                INNER JOIN subject s ON sch.subject_id = s.id
+                INNER JOIN type_lesson t ON sch.type_lesson_id = t.id
+                INNER JOIN room r ON sch.room_id = r.id
+                INNER JOIN user u ON sch.user_id = u.id
+                INNER JOIN gps g ON sch.id = g.schedule_id
+                ", "id", "start_date,end_date,text,subject,type_lesson,room,user,groups,even,odd");
             } else {
                 $data = $request->query->all();
                 if ($data['!nativeeditor_status'] == 'inserted') {

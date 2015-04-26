@@ -122,7 +122,8 @@
                             return "<div data-type='"+sns.map_to+"' data='"+sns.data+"' class='dhx_cal_ltext' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
                         },
                         set_value: function(node, value, ev) {
-                            var field = node.getAttribute("data-type") + '_id';
+                            //var field = node.getAttribute("data-type") + '_id';
+                            var field = node.getAttribute("data-type");
                             if (!node.combo) {
                                 console.log(ev);
                                 node.combo = new dhtmlXCombo(node.id, "combo", 590);
@@ -216,11 +217,13 @@
                         }
                         return html;
                     };
+                    scheduler.templates.event_text = function(start,end,ev){
+                        return ev.subject + '<br>' + ev.user + ' - ' + ev.user + '<br>' + ev.room + ' - ' + ev.type_lesson;
+                    };
                     scheduler.init('scheduler_here', null, "week");
                     scheduler.load("schedule/proc?p=load_data");
                     var dp = new dataProcessor("schedule/proc?p=crud");
                     dp.init(scheduler);
-
 
                     //$("#formProfile_fieldOptions").val('profile');
                     //$("#messages-options").val('profile');
