@@ -72,6 +72,7 @@
             <script>
                 jQuery(function ($) {
                    /* $.fn.button.noConflict();*/
+                    var arrItems = [];
                     var step = 30, format = scheduler.date.date_to_str("%H:%i");
                     scheduler.config.xml_date="%Y-%m-%d %H:%i";
                     scheduler.config.first_hour = 8;
@@ -100,21 +101,16 @@
                         { name: "check_full", map_to: "", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 60 },
                         { name: "check_even", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
                         { name: "check_odd", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
-                        { name:"subject", map_to:"subject", label:"subject", type:"comboAutocomplete", id:"subject", data: "schedule/data?p=subject" },
-                        { name:"room", map_to:"room", type:"comboAutocomplete", id:"room", data: "schedule/data?p=room" },
-                        { name:"type_lesson", map_to:"type_lesson", type:"comboAutocomplete", id:"type_lesson", data: "schedule/data?p=type_lesson" },
-                        { name:"user", map_to:"user", type:"comboAutocomplete", id:"user", data: "schedule/data?p=user" },
-                        { name:"group", map_to:"group", type:"comboAutocompleteCheckbox", id:"group", data: "schedule/data?p=group" },
+                        { name: "subject", map_to:"subject", label:"subject", type:"comboAutocomplete", id:"subject", data: "schedule/data?p=subject" },
+                        { name: "room", map_to:"room", type:"comboAutocomplete", id:"room", data: "schedule/data?p=room" },
+                        { name: "type_lesson", map_to:"type_lesson", type:"comboAutocomplete", id:"type_lesson", data: "schedule/data?p=type_lesson" },
+                        { name: "user", map_to:"user", type:"comboAutocomplete", id:"user", data: "schedule/data?p=user" },
+                        { name: "group", map_to:"group", type:"comboAutocompleteCheckbox", id:"group", data: "schedule/data?p=group" },
                         //{ name: "subject", map_to: "subject", type: "combo", script_path: "schedule/data?p=subject", height: 30, filtering: true},
                         { name: "time", height: 72, type: "time", map_to: "auto" }
                     ];
                     dhtmlx.image_path = "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}";
                     dhtmlx.skin = "dhx_skyblue";
-
-                    /*var z2 = new dhtmlXCombo("combo_zone3", "alfa3", 200, 'checkbox');
-                    z2.addOption([[1, 1111], [2, 2222], [3, 3333], [4, 4444], [5, 5555]]);
-                    z2.setChecked(1, true);
-                    alert(z2.getChecked());*/
 
                     scheduler.form_blocks["comboAutocomplete"] = {
                         render: function(sns){
@@ -122,7 +118,6 @@
                             return "<div data-type='"+sns.map_to+"' data='"+sns.data+"' class='dhx_cal_ltext' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
                         },
                         set_value: function(node, value, ev) {
-                            //var field = node.getAttribute("data-type") + '_id';
                             var field = node.getAttribute("data-type");
                             if (!node.combo) {
                                 console.log(ev);
@@ -143,7 +138,8 @@
                                 }
                             }
                         },
-                        get_value: function(node,ev){
+                        get_value: function(node, ev){
+                            arrItems[node.getAttribute("data-type")] = node.combo.getSelectedText();
                             return node.combo.getActualValue();
                         },
                         focus: function(node){
@@ -154,7 +150,7 @@
                     scheduler.form_blocks["comboAutocompleteCheckbox"] = {
                         render: function(sns){
                             var height=(sns.height||"23")+"px";
-                            return "<div data='"+sns.data+"' class='dhx_cal_ltext' id='combo-checkbox' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
+                            return "<div data-type='"+sns.map_to+"' data='"+sns.data+"' class='dhx_cal_ltext' id='combo-checkbox' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
                         },
                         set_value: function(node, value, ev) {
                             if (!node.combo) {
@@ -168,6 +164,16 @@
                             }
                         },
                         get_value: function(node,ev){
+                            var items = node.combo.getChecked(), str = "";
+                            for (i = 0; i < items.length; i++){
+                                if (i == items.length-1) {
+                                    str = str + node.combo.getOption(items[i]).text;
+                                } else {
+                                    str = str + node.combo.getOption(items[i]).text + ', ';
+                                }
+                            }
+                            console.log(str);
+                            arrItems[node.getAttribute("data-type")] = str;
                             return node.combo.getChecked();
                         },
                         focus: function(node){
@@ -175,38 +181,20 @@
                         }
                     };
 
-                    scheduler.form_blocks["contact_view"]={
-                        render:function(sns){
-                            var html = '<div class="dhx_cal_ltext" style="height:100px;">';
-                            /*html += '<input type="text" placeholder="Phone" size="25" class="search" id="phone">&nbsp;';
-                            html += '<input type="text" placeholder="Email Address" size="32" id="email"></div>';*/
-                            html += '<select multiple="multiple" id="a" /></select></div>';
-                            return html;
-                        },
-                        set_value:function(node,value,ev){
-                            /*node.childNodes[0].value=value||"";
-                            $.each(node.childNodes, function(index, item) {
-                                if ($(item).attr("id") == "email") {
-                                    node.childNodes[index].value=ev.email||"";
-                                }
-                            });*/
-                        },
-                        get_value:function(node,ev){
-                           /* $.each(node.childNodes, function(index, item) {
-                                if ($(item).attr("id") == "email") {
-                                    ev.email = node.childNodes[index].value;
-                                }
-                            });
-                            return node.childNodes[0].value;*/
-                        },
-                        focus:function(node){
-                            //var a=node.childNodes[0]; a.select(); a.focus();
-                        }
-                    };
-
                     scheduler.attachEvent("onLightbox", function(event_id) {
                     });
                     scheduler.attachEvent("onEventLoading", function(ev){
+                        return true;
+                    });
+                   /* scheduler.attachEvent("onAfterSave", function (id, xml){
+                        alert(id);
+                    });*/
+                    scheduler.attachEvent("onEventCreated", function(id, e){
+                       /* scheduler.getEvent(id).location = 'Blackheath Avenue London, Greenwich...';
+                        scheduler.updateEvent(id); // renders the updated event*/
+                        return true;
+                    });
+                    scheduler.attachEvent("onEventSave", function(id, e){
                         return true;
                     });
                     scheduler.templates.hour_scale = function(date){
@@ -217,9 +205,17 @@
                         }
                         return html;
                     };
-                    scheduler.templates.event_text = function(start,end,ev){
-                        return ev.subject + '<br>' + ev.user + ' - ' + ev.user + '<br>' + ev.room + ' - ' + ev.type_lesson;
+                    scheduler.templates.event_text = function(start, end, ev){
+                        if (ev.subject === undefined) {
+                            return '';
+                        } else if (arrItems['subject'] !== undefined) {
+                            //console.log(arrItems);
+                            return arrItems['subject'] + '<br>' + arrItems['user'] + ' - ' + arrItems['group'] + '<br>' + arrItems['room'] + ' - ' + arrItems['type_lesson'];
+                        } else {
+                            return ev.subject + '<br>' + ev.user + ' - ' + ev.groups + '<br>' + ev.room + ' - ' + ev.type_lesson;
+                        }
                     };
+                    //scheduler.endLightbox(false);
                     scheduler.init('scheduler_here', null, "week");
                     scheduler.load("schedule/proc?p=load_data");
                     var dp = new dataProcessor("schedule/proc?p=crud");

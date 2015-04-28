@@ -30,11 +30,6 @@ class Schedule extends EntityRepository
     private $odd;
 
     /**
-     * @ORM\Column(type="string")
-     */
-    private $text;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     private $start_date;
@@ -70,7 +65,7 @@ class Schedule extends EntityRepository
 
 
     /**
-     * @ORM\OneToMany(targetEntity="Gps", mappedBy="schedule_user")
+     * @ORM\OneToMany(targetEntity="Gps", mappedBy="schedule")
      **/
     private $link_gps;
 
@@ -212,22 +207,6 @@ class Schedule extends EntityRepository
     public function getSubject()
     {
         return $this->subject;
-    }
-
-    /**
-     * @param mixed $text
-     */
-    public function setText($text)
-    {
-        $this->text = $text;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getText()
-    {
-        return $this->text;
     }
 
     /**

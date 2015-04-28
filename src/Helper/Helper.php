@@ -3,6 +3,7 @@
 namespace Helper;
 
 
+use Acme\SecureBundle\Entity\Gps;
 use Acme\SecureBundle\Entity\Message;
 use Acme\SecureBundle\Entity\Schedule;
 
@@ -267,7 +268,7 @@ class Helper
         $schedule = new Schedule();
         $schedule->setStartDate($data['start_date']);
         $schedule->setEndDate($data['end_date']);
-        $schedule->setText($data['text']);
+        //$schedule->setText($data['text']);
         $schedule->setEven($data['even']);
         $schedule->setOdd($data['odd']);
         $schedule->setRoom($room);
@@ -275,6 +276,15 @@ class Helper
         $schedule->setUser($user);
         $schedule->setSubject($subject);
         $em->persist($schedule);
+        $em->flush();
+        $groups = explode(',', $data['group']);
+        foreach($groups as $groupId) {
+            $gps = new Gps();
+            $group = Helper::getGroupById($groupId);
+            $gps->setGp($group);
+            $gps->setSchedule($schedule);
+            $em->persist($gps);
+        }
         $em->flush();
     }
 
@@ -290,6 +300,13 @@ class Helper
         $date = \DateTime::createFromFormat($format, $sourceDate);
         $date = $date->format('Y-m-d H:i');
         return new \Datetime($date);
+    }
+
+    public static function getGroupById($groupId) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $group = $em->getRepository(self::$_tableGp)
+            ->findOneById($groupId);
+        return $group;
     }
 
 }

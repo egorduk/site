@@ -34,10 +34,16 @@ class Gp extends EntityRepository
      **/
     protected $link_group;
 
+    /**
+     * @ORM\OneToMany(targetEntity="Acme\SecureBundle\Entity\Gps", mappedBy="gp")
+     **/
+    private $link_gps;
+
 
     public function __construct()
     {
         $this->link_group = new ArrayCollection();
+        $this->link_gps = new ArrayCollection();
     }
 
     public function setName($name)
