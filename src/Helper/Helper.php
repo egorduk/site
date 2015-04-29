@@ -19,6 +19,7 @@ class Helper
     private static $_tableTypeLesson = 'AcmeSecureBundle:TypeLesson';
     private static $_tableSchedule = 'AcmeSecureBundle:Schedule';
     private static $_tableGp = 'AcmeAuthBundle:Gp';
+    private static $_tableGps = 'AcmeSecureBundle:Gps';
 
     private static $kernel;
 
@@ -288,10 +289,64 @@ class Helper
         $em->flush();
     }
 
+    public static function updateSchedule($data) {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $room = $em->getRepository(self::$_tableRoom)
+            ->findOneByNum($data['room']);
+        if (!$room) {
+            $room = $em->getRepository(self::$_tableRoom)
+                ->findOneById($data['room']);
+        }
+        $typeLesson = $em->getRepository(self::$_tableTypeLesson)
+            ->findOneByName($data['type_lesson']);
+        if (!$typeLesson) {
+            $typeLesson = $em->getRepository(self::$_tableTypeLesson)
+                ->findOneById($data['type_lesson']);
+        }
+        $user = $em->getRepository(self::$_tableUser)
+            ->findOneBySurname($data['user']);
+        if (!$user) {
+            $user = $em->getRepository(self::$_tableUser)
+                ->findOneById($data['user']);
+        }
+        $subject = $em->getRepository(self::$_tableSubject)
+            ->findOneByName($data['subject']);
+        if (!$subject) {
+            $subject = $em->getRepository(self::$_tableSubject)
+                ->findOneById($data['subject']);
+        }
+        $schedule = $em->getRepository(self::$_tableSchedule)
+            ->findOneById($data['id']);
+        $schedule->setStartDate($data['start_date']);
+        $schedule->setEndDate($data['end_date']);
+        $schedule->setEven($data['even']);
+        $schedule->setOdd($data['odd']);
+        $schedule->setRoom($room);
+        $schedule->setTypeLesson($typeLesson);
+        $schedule->setUser($user);
+        $schedule->setSubject($subject);
+        //$em->persist($schedule);
+        $em->flush();
+        /*$groups = explode(',', $data['group']);
+        foreach($groups as $groupId) {
+            $gps = new Gps();
+            $group = Helper::getGroupById($groupId);
+            $gps->setGp($group);
+            $gps->setSchedule($schedule);
+            $em->persist($gps);
+        }
+        $em->flush();*/
+    }
+
     public static function deleteSchedule($data) {
         $em = self::getContainer()->get('doctrine')->getManager();
         $schedule = $em->getRepository(self::$_tableSchedule)
             ->findOneById($data['id']);
+        $gps = $em->getRepository(self::$_tableGps)
+            ->findBySchedule($schedule);
+        foreach($gps as $gp) {
+            $em->remove($gp);
+        }
         $em->remove($schedule);
         $em->flush();
     }

@@ -63,7 +63,6 @@ class Schedule extends EntityRepository
      **/
     private $room;
 
-
     /**
      * @ORM\OneToMany(targetEntity="Gps", mappedBy="schedule")
      **/

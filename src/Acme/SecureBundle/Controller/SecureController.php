@@ -246,6 +246,7 @@ class SecureController extends Controller
                     Helper::addNewSchedule($data);
                     exit;
                 } elseif ($data['!nativeeditor_status'] == 'updated') {
+                    Helper::updateSchedule($data);
                     exit;
                 } else {
                     Helper::deleteSchedule($data);

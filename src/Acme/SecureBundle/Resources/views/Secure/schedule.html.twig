@@ -72,7 +72,7 @@
             <script>
                 jQuery(function ($) {
                    /* $.fn.button.noConflict();*/
-                    var arrItems = [];
+                    var arrItems = [], editedId = 0, subject, room, user, typeLesson, groups;
                     var step = 30, format = scheduler.date.date_to_str("%H:%i");
                     scheduler.config.xml_date="%Y-%m-%d %H:%i";
                     scheduler.config.first_hour = 8;
@@ -120,7 +120,7 @@
                         set_value: function(node, value, ev) {
                             var field = node.getAttribute("data-type");
                             if (!node.combo) {
-                                console.log(ev);
+                                //console.log(ev);
                                 node.combo = new dhtmlXCombo(node.id, "combo", 590);
                                 node.combo.enableFilteringMode(true);
                                 node.combo.clearAll();
@@ -128,6 +128,15 @@
                                     node.combo.loadXMLString(xml.xmlDoc.responseText);
                                     if (ev[field] !== undefined) {
                                         node.combo.setComboValue(ev[field]);
+                                    }
+                                    if (field == 'subject') {
+                                        subject = node.combo;
+                                    } else if (field == 'room') {
+                                        room = node.combo;
+                                    } else if (field == 'user') {
+                                        user = node.combo;
+                                    } else if (field == 'type_lesson') {
+                                        typeLesson = node.combo;
                                     }
                                 });
                             } else {
@@ -160,20 +169,12 @@
                                     node.combo.loadXMLString(xml.xmlDoc.responseText);
                                 });
                                 node.combo.enableFilteringMode(true);
+                                groups = node.combo;
                                 //node.combo.enableOptionAutoHeight(1);
                             }
                         },
                         get_value: function(node,ev){
-                            var items = node.combo.getChecked(), str = "";
-                            for (i = 0; i < items.length; i++){
-                                if (i == items.length-1) {
-                                    str = str + node.combo.getOption(items[i]).text;
-                                } else {
-                                    str = str + node.combo.getOption(items[i]).text + ', ';
-                                }
-                            }
-                            console.log(str);
-                            arrItems[node.getAttribute("data-type")] = str;
+                            arrItems[node.getAttribute("data-type")] = handleCheckedGroups(node.combo);
                             return node.combo.getChecked();
                         },
                         focus: function(node){
@@ -181,7 +182,8 @@
                         }
                     };
 
-                    scheduler.attachEvent("onLightbox", function(event_id) {
+                    scheduler.attachEvent("onLightbox", function(id) {
+                        editedId = id;
                     });
                     scheduler.attachEvent("onEventLoading", function(ev){
                         return true;
@@ -192,9 +194,13 @@
                     scheduler.attachEvent("onEventCreated", function(id, e){
                        /* scheduler.getEvent(id).location = 'Blackheath Avenue London, Greenwich...';
                         scheduler.updateEvent(id); // renders the updated event*/
+                        editedId = 0;
+                        //groups = '';
                         return true;
                     });
-                    scheduler.attachEvent("onEventSave", function(id, e){
+                    scheduler.attachEvent("onEventSave", function(id, ev){
+                        //arrItems['subject'] = undefined;
+                        editedId = id;
                         return true;
                     });
                     scheduler.templates.hour_scale = function(date){
@@ -206,13 +212,30 @@
                         return html;
                     };
                     scheduler.templates.event_text = function(start, end, ev){
-                        if (ev.subject === undefined) {
+                        console.log(ev);
+                        /*if (ev.id == editedId) {
+                            editedId = 0;
+                            return subject.getSelectedText() + '<br>' + user.getSelectedText() + ' - ' + handleCheckedGroups(groups) + '<br>' + room.getSelectedText() + ' - ' + typeLesson.getSelectedText();
+                        } else*/ if (ev.subject === undefined) {
                             return '';
-                        } else if (arrItems['subject'] !== undefined) {
-                            //console.log(arrItems);
-                            return arrItems['subject'] + '<br>' + arrItems['user'] + ' - ' + arrItems['group'] + '<br>' + arrItems['room'] + ' - ' + arrItems['type_lesson'];
+                        } else if (ev.id >= 1 && ev.id <= 1000000) {
+                            if (ev['!nativeeditor_status'] == "updated") {
+                                var s = arrItems['subject'] == "" ? ev.subject : arrItems['subject'],
+                                        u = arrItems['user'] == "" ? ev.user : arrItems['user'],
+                                        g = arrItems['group'] == "" ? ev.groups : arrItems['group'],
+                                        r = arrItems['room'] == "" ? ev.room : arrItems['room'],
+                                        t = arrItems['type_lesson'] == "" ? ev.type_lesson : arrItems['type_lesson'];
+                                return s + "<br>" + u + ' - ' + g + '<br>' + r + ' - ' + t;
+                            } else {
+                                return ev.subject + '<br>' + ev.user + ' - ' + ev.groups + '<br>' + ev.room + ' - ' + ev.type_lesson;
+                            }
+                           /* if (arrItems['subject'] !== undefined) {
+                                return arrItems['subject'] + '<br>' + arrItems['user'] + ' - ' + arrItems['group'] + '<br>' + arrItems['room'] + ' - ' + arrItems['type_lesson'];
+                            } else {
+
+                            }*/
                         } else {
-                            return ev.subject + '<br>' + ev.user + ' - ' + ev.groups + '<br>' + ev.room + ' - ' + ev.type_lesson;
+                            return subject.getOption(ev.subject).text + '<br>' + user.getOption(ev.user).text + ' - ' + handleCheckedGroups1(ev.group) + '<br>' + room.getOption(ev.room).text + ' - ' + typeLesson.getOption(ev.type_lesson).text;
                         }
                     };
                     //scheduler.endLightbox(false);
@@ -220,6 +243,31 @@
                     scheduler.load("schedule/proc?p=load_data");
                     var dp = new dataProcessor("schedule/proc?p=crud");
                     dp.init(scheduler);
+
+                    function handleCheckedGroups(a) {
+                        var items = a.getChecked(), str = "";
+                        for (var i = 0; i < items.length; i++){
+                            if (i == items.length-1) {
+                                str = str + a.getOption(items[i]).text;
+                            } else {
+                                str = str + a.getOption(items[i]).text + ', ';
+                            }
+                        }
+                        //console.log(items);
+                        return str;
+                    }
+
+                    function handleCheckedGroups1(a) {
+                        var str = "";
+                        for (var i = 0; i < a.length; i++){
+                            if (i == a.length-1) {
+                                str = str + groups.getOption(a[i]).text;
+                            } else {
+                                str = str + groups.getOption(a[i]).text + ', ';
+                            }
+                        }
+                        return str;
+                    }
 
                     //$("#formProfile_fieldOptions").val('profile');
                     //$("#messages-options").val('profile');

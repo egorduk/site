@@ -20,13 +20,13 @@ class Gps extends EntityRepository
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Schedule", inversedBy="link_gps", cascade={"all"})
+     * @ORM\ManyToOne(targetEntity="Schedule", inversedBy="link_gps", cascade={"refresh"})
      * @ORM\JoinColumn(name="schedule_id", referencedColumnName="id")
      **/
     private $schedule;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Acme\AuthBundle\Entity\Gp", inversedBy="link_gps", cascade={"all"})
+     * @ORM\ManyToOne(targetEntity="Acme\AuthBundle\Entity\Gp", inversedBy="link_gps", cascade={"refresh"})
      * @ORM\JoinColumn(name="gp_id", referencedColumnName="id")
      **/
     private $gp;
