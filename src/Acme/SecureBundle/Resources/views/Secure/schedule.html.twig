@@ -35,6 +35,17 @@
                     #combo-checkbox .dhx_combo_img {
                         right: 18px;
                     }
+                    .dhtmlx-msg-success div {
+                        font-weight: bold !important;
+                        color: white !important;
+                        background-color: green !important;
+                    }
+                    .dhtmlx-msg-notice div {
+                        font-weight: bold !important;
+                        color: white !important;
+                        background-color: orange !important;
+                    }
+
                 </style>
                 <div class="row">
                     <div class="btn-group" data-toggle-name="profile_options" data-toggle="buttons-radio">
@@ -185,22 +196,41 @@
                     scheduler.attachEvent("onLightbox", function(id) {
                         editedId = id;
                     });
-                    scheduler.attachEvent("onEventLoading", function(ev){
-                        return true;
-                    });
-                   /* scheduler.attachEvent("onAfterSave", function (id, xml){
-                        alert(id);
-                    });*/
                     scheduler.attachEvent("onEventCreated", function(id, e){
                        /* scheduler.getEvent(id).location = 'Blackheath Avenue London, Greenwich...';
                         scheduler.updateEvent(id); // renders the updated event*/
                         editedId = 0;
-                        //groups = '';
+                        dhtmlx.message({
+                            type: "msg-notice",
+                            text: "Создание события"
+                        });
+                        return true;
+                    });
+                    scheduler.attachEvent("onEventAdded", function(id, ev){
+                        dhtmlx.message({
+                            type: "msg-success",
+                            text: "Добавлено!"
+                        });
                         return true;
                     });
                     scheduler.attachEvent("onEventSave", function(id, ev){
-                        //arrItems['subject'] = undefined;
                         editedId = id;
+                        return true;
+                    });
+                    scheduler.attachEvent("onEventChanged", function(id, ev){
+                        dhtmlx.message({
+                            type: "msg-success",
+                            text: "Сохранено!"
+                        });
+                        return true;
+                    });
+                    scheduler.attachEvent("onEventDeleted", function(id, ev){
+                        scheduler.getEvent(ev.id)._text_style = 'color: red';
+                        scheduler.updateEvent(ev.id);
+                        dhtmlx.message({
+                            type: "msg-success",
+                            text: "Удалено!"
+                        });
                         return true;
                     });
                     scheduler.templates.hour_scale = function(date){
@@ -220,23 +250,37 @@
                             return '';
                         } else if (ev.id >= 1 && ev.id <= 1000000) {
                             if (ev['!nativeeditor_status'] == "updated") {
-                                var s = arrItems['subject'] == "" ? ev.subject : arrItems['subject'],
-                                        u = arrItems['user'] == "" ? ev.user : arrItems['user'],
-                                        g = arrItems['group'] == "" ? ev.groups : arrItems['group'],
-                                        r = arrItems['room'] == "" ? ev.room : arrItems['room'],
-                                        t = arrItems['type_lesson'] == "" ? ev.type_lesson : arrItems['type_lesson'];
+                                var s = arrItems['subject'] == ("" || undefined) ? ev.subject : arrItems['subject'],
+                                        u = arrItems['user'] == ("" || undefined) ? ev.user : arrItems['user'],
+                                        g = arrItems['group'] == ("" || undefined) ? ev.groups : arrItems['group'],
+                                        r = arrItems['room'] == ("" || undefined) ? ev.room : arrItems['room'],
+                                        t = arrItems['type_lesson'] == ("" || undefined) ? ev.type_lesson : arrItems['type_lesson'];
                                 return s + "<br>" + u + ' - ' + g + '<br>' + r + ' - ' + t;
                             } else {
                                 return ev.subject + '<br>' + ev.user + ' - ' + ev.groups + '<br>' + ev.room + ' - ' + ev.type_lesson;
                             }
-                           /* if (arrItems['subject'] !== undefined) {
-                                return arrItems['subject'] + '<br>' + arrItems['user'] + ' - ' + arrItems['group'] + '<br>' + arrItems['room'] + ' - ' + arrItems['type_lesson'];
-                            } else {
-
-                            }*/
                         } else {
                             return subject.getOption(ev.subject).text + '<br>' + user.getOption(ev.user).text + ' - ' + handleCheckedGroups1(ev.group) + '<br>' + room.getOption(ev.room).text + ' - ' + typeLesson.getOption(ev.type_lesson).text;
                         }
+                    };
+                    scheduler.renderEvent = function(container, ev) {
+                        var c_width = parseFloat(container.style.width),
+                                c_height = parseFloat(container.style.height),
+                                html = "";
+                        if (ev.divide == "1") {
+                            html += "<div class='dhx_event_move dhx_header' style='width:"+(c_width - 2)+"px;'></div>";
+                            html += "<div class='dhx_event_move dhx_title'>"+scheduler.templates.event_header(ev.start_date, ev.end_date, ev)+"</div>";
+                            html += "<div class='dhx_body' style='float:left;width:"+(c_width / 2 - 14)+"px;height:"+(c_height - 29)+"px;'>" + scheduler.templates.event_text(ev.start_date, ev.end_date, ev) + "</div>";
+                            html += "<div class='dhx_body' style='margin-right:-2px;float:right;width:"+(c_width / 2 - 14)+"px;height:"+(c_height - 29)+"px;'>" + scheduler.templates.event_text(ev.start_date, ev.end_date, ev) + "</div>";
+                            html += "<div class='dhx_event_resize dhx_footer' style='width:"+(c_width - 4)+"px;clear:both'></div>";
+                        } else {
+                            html += "<div class='dhx_event_move dhx_header' style='width:"+(c_width - 2)+"px;'></div>";
+                            html += "<div class='dhx_event_move dhx_title'>"+scheduler.templates.event_header(ev.start_date, ev.end_date, ev)+"</div>";
+                            html += "<div class='dhx_body' style='width:"+(c_width - 10)+"px;height:"+(c_height - 29)+"px;'>" + scheduler.templates.event_text(ev.start_date, ev.end_date, ev) + "</div>";
+                            html += "<div class='dhx_event_resize dhx_footer' style='width:"+(c_width - 4)+"px'></div>";
+                        }
+                        container.innerHTML = html;
+                        return true;
                     };
                     //scheduler.endLightbox(false);
                     scheduler.init('scheduler_here', null, "week");

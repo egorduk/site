@@ -239,7 +239,7 @@ class SecureController extends Controller
                 INNER JOIN user u ON sch.user_id = u.id
                 INNER JOIN gps gs ON sch.id = gs.schedule_id
                 INNER JOIN gp gp ON gp.id = gs.gp_id
-                GROUP BY sch.id", "id", "start_date,end_date,subject,subject,type_lesson,room,user,groups,even,odd");
+                GROUP BY sch.id", "id", "start_date,end_date,subject,subject,type_lesson,room,user,groups,even,odd,divide");
             } else {
                 $data = $request->query->all();
                 if ($data['!nativeeditor_status'] == 'inserted') {

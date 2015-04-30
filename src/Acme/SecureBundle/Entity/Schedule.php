@@ -30,6 +30,11 @@ class Schedule extends EntityRepository
     private $odd;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $divide;
+
+    /**
      * @ORM\Column(type="datetime")
      */
     private $start_date;
@@ -71,6 +76,22 @@ class Schedule extends EntityRepository
 
     public function __construct() {
         $this->link_gps = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * @param mixed $divide
+     */
+    public function setDivide($divide)
+    {
+        $this->divide = $divide;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDivide()
+    {
+        return $this->divide;
     }
 
     public function setDateCreate($date) {
