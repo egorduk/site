@@ -8,13 +8,20 @@
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.js') }}" media="screen" title="no title" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcombo_extra.js') }}" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlx.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlx_api.js') }}"></script>
+            {#<script src="//code.jquery.com/jquery-1.10.2.js"></script>#}
+            <script type="text/javascript" src="{{ asset('bundles/js/jqgrid/i18n/grid.locale-ru.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/jqgrid/jquery.jqGrid.min.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/jqgrid/jquery.jqGrid.fmatter.js') }}"></script>
             {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlx.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
-           {# <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-            <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>#}
+            {#
+             <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>#}
             <link rel="stylesheet" href="{{ asset('bundles/css/schedule/dhtmlxscheduler.css') }}" charset="utf-8" />
             <link rel="stylesheet" href="{{ asset('bundles/js/schedule/dhtmlxCombo/dhtmlxcombo.css') }}" charset="utf-8" />
-            <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+            {#<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">#}
             <link href="{{ asset('bundles/js/schedule/dhtmlx.css') }}" rel="stylesheet" type="text/css" />
+            <link rel="stylesheet" href="{{ asset('bundles/css/jqgrid/custom-theme1/jquery-ui-1.10.3.custom.css') }}" />
+            <link rel="stylesheet" href="{{ asset('bundles/css/jqgrid/ui.jqgrid.css') }}" />
             <div class="container">
                 <style>
                     .dhtmlx_popup_text {
@@ -45,12 +52,19 @@
                         color: white !important;
                         background-color: orange !important;
                     }
-
+                    #table-additional {
+                        border: 2px solid black;
+                    }
+                    #table-additional td {
+                        border: 1px solid black;
+                        text-align: center;
+                    }
                 </style>
                 <div class="row">
-                    <div class="btn-group" data-toggle-name="profile_options" data-toggle="buttons-radio">
-                        <button type="button" value="profile" data-toggle="button" class="btn btn-primary active">Расписание занятий</button>
-                        <button type="button" value="messages" data-toggle="button" class="btn btn-primary">Расписание сессии и доп. занятий</button>
+                    <div class="btn-group" data-toggle-name="schedule_options" data-toggle="buttons-radio">
+                        <button type="button" value="lessons" data-toggle="button" class="btn btn-primary active">Расписание занятий</button>
+                        <button type="button" value="additional" data-toggle="button" class="btn btn-primary">Расписание сессии и доп. занятий</button>
+                        <input type="hidden" id="hidden-schedule-options" name="hidden_schedule_options" value="">
                     </div>
                 </div>
                 <div class="row">
@@ -63,304 +77,376 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:1200px;'>
-                        <div class="dhx_cal_navline">
-                            <div class="dhx_cal_prev_button">&nbsp;</div>
-                            <div class="dhx_cal_next_button">&nbsp;</div>
-                            <div class="dhx_cal_today_button"></div>
-                            <div class="dhx_cal_date"></div>
-                            <div class="dhx_cal_tab" name="day_tab" style="right:204px;"></div>
-                            <div class="dhx_cal_tab" name="week_tab" style="right:140px;"></div>
-                            <div class="dhx_cal_tab" name="month_tab" style="right:76px;"></div>
+                    <button type="button" value="" class="btn btn-primary" onclick="scheduler.exportToPDF()">Сохранить как PDF</button>
+                    <button type="button" value="" class="btn btn-primary" onclick="scheduler.exportToPNG()">Сохранить как PNG</button>
+                    <button type="button" value="" class="btn btn-primary">Распечатать</button>
+                </div>
+                <div id="block-schedule">
+                    <div class="row">
+                        <div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:1200px;'>
+                            <div class="dhx_cal_navline">
+                                <div class="dhx_cal_prev_button">&nbsp;</div>
+                                <div class="dhx_cal_next_button">&nbsp;</div>
+                                <div class="dhx_cal_today_button"></div>
+                                <div class="dhx_cal_date"></div>
+                                <div class="dhx_cal_tab" name="day_tab" style="right:204px;"></div>
+                                <div class="dhx_cal_tab" name="week_tab" style="right:140px;"></div>
+                                <div class="dhx_cal_tab" name="month_tab" style="right:76px;"></div>
+                            </div>
+                            <div class="dhx_cal_header">
+                            </div>
+                            <div class="dhx_cal_data">
+                            </div>
                         </div>
-                        <div class="dhx_cal_header">
-                        </div>
-                        <div class="dhx_cal_data">
-                        </div>
+                    </div>
+                </div>
+                <div id="block-additional">
+                    <div id="wrapper-block-additional">
+                        <table id="list-additional"></table>
+                        <div id="pager-additional"></div>
                     </div>
                 </div>
             </div>
             <script>
-                jQuery(function ($) {
-                   /* $.fn.button.noConflict();*/
-                    var arrItems = [], editedId = 0, subject, room, user, typeLesson, groups;
-                    var step = 30, format = scheduler.date.date_to_str("%H:%i");
-                    scheduler.config.xml_date="%Y-%m-%d %H:%i";
-                    scheduler.config.first_hour = 8;
-                    scheduler.config.last_hour = 21;
-                    scheduler.config.time_step = 10;
-                    scheduler.config.separate_short_events = true;
-                    scheduler.config.auto_end_date = true;
-                    scheduler.config.details_on_create = true;
-                    scheduler.config.details_on_dblclick = true;
-                    scheduler.config.hour_size_px = (60 / step) * 22;
-                    scheduler.config.limit_time_select = true;
-                    //scheduler.config.event_duration = 60;
-                    scheduler.locale.labels.section_check_divide = "Разделить на 2 подгруппы";
-                    scheduler.locale.labels.section_check_full = "Заполнить на последующие недели";
-                    scheduler.locale.labels.section_check_even = "Четные недели";
-                    scheduler.locale.labels.section_check_odd = "Нечетные недели";
-                    //scheduler.locale.labels.section_template = 'Details';
-                    scheduler.locale.labels.section_subject = "Предмет";
-                    scheduler.locale.labels.section_room = "Аудитория";
-                    scheduler.locale.labels.section_user = "Преподаватель";
-                    scheduler.locale.labels.section_type_lesson = "Тип занятия";
-                    scheduler.locale.labels.section_group = "Группы";
-                    scheduler.config.lightbox.sections = [
+            jQuery(function ($) {
+                /* $.fn.button.noConflict();*/
+                var arrItems = [], editedId = 0, subject, room, user, typeLesson, groups;
+                var step = 30, format = scheduler.date.date_to_str("%H:%i");
+                scheduler.config.xml_date="%Y-%m-%d %H:%i";
+                scheduler.config.first_hour = 8;
+                scheduler.config.last_hour = 21;
+                scheduler.config.time_step = 10;
+                scheduler.config.separate_short_events = true;
+                scheduler.config.auto_end_date = true;
+                scheduler.config.details_on_create = true;
+                scheduler.config.details_on_dblclick = true;
+                scheduler.config.hour_size_px = (60 / step) * 22;
+                scheduler.config.limit_time_select = true;
+                //scheduler.config.event_duration = 60;
+                scheduler.locale.labels.section_check_divide = "Разделить на 2 подгруппы";
+                scheduler.locale.labels.section_check_full = "Заполнить на последующие недели";
+                scheduler.locale.labels.section_check_even = "Четные недели";
+                scheduler.locale.labels.section_check_odd = "Нечетные недели";
+                //scheduler.locale.labels.section_template = 'Details';
+                scheduler.locale.labels.section_subject = "Предмет";
+                scheduler.locale.labels.section_room = "Аудитория";
+                scheduler.locale.labels.section_user = "Преподаватель";
+                scheduler.locale.labels.section_type_lesson = "Тип занятия";
+                scheduler.locale.labels.section_group = "Группы";
+                scheduler.locale.labels.export_tab = "Сохранить в файл";
+                scheduler.config.lightbox.sections = [
 //                        {name: "description", height: 100, map_to: "text", type: "textarea", focus: true},
-                        { name: "check_divide", map_to: "", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
-                        { name: "check_full", map_to: "", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 60 },
-                        { name: "check_even", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
-                        { name: "check_odd", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
-                        { name: "subject", map_to:"subject", label:"subject", type:"comboAutocomplete", id:"subject", data: "schedule/data?p=subject" },
-                        { name: "room", map_to:"room", type:"comboAutocomplete", id:"room", data: "schedule/data?p=room" },
-                        { name: "type_lesson", map_to:"type_lesson", type:"comboAutocomplete", id:"type_lesson", data: "schedule/data?p=type_lesson" },
-                        { name: "user", map_to:"user", type:"comboAutocomplete", id:"user", data: "schedule/data?p=user" },
-                        { name: "group", map_to:"group", type:"comboAutocompleteCheckbox", id:"group", data: "schedule/data?p=group" },
-                        //{ name: "subject", map_to: "subject", type: "combo", script_path: "schedule/data?p=subject", height: 30, filtering: true},
-                        { name: "time", height: 72, type: "time", map_to: "auto" }
-                    ];
-                    dhtmlx.image_path = "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}";
-                    dhtmlx.skin = "dhx_skyblue";
+                    { name: "check_divide", map_to: "", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
+                    { name: "check_full", map_to: "", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 60 },
+                    { name: "check_even", map_to: "even", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
+                    { name: "check_odd", map_to: "odd", type: "checkbox", checked_value: "1", unchecked_value: "0", height: 40 },
+                    { name: "subject", map_to:"subject", label:"subject", type:"comboAutocomplete", id:"subject", data: "schedule/data?p=subject" },
+                    { name: "room", map_to:"room", type:"comboAutocomplete", id:"room", data: "schedule/data?p=room" },
+                    { name: "type_lesson", map_to:"type_lesson", type:"comboAutocomplete", id:"type_lesson", data: "schedule/data?p=type_lesson" },
+                    { name: "user", map_to:"user", type:"comboAutocomplete", id:"user", data: "schedule/data?p=user" },
+                    { name: "group", map_to:"group", type:"comboAutocompleteCheckbox", id:"group", data: "schedule/data?p=group" },
+                    //{ name: "subject", map_to: "subject", type: "combo", script_path: "schedule/data?p=subject", height: 30, filtering: true},
+                    { name: "time", height: 72, type: "time", map_to: "auto" }
+                ];
+                dhtmlx.image_path = "{{ asset('bundles/js/schedule/dhtmlxCombo/imgs/') }}";
+                dhtmlx.skin = "dhx_skyblue";
 
-                    scheduler.form_blocks["comboAutocomplete"] = {
-                        render: function(sns){
-                            var height=(sns.height||"23")+"px";
-                            return "<div data-type='"+sns.map_to+"' data='"+sns.data+"' class='dhx_cal_ltext' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
-                        },
-                        set_value: function(node, value, ev) {
-                            var field = node.getAttribute("data-type");
-                            if (!node.combo) {
-                                //console.log(ev);
-                                node.combo = new dhtmlXCombo(node.id, "combo", 590);
-                                node.combo.enableFilteringMode(true);
-                                node.combo.clearAll();
-                                dhtmlxAjax.get(node.getAttribute("data"), function(xml){
-                                    node.combo.loadXMLString(xml.xmlDoc.responseText);
-                                    if (ev[field] !== undefined) {
-                                        node.combo.setComboValue(ev[field]);
-                                    }
-                                    if (field == 'subject') {
-                                        subject = node.combo;
-                                    } else if (field == 'room') {
-                                        room = node.combo;
-                                    } else if (field == 'user') {
-                                        user = node.combo;
-                                    } else if (field == 'type_lesson') {
-                                        typeLesson = node.combo;
-                                    }
-                                });
-                            } else {
+                scheduler.form_blocks["comboAutocomplete"] = {
+                    render: function(sns){
+                        var height=(sns.height||"23")+"px";
+                        return "<div data-type='"+sns.map_to+"' data='"+sns.data+"' class='dhx_cal_ltext' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
+                    },
+                    set_value: function(node, value, ev) {
+                        var field = node.getAttribute("data-type");
+                        if (!node.combo) {
+                            //console.log(ev);
+                            node.combo = new dhtmlXCombo(node.id, "combo", 590);
+                            node.combo.enableFilteringMode(true);
+                            node.combo.clearAll();
+                            dhtmlxAjax.get(node.getAttribute("data"), function(xml){
+                                node.combo.loadXMLString(xml.xmlDoc.responseText);
                                 if (ev[field] !== undefined) {
                                     node.combo.setComboValue(ev[field]);
-                                } else {
-                                    node.combo.setComboValue("");
                                 }
-                            }
-                        },
-                        get_value: function(node, ev){
-                            arrItems[node.getAttribute("data-type")] = node.combo.getSelectedText();
-                            return node.combo.getActualValue();
-                        },
-                        focus: function(node){
-                            node.combo.DOMelem_input.focus();
-                        }
-                    };
-
-                    scheduler.form_blocks["comboAutocompleteCheckbox"] = {
-                        render: function(sns){
-                            var height=(sns.height||"23")+"px";
-                            return "<div data-type='"+sns.map_to+"' data='"+sns.data+"' class='dhx_cal_ltext' id='combo-checkbox' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
-                        },
-                        set_value: function(node, value, ev) {
-                            if (!node.combo) {
-                                node.combo = new dhtmlXCombo(node.id, null, 590, "checkbox");
-                                node.combo.clearAll();
-                                dhtmlxAjax.get(node.getAttribute("data"), function(xml){
-                                    node.combo.loadXMLString(xml.xmlDoc.responseText);
-                                });
-                                node.combo.enableFilteringMode(true);
-                                groups = node.combo;
-                                //node.combo.enableOptionAutoHeight(1);
-                            }
-                        },
-                        get_value: function(node,ev){
-                            arrItems[node.getAttribute("data-type")] = handleCheckedGroups(node.combo);
-                            return node.combo.getChecked();
-                        },
-                        focus: function(node){
-                            node.combo.DOMelem_input.focus();
-                        }
-                    };
-
-                    scheduler.attachEvent("onLightbox", function(id) {
-                        editedId = id;
-                    });
-                    scheduler.attachEvent("onEventCreated", function(id, e){
-                       /* scheduler.getEvent(id).location = 'Blackheath Avenue London, Greenwich...';
-                        scheduler.updateEvent(id); // renders the updated event*/
-                        editedId = 0;
-                        dhtmlx.message({
-                            type: "msg-notice",
-                            text: "Создание события"
-                        });
-                        return true;
-                    });
-                    scheduler.attachEvent("onEventAdded", function(id, ev){
-                        dhtmlx.message({
-                            type: "msg-success",
-                            text: "Добавлено!"
-                        });
-                        return true;
-                    });
-                    scheduler.attachEvent("onEventSave", function(id, ev){
-                        editedId = id;
-                        return true;
-                    });
-                    scheduler.attachEvent("onEventChanged", function(id, ev){
-                        dhtmlx.message({
-                            type: "msg-success",
-                            text: "Сохранено!"
-                        });
-                        return true;
-                    });
-                    scheduler.attachEvent("onEventDeleted", function(id, ev){
-                        scheduler.getEvent(ev.id)._text_style = 'color: red';
-                        scheduler.updateEvent(ev.id);
-                        dhtmlx.message({
-                            type: "msg-success",
-                            text: "Удалено!"
-                        });
-                        return true;
-                    });
-                    scheduler.templates.hour_scale = function(date){
-                        var html = "";
-                        for (var i = 0; i < 60 / step; i++){
-                            html += "<div style='height:22px;line-height:22px;'>" + format(date) + "</div>";
-                            date = scheduler.date.add(date, step, "minute");
-                        }
-                        return html;
-                    };
-                    scheduler.templates.event_text = function(start, end, ev){
-                        console.log(ev);
-                        /*if (ev.id == editedId) {
-                            editedId = 0;
-                            return subject.getSelectedText() + '<br>' + user.getSelectedText() + ' - ' + handleCheckedGroups(groups) + '<br>' + room.getSelectedText() + ' - ' + typeLesson.getSelectedText();
-                        } else*/ if (ev.subject === undefined) {
-                            return '';
-                        } else if (ev.id >= 1 && ev.id <= 1000000) {
-                            if (ev['!nativeeditor_status'] == "updated") {
-                                var s = arrItems['subject'] == ("" || undefined) ? ev.subject : arrItems['subject'],
-                                        u = arrItems['user'] == ("" || undefined) ? ev.user : arrItems['user'],
-                                        g = arrItems['group'] == ("" || undefined) ? ev.groups : arrItems['group'],
-                                        r = arrItems['room'] == ("" || undefined) ? ev.room : arrItems['room'],
-                                        t = arrItems['type_lesson'] == ("" || undefined) ? ev.type_lesson : arrItems['type_lesson'];
-                                return s + "<br>" + u + ' - ' + g + '<br>' + r + ' - ' + t;
-                            } else {
-                                return ev.subject + '<br>' + ev.user + ' - ' + ev.groups + '<br>' + ev.room + ' - ' + ev.type_lesson;
-                            }
-                        } else {
-                            return subject.getOption(ev.subject).text + '<br>' + user.getOption(ev.user).text + ' - ' + handleCheckedGroups1(ev.group) + '<br>' + room.getOption(ev.room).text + ' - ' + typeLesson.getOption(ev.type_lesson).text;
-                        }
-                    };
-                    scheduler.renderEvent = function(container, ev) {
-                        var c_width = parseFloat(container.style.width),
-                                c_height = parseFloat(container.style.height),
-                                html = "";
-                        if (ev.divide == "1") {
-                            html += "<div class='dhx_event_move dhx_header' style='width:"+(c_width - 2)+"px;'></div>";
-                            html += "<div class='dhx_event_move dhx_title'>"+scheduler.templates.event_header(ev.start_date, ev.end_date, ev)+"</div>";
-                            html += "<div class='dhx_body' style='float:left;width:"+(c_width / 2 - 14)+"px;height:"+(c_height - 29)+"px;'>" + scheduler.templates.event_text(ev.start_date, ev.end_date, ev) + "</div>";
-                            html += "<div class='dhx_body' style='margin-right:-2px;float:right;width:"+(c_width / 2 - 14)+"px;height:"+(c_height - 29)+"px;'>" + scheduler.templates.event_text(ev.start_date, ev.end_date, ev) + "</div>";
-                            html += "<div class='dhx_event_resize dhx_footer' style='width:"+(c_width - 4)+"px;clear:both'></div>";
-                        } else {
-                            html += "<div class='dhx_event_move dhx_header' style='width:"+(c_width - 2)+"px;'></div>";
-                            html += "<div class='dhx_event_move dhx_title'>"+scheduler.templates.event_header(ev.start_date, ev.end_date, ev)+"</div>";
-                            html += "<div class='dhx_body' style='width:"+(c_width - 10)+"px;height:"+(c_height - 29)+"px;'>" + scheduler.templates.event_text(ev.start_date, ev.end_date, ev) + "</div>";
-                            html += "<div class='dhx_event_resize dhx_footer' style='width:"+(c_width - 4)+"px'></div>";
-                        }
-                        container.innerHTML = html;
-                        return true;
-                    };
-                    //scheduler.endLightbox(false);
-                    scheduler.init('scheduler_here', null, "week");
-                    scheduler.load("schedule/proc?p=load_data");
-                    var dp = new dataProcessor("schedule/proc?p=crud");
-                    dp.init(scheduler);
-
-                    function handleCheckedGroups(a) {
-                        var items = a.getChecked(), str = "";
-                        for (var i = 0; i < items.length; i++){
-                            if (i == items.length-1) {
-                                str = str + a.getOption(items[i]).text;
-                            } else {
-                                str = str + a.getOption(items[i]).text + ', ';
-                            }
-                        }
-                        //console.log(items);
-                        return str;
-                    }
-
-                    function handleCheckedGroups1(a) {
-                        var str = "";
-                        for (var i = 0; i < a.length; i++){
-                            if (i == a.length-1) {
-                                str = str + groups.getOption(a[i]).text;
-                            } else {
-                                str = str + groups.getOption(a[i]).text + ', ';
-                            }
-                        }
-                        return str;
-                    }
-
-                    //$("#formProfile_fieldOptions").val('profile');
-                    //$("#messages-options").val('profile');
-                    $('div.btn-group[data-toggle-name]').eq(0).each(function () {
-                        var group = $(this),
-                        //form = group.parents('form').eq(0),
-                                name = 'formProfile[fieldOptions]',
-                        //hidden = $('input[name="' + name + '"]', form);
-                                hidden = $('input[name="' + name + '"]');
-                        $('button', group).each(function () {
-                            var button = $(this);
-                            button.on('click', function () {
-                                hidden.val($(this).val());
-                                group.find('.active').removeClass('active');
-                                if (button.val() == hidden.val()) {
-                                    button.addClass('active');
-                                }
-                                if (hidden.val() == 'messages') {
-                                    initGridMessages();
-                                    $("#block-form-profile").hide();
-                                    $("#block-messages").show();
-                                    $("#block-messages-sort").show();
-                                } else {
-                                    $("#block-form-profile").show();
-                                    $("#block-messages").hide();
-                                    $("#block-talk").hide();
-                                    $("#block-messages-sort").hide();
+                                if (field == 'subject') {
+                                    subject = node.combo;
+                                } else if (field == 'room') {
+                                    room = node.combo;
+                                } else if (field == 'user') {
+                                    user = node.combo;
+                                } else if (field == 'type_lesson') {
+                                    typeLesson = node.combo;
                                 }
                             });
-                        });
-                    });
-                    $('div.btn-group[data-toggle-name]').eq(1).each(function () {
-                        var group = $(this),
-                        //form = group.parents('form').eq(0),
-                                name = 'formProfile[fieldOptions]',
-                        //hidden = $('input[name="' + name + '"]', form);
-                                hidden = $('input[name="' + name + '"]');
-                        group.find('.active').removeClass('active');
-                        $('button', group).each(function () {
-                            var button = $(this);
-                            button.on('click', function () {
-                                hidden.val($(this).val());
-                                group.find('.active').removeClass('active');
-                                if (button.val() == hidden.val()) {
-                                    button.addClass('active');
-                                }
+                        } else {
+                            if (ev[field] !== undefined) {
+                                node.combo.setComboValue(ev[field]);
+                            } else {
+                                node.combo.setComboValue("");
+                            }
+                        }
+                    },
+                    get_value: function(node, ev){
+                        arrItems[node.getAttribute("data-type")] = node.combo.getSelectedText();
+                        return node.combo.getActualValue();
+                    },
+                    focus: function(node){
+                        node.combo.DOMelem_input.focus();
+                    }
+                };
+
+                scheduler.form_blocks["comboAutocompleteCheckbox"] = {
+                    render: function(sns){
+                        var height=(sns.height||"23")+"px";
+                        return "<div data-type='"+sns.map_to+"' data='"+sns.data+"' class='dhx_cal_ltext' id='combo-checkbox' style='height:"+height+";' id='"+scheduler.uid()+"'></div>";
+                    },
+                    set_value: function(node, value, ev) {
+                        if (!node.combo) {
+                            node.combo = new dhtmlXCombo(node.id, null, 590, "checkbox");
+                            node.combo.clearAll();
+                            dhtmlxAjax.get(node.getAttribute("data"), function(xml){
+                                node.combo.loadXMLString(xml.xmlDoc.responseText);
                             });
+                            node.combo.enableFilteringMode(true);
+                            groups = node.combo;
+                            //node.combo.enableOptionAutoHeight(1);
+                        }
+                    },
+                    get_value: function(node,ev){
+                        arrItems[node.getAttribute("data-type")] = handleCheckedGroups(node.combo);
+                        return node.combo.getChecked();
+                    },
+                    focus: function(node){
+                        node.combo.DOMelem_input.focus();
+                    }
+                };
+
+                scheduler.attachEvent("onLightbox", function(id) {
+                    editedId = id;
+                    return true;
+                });
+                scheduler.attachEvent("onEventCreated", function(id, e){
+                    /* scheduler.getEvent(id).location = 'Blackheath Avenue London, Greenwich...';
+                     scheduler.updateEvent(id); // renders the updated event*/
+                    editedId = 0;
+                    dhtmlx.message({
+                        type: "msg-notice",
+                        text: "Создание события"
+                    });
+                    return true;
+                });
+                scheduler.attachEvent("onEventAdded", function(id, ev){
+                    dhtmlx.message({
+                        type: "msg-success",
+                        text: "Добавлено!"
+                    });
+                    return true;
+                });
+                scheduler.attachEvent("onEventSave", function(id, ev){
+                    editedId = id;
+                    return true;
+                });
+                scheduler.attachEvent("onEventChanged", function(id, ev){
+                    dhtmlx.message({
+                        type: "msg-success",
+                        text: "Сохранено!"
+                    });
+                    return true;
+                });
+                /*scheduler.attachEvent("onEventDeleted", function(id, ev){
+                 //scheduler.getEvent(ev.id)._text_style = 'color: red';
+                 scheduler.updateEvent(ev.id);
+                 dhtmlx.message({
+                 type: "msg-success",
+                 text: "Удалено!"
+                 });
+                 return true;
+                 });*/
+                scheduler.templates.hour_scale = function(date){
+                    var html = "";
+                    for (var i = 0; i < 60 / step; i++){
+                        html += "<div style='height:22px;line-height:22px;'>" + format(date) + "</div>";
+                        date = scheduler.date.add(date, step, "minute");
+                    }
+                    return html;
+                };
+                scheduler.templates.event_text = function(start, end, ev){
+                    console.log(ev);
+                    /*if (ev.id == editedId) {
+                     editedId = 0;
+                     return subject.getSelectedText() + '<br>' + user.getSelectedText() + ' - ' + handleCheckedGroups(groups) + '<br>' + room.getSelectedText() + ' - ' + typeLesson.getSelectedText();
+                     } else*/ if (ev.subject === undefined) {
+                        return '';
+                    } else if (ev.id >= 1 && ev.id <= 1000000) {
+                        if (ev['!nativeeditor_status'] == "updated") {
+                            var s = arrItems['subject'] == ("" || undefined) ? ev.subject : arrItems['subject'],
+                                    u = arrItems['user'] == ("" || undefined) ? ev.user : arrItems['user'],
+                                    g = arrItems['group'] == ("" || undefined) ? ev.groups : arrItems['group'],
+                                    r = arrItems['room'] == ("" || undefined) ? ev.room : arrItems['room'],
+                                    t = arrItems['type_lesson'] == ("" || undefined) ? ev.type_lesson : arrItems['type_lesson'];
+                            return s + "<br>" + u + ' - ' + g + '<br>' + r + ' - ' + t;
+                        } else {
+                            return ev.subject + '<br>' + ev.user + ' - ' + ev.groups + '<br>' + ev.room + ' - ' + ev.type_lesson;
+                        }
+                    } else {
+                        return subject.getOption(ev.subject).text + '<br>' + user.getOption(ev.user).text + ' - ' + handleCheckedGroups1(ev.group) + '<br>' + room.getOption(ev.room).text + ' - ' + typeLesson.getOption(ev.type_lesson).text;
+                    }
+                };
+                scheduler.renderEvent = function(container, ev) {
+                    var c_width = parseFloat(container.style.width),
+                            c_height = parseFloat(container.style.height),
+                            html = "";
+                    if (ev.divide == "1") {
+                        html += "<div class='dhx_event_move dhx_header' style='width:"+(c_width - 2)+"px;'></div>";
+                        html += "<div class='dhx_event_move dhx_title'>"+scheduler.templates.event_header(ev.start_date, ev.end_date, ev)+"</div>";
+                        html += "<div class='dhx_body' style='float:left;width:"+(c_width / 2 - 14)+"px;height:"+(c_height - 29)+"px;'>" + scheduler.templates.event_text(ev.start_date, ev.end_date, ev) + "</div>";
+                        html += "<div class='dhx_body' style='margin-right:-2px;float:right;width:"+(c_width / 2 - 14)+"px;height:"+(c_height - 29)+"px;'>" + scheduler.templates.event_text(ev.start_date, ev.end_date, ev) + "</div>";
+                        html += "<div class='dhx_event_resize dhx_footer' style='width:"+(c_width - 4)+"px;clear:both'></div>";
+                    } else {
+                        html += "<div class='dhx_event_move dhx_header' style='width:"+(c_width - 2)+"px;'></div>";
+                        html += "<div class='dhx_event_move dhx_title'>"+scheduler.templates.event_header(ev.start_date, ev.end_date, ev)+"</div>";
+                        html += "<div class='dhx_body' style='width:"+(c_width - 10)+"px;height:"+(c_height - 29)+"px;'>" + scheduler.templates.event_text(ev.start_date, ev.end_date, ev) + "</div>";
+                        html += "<div class='dhx_event_resize dhx_footer' style='width:"+(c_width - 4)+"px'></div>";
+                    }
+                    container.innerHTML = html;
+                    return true;
+                };
+                //scheduler.endLightbox(false);
+                scheduler.init('scheduler_here', null, "week");
+                scheduler.load("schedule/proc?p=load_data");
+                var dp = new dataProcessor("schedule/proc?p=crud");
+                dp.init(scheduler);
+
+                //$.fn.button.noConflict();
+                var initAdditional = function () {
+                    var grid = $("#list-additional");
+                    grid.jqGrid({
+                        url: {{ path('secure_schedule', { mode: 'additional' }) | json_encode | raw }},
+                        datatype: 'json',
+                        mtype: 'POST',
+                        cache: true,
+                        recordtext: "Просмотр записей {0} - {1}",
+                        colNames:['id', 'Число', 'День недели', 'Время', 'Предмет', 'Преподаватель', 'Группы', 'Вид', 'Аудитория', 'Студенты'],
+                        colModel :[
+                            {name:'id',index:'id',key:true,hidden:true},
+                            {name:'day',index:'day',width:100,align:'center',sortable:false,resizable:false,editable:false,search:false},
+                            {name:'week',width:160,align:'center',sortable:false,resizable:false,search:false,editable:false},
+                            {name:'time',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
+                            {name:'subject',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
+                            {name:'employee',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
+                            {name:'groups',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
+                            {name:'type',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
+                            {name:'room',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
+                            {name:'student',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false}
+                        ],
+                        pager: $('#pager-additional'),
+                        rowNum: 30,
+                        rowList: [30, 45, 60],
+                        viewrecords: true,
+                        hidegrid: false,
+                        height: 'auto',
+                        altRows: true,
+                        width: '1100',
+                        toolbar: [true,"top"],
+                        //shrinkToFit:false,
+                        altclass: 'alt-row',
+                        //multiselect: true,
+                        //ignoreCase: true,
+                        //editurl: {{ path('secure_index') | json_encode | raw }},
+                        //multikey: "ctrlKey",
+                        // gridComplete: initMenu(),
+                        loadComplete : function() {
+                            /*  function getRowId(e) {
+                             var $td = $(e.target).closest('td'), $tr = $td.closest('tr.jqgrow'), rowId = $tr.attr('id');
+                             return rowId;
+                             }
+                             function getRow(a) {
+                             return a.parent().parent();
+                             }*/
+                            grid.find("tr").find("td").removeAttr('title');
+                        },
+                        onCellSelect: function(rowid, iCol) {
+                            if (iCol == 4) {
+                                var rowData = grid.getRowData(rowid);
+                                writerId = rowData['writerId'];
+                                $("#block-messages").hide();
+                                $("#block-talk").show();
+                                $("#block-form-message-talk").show();
+                                initGridTalk(writerId);
+                                $("#formMessageTalk_fieldResponseId").val(writerId);
+                            }
+                        }
+                    }).navGrid('#pager',{view:false,del:false,search:false,add:false,edit:false,refresh:true,refreshtext:'Обновить'},
+                            {},{},{},{},{}
+                    );
+                };
+
+                function handleCheckedGroups(a) {
+                    var items = a.getChecked(), str = "";
+                    for (var i = 0; i < items.length; i++){
+                        if (i == items.length-1) {
+                            str = str + a.getOption(items[i]).text;
+                        } else {
+                            str = str + a.getOption(items[i]).text + ', ';
+                        }
+                    }
+                    //console.log(items);
+                    return str;
+                }
+
+                function handleCheckedGroups1(a) {
+                    var str = "";
+                    for (var i = 0; i < a.length; i++){
+                        if (i == a.length-1) {
+                            str = str + groups.getOption(a[i]).text;
+                        } else {
+                            str = str + groups.getOption(a[i]).text + ', ';
+                        }
+                    }
+                    return str;
+                }
+
+                $("#hidden-schedule-options").val('lessons');
+                //$("#messages-options").val('profile');
+                $('div.btn-group[data-toggle-name]').eq(0).each(function () {
+                    var group = $(this), hidden = $("#hidden-schedule-options");
+                    $('button', group).each(function () {
+                        var button = $(this);
+                        button.on('click', function () {
+                            hidden.val($(this).val());
+                            group.find('.active').removeClass('active');
+                            if (button.val() == hidden.val()) {
+                                button.addClass('active');
+                            }
+                            if (hidden.val() == 'lessons') {
+                                $("#block-additional").hide();
+                                $("#block-schedule").show();
+                            } else {
+                                $("#block-additional").show();
+                                $("#block-schedule").hide();
+                                initAdditional();
+                            }
                         });
                     });
                 });
+                $('div.btn-group[data-toggle-name]').eq(1).each(function () {
+                    var group = $(this),
+                    //form = group.parents('form').eq(0),
+                            name = 'formProfile[fieldOptions]',
+                    //hidden = $('input[name="' + name + '"]', form);
+                            hidden = $('input[name="' + name + '"]');
+                    group.find('.active').removeClass('active');
+                    $('button', group).each(function () {
+                        var button = $(this);
+                        button.on('click', function () {
+                            hidden.val($(this).val());
+                            group.find('.active').removeClass('active');
+                            if (button.val() == hidden.val()) {
+                                button.addClass('active');
+                            }
+                        });
+                    });
+                });
+            });
             </script>
         {% endblock %}

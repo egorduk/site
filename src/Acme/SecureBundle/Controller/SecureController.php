@@ -253,6 +253,8 @@ class SecureController extends Controller
                     exit;
                 }
             }
+        } elseif ($mode == 'additional') {
+            die('df');
         }
     }
 
@@ -260,6 +262,15 @@ class SecureController extends Controller
         $res = mysql_connect("localhost", "root", "");
         mysql_select_db("project_site");
         return $res;
+    }
+
+    /**
+     * @Template()
+     * @return array
+     */
+    public function additionalAction(Request $request)
+    {
+
     }
 
 
