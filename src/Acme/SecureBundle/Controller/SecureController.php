@@ -254,7 +254,22 @@ class SecureController extends Controller
                 }
             }
         } elseif ($mode == 'additional') {
-            die('df');
+            $additional = Helper::getAdditionalForGrid();
+            //var_dump(count($additional));die;
+            if ($additional) {
+                $response = new Response();
+                foreach($additional as $index => $ad) {
+                    $response->rows[$index]['id'] = $ad->getId();
+                    $response->rows[$index]['cell'] = array(
+                        $ad->getId(),
+                        $ad->getStartDate()->format("d.m.Y H:i:s"),
+                        '',
+                        '',
+                        ''
+                    );
+                }
+            }
+            return new JsonResponse($response);
         }
     }
 

@@ -20,6 +20,8 @@ class Helper
     private static $_tableSchedule = 'AcmeSecureBundle:Schedule';
     private static $_tableGp = 'AcmeAuthBundle:Gp';
     private static $_tableGps = 'AcmeSecureBundle:Gps';
+    private static $_tableGpsAdditional = 'AcmeSecureBundle:GpsAdditional';
+    private static $_tableAdditional = 'AcmeSecureBundle:Additional';
 
     private static $kernel;
 
@@ -362,6 +364,16 @@ class Helper
         $group = $em->getRepository(self::$_tableGp)
             ->findOneById($groupId);
         return $group;
+    }
+
+    public static function getAdditionalForGrid() {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $additional = $em->getRepository(self::$_tableAdditional)->createQueryBuilder('ad')
+            ->innerJoin(self::$_tableGpsAdditional, 'g', 'WITH', 'g.additional = ad')
+            //->groupBy('m.writerId')
+            ->getQuery()
+            ->getResult();
+        return $additional;
     }
 
 }
