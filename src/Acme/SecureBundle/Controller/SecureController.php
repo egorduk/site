@@ -262,10 +262,15 @@ class SecureController extends Controller
                     $response->rows[$index]['id'] = $ad->getId();
                     $response->rows[$index]['cell'] = array(
                         $ad->getId(),
-                        $ad->getStartDate()->format("d.m.Y H:i:s"),
-                        '',
-                        '',
-                        ''
+                        $ad->getStartDate()->format("d"),
+                        $ad->getStartDate()->format("m"),
+                        $ad->getStartDate()->format("H:i:s"),
+                        $ad->getSubject()->getName(),
+                        $ad->getUser()->getSurname(),
+                        $ad->getGps(),
+                        $ad->getTypeLesson()->getName(),
+                        $ad->getRoom()->getNum(),
+                        $ad->getStudents()
                     );
                 }
             }
