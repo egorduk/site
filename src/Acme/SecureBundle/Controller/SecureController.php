@@ -255,22 +255,21 @@ class SecureController extends Controller
             }
         } elseif ($mode == 'additional') {
             $additional = Helper::getAdditionalForGrid();
-            //var_dump(count($additional));die;
             if ($additional) {
                 $response = new Response();
                 foreach($additional as $index => $ad) {
-                    $response->rows[$index]['id'] = $ad->getId();
+                    $response->rows[$index]['id'] = $ad['id'];
                     $response->rows[$index]['cell'] = array(
-                        $ad->getId(),
-                        $ad->getStartDate()->format("d"),
-                        $ad->getStartDate()->format("m"),
-                        $ad->getStartDate()->format("H:i:s"),
-                        $ad->getSubject()->getName(),
-                        $ad->getUser()->getSurname(),
-                        $ad->getGps(),
-                        $ad->getTypeLesson()->getName(),
-                        $ad->getRoom()->getNum(),
-                        $ad->getStudents()
+                        $ad['id'],
+                        date("d", strtotime($ad['start_date'])),
+                        date("m", strtotime($ad['start_date'])),
+                        date("H:i:s", strtotime($ad['start_date'])),
+                        $ad['subject'],
+                        $ad['user'],
+                        $ad['groups'],
+                        $ad['type_lesson'],
+                        $ad['room'],
+                        $ad['students']
                     );
                 }
             }

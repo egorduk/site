@@ -6,6 +6,7 @@ namespace Helper;
 use Acme\SecureBundle\Entity\Gps;
 use Acme\SecureBundle\Entity\Message;
 use Acme\SecureBundle\Entity\Schedule;
+use Doctrine\ORM\Query\ResultSetMapping;
 
 class Helper
 {
@@ -368,12 +369,18 @@ class Helper
 
     public static function getAdditionalForGrid() {
         $em = self::getContainer()->get('doctrine')->getManager();
-        $additional = $em->getRepository(self::$_tableAdditional)->createQueryBuilder('ad')
-            ->innerJoin(self::$_tableGpsAdditional, 'g', 'WITH', 'g.additional = ad')
-            //->groupBy('m.writerId')
-            ->getQuery()
-            ->getResult();
-        return $additional;
+        $query = $em->getConnection()
+            ->prepare("SELECT ad.*,s.name AS subject,t.name AS type_lesson,r.num AS room,u.surname AS user,GROUP_CONCAT(DISTINCT gp.name SEPARATOR ', ') AS groups FROM additional ad
+                INNER JOIN subject s ON ad.subject_id = s.id
+                INNER JOIN type_lesson t ON ad.type_lesson_id = t.id
+                INNER JOIN room r ON ad.room_id = r.id
+                INNER JOIN user u ON ad.user_id = u.id
+                INNER JOIN gps_additional gs ON ad.id = gs.additional_id
+                INNER JOIN gp gp ON gp.id = gs.gp_id
+                GROUP BY ad.id");
+        $query->execute();
+        $additional = $query->fetchAll();
+        return ($additional);
     }
 
 }
