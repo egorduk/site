@@ -329,15 +329,15 @@
                         colNames:['id', 'Число', 'День недели', 'Время', 'Предмет', 'Преподаватель', 'Группы', 'Вид', 'Аудитория', 'Студенты'],
                         colModel :[
                             {name:'id',index:'id',key:true,hidden:true},
-                            {name:'day',index:'day',width:100,align:'center',sortable:false,resizable:false,editable:false,search:false},
-                            {name:'week',width:160,align:'center',sortable:false,resizable:false,search:false,editable:false},
-                            {name:'time',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
-                            {name:'subject',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
-                            {name:'employee',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
-                            {name:'groups',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
-                            {name:'type',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
-                            {name:'room',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false},
-                            {name:'student',width:150,align:'center',sortable:false,resizable:false,search:false,editable:false}
+                            {name:'day',index:'day',width:100,align:'center',sortable:false,resizable:false,editable:true},
+                            {name:'week',width:160,align:'center',sortable:false,resizable:false,search:false,editable:true},
+                            {name:'time',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true},
+                            {name:'subject',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true, edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'subjects' }) }}", defaultValue:'Intime'}, formoptions:{ rowpos:3,elmprefix:"&nbsp;&nbsp;&nbsp;&nbsp;<br>" }},
+                            {name:'employee',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'users' }) }}", defaultValue:'Intime'}, formoptions:{ rowpos:3,elmprefix:"&nbsp;&nbsp;&nbsp;&nbsp;<br>" }},
+                            {name:'groups',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'groups' }) }}", defaultValue:'Intime'}, formoptions:{ rowpos:3,elmprefix:"&nbsp;&nbsp;&nbsp;&nbsp;<br>" }},
+                            {name:'type',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'type_lessons' }) }}", defaultValue:'Intime'}, formoptions:{ rowpos:3,elmprefix:"&nbsp;&nbsp;&nbsp;&nbsp;<br>" }},
+                            {name:'room',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'rooms' }) }}"}, formoptions:{ rowpos:3,elmprefix:"&nbsp;&nbsp;&nbsp;&nbsp;<br>" }},
+                            {name:'student',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,editoptions:{size:25}, formoptions:{ rowpos:1/*label: "Name", */},editrules:{required:true}}
                         ],
                         pager: $('#pager-additional'),
                         rowNum: 30,
@@ -375,8 +375,9 @@
                                 $("#formMessageTalk_fieldResponseId").val(writerId);
                             }
                         }
-                    }).navGrid('#pager',{view:false,del:false,search:false,add:false,edit:false,refresh:true,refreshtext:'Обновить'},
-                            {},{},{},{},{}
+                    }).navGrid('#pager',{view:false,del:false,search:false,add:true,edit:true,refresh:true,refreshtext:'Обновить'},
+                            {height:290,reloadAfterSubmit:false,jqModal:false,closeOnEscape:true,bottominfo:"Fields marked with (*) are required"},
+                            {height:290,reloadAfterSubmit:false,jqModal:false,closeOnEscape:true,bottominfo:"Fields marked with (*) are required",closeAfterAdd: true},{},{},{}
                     );
                 };
 

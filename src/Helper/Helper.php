@@ -383,4 +383,42 @@ class Helper
         return ($additional);
     }
 
+    public static function getSubjects() {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $subjects = $em->getRepository(self::$_tableSubject)
+            ->findAll();
+        return $subjects;
+    }
+
+    public static function getRooms() {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $rooms = $em->getRepository(self::$_tableRoom)
+            ->findAll();
+        return $rooms;
+    }
+
+    public static function getEmployees() {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $employees = $em->getRepository(self::$_tableUser)->createQueryBuilder('u')
+            ->innerJoin(self::$_tableUserRole, 'ur', 'WITH', 'u.role = ur')
+            ->andWhere('ur.code = :employee')
+            ->setParameter('employee', 'employee')
+            ->getQuery()
+            ->getResult();
+        return $employees;
+    }
+
+    public static function getTypeLessons() {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $types = $em->getRepository(self::$_tableTypeLesson)
+            ->findAll();
+        return $types;
+    }
+
+    public static function getGroups() {
+        $em = self::getContainer()->get('doctrine')->getManager();
+        $groups = $em->getRepository(self::$_tableGp)
+            ->findAll();
+        return $groups;
+    }
 }

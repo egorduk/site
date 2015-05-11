@@ -274,6 +274,36 @@ class SecureController extends Controller
                 }
             }
             return new JsonResponse($response);
+        } elseif ($mode == 'selector_data') {
+            $response = '<select>';
+            if ($param == 'subjects') {
+                $subjects = Helper::getSubjects();
+                foreach($subjects as $subject) {
+                    $response .= '<option value="' . $subject->getId() . '">' . $subject->getName() . '</option>';
+                }
+            } elseif ($param == 'rooms') {
+                $rooms = Helper::getRooms();
+                foreach($rooms as $room) {
+                    $response .= '<option value="' . $room->getId() . '">' . $room->getNum() . '</option>';
+                }
+            } elseif ($param == 'users') {
+                $employees = Helper::getEmployees();
+                foreach($employees as $emp) {
+                    $response .= '<option value="' . $emp->getId() . '">' . $emp->getSurname() . '</option>';
+                }
+            } elseif ($param == 'type_lessons') {
+                $types = Helper::getTypeLessons();
+                foreach($types as $type) {
+                    $response .= '<option value="' . $type->getId() . '">' . $type->getName() . '</option>';
+                }
+            } elseif ($param == 'groups') {
+                $groups = Helper::getGroups();
+                foreach($groups as $group) {
+                    $response .= '<option value="' . $group->getId() . '">' . $group->getName() . '</option>';
+                }
+            }
+            $response .= '</select>';
+            echo  $response;
         }
     }
 
