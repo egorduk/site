@@ -9,10 +9,12 @@
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlxcombo_extra.js') }}" charset="utf-8"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlx.js') }}"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlx_api.js') }}"></script>
-            {#<script src="//code.jquery.com/jquery-1.10.2.js"></script>#}
             <script type="text/javascript" src="{{ asset('bundles/js/jqgrid/i18n/grid.locale-ru.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('bundles/js/jqgrid/i18n/datepicker-ru.js') }}"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/jqgrid/jquery.jqGrid.min.js') }}"></script>
             <script type="text/javascript" src="{{ asset('bundles/js/jqgrid/jquery.jqGrid.fmatter.js') }}"></script>
+       {#     <script type="text/javascript" src="{{ asset('bundles/js/jqgrid/jquery.jqGrid.drag.js') }}"></script>#}
+            <script type="text/javascript" src="{{ asset('bundles/js/jqgrid/jquery.jqGrid.timepicker.js') }}"></script>
             {#<script type="text/javascript" src="{{ asset('bundles/js/schedule/dhtmlx.js') }}" media="screen" title="no title" charset="utf-8"></script>#}
             {#
              <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>#}
@@ -320,6 +322,50 @@
                 //$.fn.button.noConflict();
                 var initAdditional = function () {
                     var grid = $("#list-additional");
+                    var initDate = function (elem) {
+                        $(elem).datetimepicker({
+                            dateFormat: "dd-mm-yy",
+                            timeFormat: "HH:mm",
+                            //separator: " ",
+                            autoSize: true,
+                            timeText: 'Время',
+                            hourText: 'Часы',
+                            minuteText: 'Минуты',
+                            currentText: 'Сегодня',
+                            closeText: 'Закрыть',
+                            timezone: "000",
+                            changeYear: true,
+                            changeMonth: true,
+                            showButtonPanel: true,
+                            onSelect: function (val, obj) {
+                                //console.log($("#day").datepicker( "getDate" ));
+                                var a = $("#day").datepicker("getDate");
+                                var startDate = new Date(val);
+                                var selDay = startDate.getDay();
+                                //var f = $.datepicker.parseDate("dd/mm/yy HH:mm", val);
+                                console.log(a.getDay());
+                                console.log(startDate);
+                                //console.log(f);
+                                //console.log(startDate);
+                                //console.log(selDay);
+                                var $grid, grid;
+                                if (typeof (elem.id) === "string" && elem.id.substr(0, 3) === "gs_") {
+                                    $grid = $(elem).closest("div.ui-jqgrid-hdiv")
+                                            .next("div.ui-jqgrid-bdiv")
+                                            .find("table.ui-jqgrid-btable:first");
+                                    if ($grid.length > 0) {
+                                        grid = $grid[0];
+                                        if ($.isFunction(grid.triggerToolbar)) {
+                                            grid.triggerToolbar();
+                                        }
+                                    }
+                                } else {
+                                    $(elem).trigger("change");
+                                }
+                            }
+                        }).datepicker( $.datepicker.regional[ "ru" ] );
+                        $(elem).datepicker("setDate", new Date());
+                    };
                     grid.jqGrid({
                         url: {{ path('secure_schedule', { mode: 'additional' }) | json_encode | raw }},
                         datatype: 'json',
@@ -329,15 +375,15 @@
                         colNames:['id', 'Число', 'День недели', 'Время', 'Предмет', 'Преподаватель', 'Группы', 'Вид', 'Аудитория', 'Студенты'],
                         colModel :[
                             {name:'id',index:'id',key:true,hidden:true},
-                            {name:'day',index:'day',width:100,align:'center',sortable:false,resizable:false,editable:true},
-                            {name:'week',width:160,align:'center',sortable:false,resizable:false,search:false,editable:true},
-                            {name:'time',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true},
-                            {name:'subject',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true, edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'subjects' }) }}", defaultValue:'Intime'}, formoptions:{ rowpos:3,elmprefix:"&nbsp;&nbsp;&nbsp;&nbsp;<br>" }},
-                            {name:'employee',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'users' }) }}", defaultValue:'Intime'}, formoptions:{ rowpos:3,elmprefix:"&nbsp;&nbsp;&nbsp;&nbsp;<br>" }},
-                            {name:'groups',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'groups' }) }}", defaultValue:'Intime'}, formoptions:{ rowpos:3,elmprefix:"&nbsp;&nbsp;&nbsp;&nbsp;<br>" }},
-                            {name:'type',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'type_lessons' }) }}", defaultValue:'Intime'}, formoptions:{ rowpos:3,elmprefix:"&nbsp;&nbsp;&nbsp;&nbsp;<br>" }},
-                            {name:'room',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'rooms' }) }}"}, formoptions:{ rowpos:3,elmprefix:"&nbsp;&nbsp;&nbsp;&nbsp;<br>" }},
-                            {name:'student',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,editoptions:{size:25}, formoptions:{ rowpos:1/*label: "Name", */},editrules:{required:true}}
+                            {name:'day',index:'day',width:100,align:'center',sortable:false,resizable:false,editable:true,editoptions:{size:25,dataInit:initDate},formoptions:{rowpos:1,elmprefix:"",elmsuffix:""},editrules:{required:true}},
+                            {name:'week',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,editoptions:{size:25}, formoptions:{rowpos:2},editrules:{required:true}},
+                            {name:'time',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,editoptions:{size:25}, formoptions:{rowpos:3},editrules:{required:true}},
+                            {name:'subject',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true, edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'subjects' }) }}", defaultValue:'Intime'}, formoptions:{rowpos:4,elmprefix:""}},
+                            {name:'employee',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'users' }) }}", defaultValue:'Intime'}, formoptions:{rowpos:5,elmprefix:""}},
+                            {name:'groups',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'groups' }) }}", defaultValue:'Intime'}, formoptions:{rowpos:6,elmprefix:""}},
+                            {name:'type',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'type_lessons' }) }}", defaultValue:'Intime'}, formoptions:{rowpos:7,elmprefix:""}},
+                            {name:'room',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"select", editoptions:{dataUrl:"{{ path('secure_schedule', { mode: 'selector_data', p: 'rooms' }) }}"}, formoptions:{rowpos:8,elmprefix:""}},
+                            {name:'student',width:150,align:'center',sortable:false,resizable:false,search:false,editable:true,edittype:"textarea", editoptions:{rows:"2",cols:"22"}, formoptions:{rowpos:9,elmprefix:""}}
                         ],
                         pager: $('#pager-additional'),
                         rowNum: 30,
@@ -348,21 +394,9 @@
                         altRows: true,
                         width: '1100',
                         toolbar: [true,"top"],
-                        //shrinkToFit:false,
                         altclass: 'alt-row',
-                        //multiselect: true,
-                        //ignoreCase: true,
-                        //editurl: {{ path('secure_index') | json_encode | raw }},
-                        //multikey: "ctrlKey",
-                        // gridComplete: initMenu(),
+                        editurl: {{ path('secure_schedule', { mode: 'action' }) | json_encode | raw }},
                         loadComplete : function() {
-                            /*  function getRowId(e) {
-                             var $td = $(e.target).closest('td'), $tr = $td.closest('tr.jqgrow'), rowId = $tr.attr('id');
-                             return rowId;
-                             }
-                             function getRow(a) {
-                             return a.parent().parent();
-                             }*/
                             grid.find("tr").find("td").removeAttr('title');
                         },
                         onCellSelect: function(rowid, iCol) {
@@ -375,9 +409,12 @@
                                 $("#formMessageTalk_fieldResponseId").val(writerId);
                             }
                         }
-                    }).navGrid('#pager',{view:false,del:false,search:false,add:true,edit:true,refresh:true,refreshtext:'Обновить'},
-                            {height:290,reloadAfterSubmit:false,jqModal:false,closeOnEscape:true,bottominfo:"Fields marked with (*) are required"},
-                            {height:290,reloadAfterSubmit:false,jqModal:false,closeOnEscape:true,bottominfo:"Fields marked with (*) are required",closeAfterAdd: true},{},{},{}
+                    }).navGrid('#pager',{view:false, search:false},
+                            {height:370,width:305,reloadAfterSubmit:false, jqModal:false, closeOnEscape:true, bottominfo:""},
+                            {height:370,width:305,reloadAfterSubmit:false, jqModal:false, closeOnEscape:true, bottominfo:"", closeAfterAdd: true},
+                            {reloadAfterSubmit:false,jqModal:false, closeOnEscape:true},
+                            {},
+                            {}
                     );
                 };
 

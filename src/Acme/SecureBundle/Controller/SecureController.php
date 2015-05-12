@@ -304,6 +304,14 @@ class SecureController extends Controller
             }
             $response .= '</select>';
             echo  $response;
+        } elseif ($mode == 'action') {
+            $postData = $request->request->all();
+            $id = $postData['id'];
+            $oper = $postData['oper'];
+            if ($oper == 'del') {
+            } elseif ($oper == 'add') {
+            } elseif ($oper == 'edit') {
+            }
         }
     }
 
