@@ -343,8 +343,12 @@
                                 var startDate = new Date(val);
                                 var selDay = startDate.getDay();
                                 //var f = $.datepicker.parseDate("dd/mm/yy HH:mm", val);
-                                console.log(a.getDay());
-                                console.log(startDate);
+                                console.log(a);
+                                console.log(a.getMonth()+1);
+                                console.log(a.getDate());
+                                console.log(a.getHours() + ':' + a.getMinutes());
+                                var monthName = $.datepicker.formatDate('DD', a);
+                                console.log(monthName);
                                 //console.log(f);
                                 //console.log(startDate);
                                 //console.log(selDay);
